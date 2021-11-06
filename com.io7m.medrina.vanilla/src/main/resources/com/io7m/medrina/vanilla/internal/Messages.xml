@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+
+<properties>
+  <entry key="errorExpectedReceived"><![CDATA[Unparseable {0}.
+Expected:
+{1}
+Received:
+  {2}
+]]></entry>
+
+  <entry key="objectSubjectMatch">subject match expression</entry>
+  <entry key="objectObjectMatch">object match expression</entry>
+  <entry key="objectActionMatch">action match expression</entry>
+  <entry key="objectRule">rule</entry>
+  <entry key="objectRuleConclusion">rule conclusion</entry>
+
+  <entry key="syntaxRule"><![CDATA[  A rule.]]></entry>
+  <entry key="syntaxTypeName"><![CDATA[  A type name.]]></entry>
+  <entry key="syntaxRoleName"><![CDATA[  A role name.]]></entry>
+  <entry key="syntaxActionName"><![CDATA[  An action name.]]></entry>
+  <entry key="syntaxRuleConclusion"><![CDATA[  allow | deny | allow-immediately | deny-immediately]]></entry>
+
+  <entry key="syntaxSubjectMatch"><![CDATA[    (subject-with-all-roles <role> ...)
+  | (subject-with-any-roles <role> ...)
+  | (and <subject-match> ...)
+  | (or <subject-match> ...)
+  | true
+  | false]]></entry>
+
+  <entry key="syntaxActionMatch"><![CDATA[    (action-with-name <name>)
+  | (and <action-match> ...)
+  | (or <action-match> ...)
+  | true
+  | false]]></entry>
+
+  <entry key="syntaxObjectMatch"><![CDATA[    (object-with-type <type>)
+  | (and <object-match> ...)
+  | (or <object-match> ...)
+  | true
+  | false]]></entry>
+
+  <entry key="syntaxRule"><![CDATA[    (<rule-conclusion> <subject-match> <object-match> <action-match>)]]></entry>
+
+</properties>

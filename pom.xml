@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.io7m.primogenitor</groupId>
+    <artifactId>com.io7m.primogenitor.full</artifactId>
+    <version>7.0.0-beta0003</version>
+  </parent>
+
+  <groupId>com.io7m.medrina</groupId>
+  <artifactId>com.io7m.medrina</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+
+  <packaging>pom</packaging>
+  <name>com.io7m.medrina</name>
+  <description>Mandatory Access Control</description>
+  <url>https://www.io7m.com/software/medrina/</url>
+
+  <modules>
+    <module>com.io7m.medrina.api</module>
+    <module>com.io7m.medrina.tests</module>
+    <module>com.io7m.medrina.parser.api</module>
+    <module>com.io7m.medrina.vanilla</module>
+  </modules>
+
+  <properties>
+    <com.io7m.anethum.api.version>0.0.1</com.io7m.anethum.api.version>
+    <com.io7m.jsx.version>3.0.0-SNAPSHOT</com.io7m.jsx.version>
+    <com.io7m.jxtrand.version>1.0.0</com.io7m.jxtrand.version>
+    <io7m.api.previousVersion>0.0.1-SNAPSHOT</io7m.api.previousVersion>
+    <jqwik.version>1.5.6</jqwik.version>
+    <junit.version>5.8.1</junit.version>
+  </properties>
+
+  <licenses>
+    <license>
+      <name>ISC License</name>
+      <url>https://io7m.com/license/isc.txt</url>
+    </license>
+  </licenses>
+
+  <scm>
+    <url>https://github.com/io7m/medrina</url>
+    <connection>scm:git:https://github.com/io7m/medrina</connection>
+    <developerConnection>scm:git:https://github.com/io7m/medrina</developerConnection>
+  </scm>
+
+  <inceptionYear>2021</inceptionYear>
+
+  <developers>
+    <developer>
+      <id>io7m</id>
+      <name>io7m</name>
+      <email>code@io7m.com</email>
+      <url>https://io7m.com</url>
+    </developer>
+  </developers>
+
+  <issueManagement>
+    <url>https://github.com/io7m/medrina/issues</url>
+    <system>GitHub Issues</system>
+  </issueManagement>
+
+  <distributionManagement>
+    <site>
+      <id>io7m.com</id>
+      <name>io7m.com</name>
+      <url>https://www.io7m.com/software/medrina</url>
+    </site>
+    <repository>
+      <id>sonatype-nexus-staging</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
+
+  <ciManagement>
+    <system>GitHub Actions</system>
+    <url>https://github.com/medrina/actions</url>
+  </ciManagement>
+
+  <prerequisites>
+    <maven>3.8.3</maven>
+  </prerequisites>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.io7m.anethum</groupId>
+        <artifactId>com.io7m.anethum.api</artifactId>
+        <version>${com.io7m.anethum.api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.anethum</groupId>
+        <artifactId>com.io7m.anethum.common</artifactId>
+        <version>${com.io7m.anethum.api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.annotation.bundle</artifactId>
+        <version>1.1.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.annotation.versioning</artifactId>
+        <version>1.1.2</version>
+      </dependency>
+      <dependency>
+        <groupId>nl.jqno.equalsverifier</groupId>
+        <artifactId>equalsverifier</artifactId>
+        <version>3.7.2</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>2.0.0-alpha1</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.3.0-alpha5</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.jsx</groupId>
+        <artifactId>com.io7m.jsx.core</artifactId>
+        <version>${com.io7m.jsx.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.jsx</groupId>
+        <artifactId>com.io7m.jsx.parser.api</artifactId>
+        <version>${com.io7m.jsx.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.jsx</groupId>
+        <artifactId>com.io7m.jsx.parser</artifactId>
+        <version>${com.io7m.jsx.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.jsx</groupId>
+        <artifactId>com.io7m.jsx.prettyprint</artifactId>
+        <version>${com.io7m.jsx.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>2.11.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.jaffirm</groupId>
+        <artifactId>com.io7m.jaffirm.core</artifactId>
+        <version>3.0.4</version>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-engine</artifactId>
+        <version>${junit.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-api</artifactId>
+        <version>${junit.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.jqwik</groupId>
+        <artifactId>jqwik-api</artifactId>
+        <version>${jqwik.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.jqwik</groupId>
+        <artifactId>jqwik-engine</artifactId>
+        <version>${jqwik.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.jxtrand</groupId>
+        <artifactId>com.io7m.jxtrand.api</artifactId>
+        <version>${com.io7m.jxtrand.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.jxtrand</groupId>
+        <artifactId>com.io7m.jxtrand.vanilla</artifactId>
+        <version>${com.io7m.jxtrand.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.jdeferthrow</groupId>
+        <artifactId>com.io7m.jdeferthrow.core</artifactId>
+        <version>1.1.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.jcip</groupId>
+        <artifactId>com.io7m.jcip.annotations</artifactId>
+        <version>2.0.0</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+</project>
