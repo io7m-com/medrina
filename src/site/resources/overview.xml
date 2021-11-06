@@ -15,7 +15,7 @@
   </p>
 
   <p>
-    The <var>medrina</var> package implements a generic system for implementing role/subject/attribute
+    The <var>medrina</var> package implements a generic system for implementing role/attribute
     mandatory access control systems.
   </p>
 
