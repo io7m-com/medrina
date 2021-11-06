@@ -14,6 +14,11 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+import com.io7m.medrina.parser.api.MPolicyParserFactoryType;
+import com.io7m.medrina.parser.api.MPolicySerializerFactoryType;
+import com.io7m.medrina.vanilla.MPolicyParsers;
+import com.io7m.medrina.vanilla.MPolicySerializers;
+
 /**
  * Mandatory Access Control (Vanilla implementation)
  */
@@ -26,7 +31,9 @@ module com.io7m.medrina.vanilla
   requires transitive com.io7m.medrina.parser.api;
   requires transitive com.io7m.anethum.common;
 
+  requires com.io7m.jaffirm.core;
   requires com.io7m.jdeferthrow.core;
+  requires com.io7m.jeucreader.core;
   requires com.io7m.jsx.core;
   requires com.io7m.jsx.parser.api;
   requires com.io7m.jsx.parser;
@@ -35,5 +42,10 @@ module com.io7m.medrina.vanilla
   requires com.io7m.jxtrand.vanilla;
   requires org.slf4j;
 
-  requires com.io7m.jaffirm.core;
+  exports com.io7m.medrina.vanilla;
+
+  provides MPolicyParserFactoryType
+    with MPolicyParsers;
+  provides MPolicySerializerFactoryType
+    with MPolicySerializers;
 }

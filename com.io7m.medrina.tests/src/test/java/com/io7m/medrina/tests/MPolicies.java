@@ -14,18 +14,40 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/**
- * Mandatory Access Control (Parser API)
- */
+package com.io7m.medrina.tests;
 
-module com.io7m.medrina.parser.api
+import com.io7m.medrina.api.MPolicy;
+import com.io7m.medrina.api.MRule;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Arbitrary;
+
+import java.util.ArrayList;
+
+public final class MPolicies
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
+  private MPolicies()
+  {
 
-  requires transitive com.io7m.medrina.api;
-  requires transitive com.io7m.anethum.api;
-  requires transitive com.io7m.anethum.common;
+  }
 
-  exports com.io7m.medrina.parser.api;
+  public static Arbitrary<MPolicy> policies()
+  {
+    final var rules =
+      MRules.rules();
+
+    return Arbitraries.integers()
+      .between(1, 20)
+      .map(integer -> policy(integer, rules));
+  }
+
+  private static MPolicy policy(
+    final Integer count,
+    final Arbitrary<MRule> rules)
+  {
+    final var output = new ArrayList<MRule>(count.intValue());
+    for (int index = 0; index < count.intValue(); ++index) {
+      output.add(rules.sample());
+    }
+    return new MPolicy(output);
+  }
 }

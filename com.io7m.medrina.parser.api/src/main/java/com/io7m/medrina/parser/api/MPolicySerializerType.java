@@ -14,18 +14,16 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+package com.io7m.medrina.parser.api;
+
+import com.io7m.anethum.api.SerializerType;
+import com.io7m.medrina.api.MPolicy;
+
 /**
- * Mandatory Access Control (Parser API)
+ * A policy serializer.
  */
 
-module com.io7m.medrina.parser.api
+public interface MPolicySerializerType extends SerializerType<MPolicy>
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
 
-  requires transitive com.io7m.medrina.api;
-  requires transitive com.io7m.anethum.api;
-  requires transitive com.io7m.anethum.common;
-
-  exports com.io7m.medrina.parser.api;
 }

@@ -14,18 +14,24 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/**
- * Mandatory Access Control (Parser API)
- */
+package com.io7m.medrina.tests;
 
-module com.io7m.medrina.parser.api
+import com.io7m.medrina.api.MRuleConclusion;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Arbitrary;
+
+public final class MRuleConclusions
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
+  private MRuleConclusions()
+  {
 
-  requires transitive com.io7m.medrina.api;
-  requires transitive com.io7m.anethum.api;
-  requires transitive com.io7m.anethum.common;
+  }
 
-  exports com.io7m.medrina.parser.api;
+  public static Arbitrary<MRuleConclusion> conclusions()
+  {
+    final var values = MRuleConclusion.values();
+    return Arbitraries.integers()
+      .between(0, values.length - 1)
+      .map(index -> values[index.intValue()]);
+  }
 }
