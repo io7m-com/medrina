@@ -2,3 +2,7 @@
 .idea
 pom.xml.versionsBackup
 target
+*.vos
+*.vo
+*.aux
+*.glob

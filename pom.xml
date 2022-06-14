@@ -23,8 +23,9 @@
 
   <modules>
     <module>com.io7m.medrina.api</module>
-    <module>com.io7m.medrina.tests</module>
+    <module>com.io7m.medrina.documentation</module>
     <module>com.io7m.medrina.parser.api</module>
+    <module>com.io7m.medrina.tests</module>
     <module>com.io7m.medrina.vanilla</module>
   </modules>
 
