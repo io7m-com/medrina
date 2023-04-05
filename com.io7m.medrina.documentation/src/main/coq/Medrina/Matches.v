@@ -457,7 +457,7 @@ Inductive exprMatchActionEvalR : action -> exprMatchAction -> Prop :=
   .
 
 (** The evaluation function and the evaluation relation are equivalent. *)
-Theorem exprMatchActionEvalEquivalent : forall s e,
+Theorem exprMatchActionEvalEquivalentT : forall s e,
   true = exprMatchActionEvalF s e <-> exprMatchActionEvalR s e.
 Proof.
   intros a e.
@@ -556,6 +556,137 @@ Proof.
   }
 Qed.
 
+(** The evaluation function and the evaluation relation are equivalent. *)
+Theorem exprMatchActionEvalEquivalentF : forall a e,
+  false = exprMatchActionEvalF a e <-> ~exprMatchActionEvalR a e.
+Proof.
+  intros a e.
+  induction e as [
+    |
+    |r
+    |e0 He0 e1 He1
+    |e0 He0 e1 He1
+  ]. {
+    (* EMA_False *)
+    split. {
+      intros H Ht; inversion Ht.
+    } {
+      intros H; reflexivity.
+    }
+  } {
+    (* EMA_True *)
+    split. {
+      intros H Ht.
+      contradict H; discriminate.
+    } {
+      intros H.
+      contradict H; constructor.
+    }
+  } {
+    (* EMA_WithName *)
+    split. {
+      intros H Ht.
+      inversion Ht as [ |o1 t1 Heq| | ].
+      subst o1.
+      subst t1.
+      pose proof (ivIrrelevantEqual _ _ Heq) as Hir.
+      subst r.
+      contradict H.
+      simpl.
+      rewrite eqb_refl.
+      discriminate.
+    } {
+      intros H.
+      destruct (exprMatchActionEvalF a (EMA_WithName r)) eqn:Hd. {
+        simpl in Hd.
+        rewrite eqb_eq in Hd.
+        pose proof (@ivIrrelevantEqual actionName _ _ _ Hd) as Heq.
+        subst r.
+        assert (
+          exprMatchActionEvalR a (EMA_WithName (aName a))
+        ) as Hcontra. {
+          constructor.
+          reflexivity.
+        }
+        contradiction.
+      } {
+        reflexivity.
+      }
+    }
+  } {
+    (* EMA_And *)
+    split. {
+      intros Ht.
+      intros Hcontra.
+      inversion Hcontra as [ | |a1 e2 e3 [Hf0 Hf1]| ].
+      subst a1.
+      subst e2.
+      subst e3.
+      simpl in Ht.
+      destruct (Bool.andb_false_elim _ _ (eq_sym Ht)); intuition.
+    } {
+      intros Ht.
+      destruct (exprMatchActionEvalF a (EMA_And e0 e1)) eqn:H. {
+        symmetry in H.
+        rewrite exprMatchActionEvalEquivalentT in H.
+        contradiction.
+      } {
+        reflexivity.
+      }
+    }
+  } {
+    (* EMA_Or *)
+    split. {
+      intros Ht.
+      intros Hcontra.
+      inversion Hcontra as [ | | |a1 e2 e3 [Hf0|Hf1]].
+      subst a1.
+      subst e2.
+      subst e3.
+      simpl in Ht.
+      destruct (Bool.orb_false_elim _ _ (eq_sym Ht)) as [Hk0 Hk1]. {
+        symmetry in Hk0.
+        rewrite He0 in Hk0.
+        contradiction.
+      }
+      subst a1.
+      subst e2.
+      subst e3.
+      simpl in Ht.
+      destruct (Bool.orb_false_elim _ _ (eq_sym Ht)) as [Hk0 Hk1]. {
+        symmetry in Hk1.
+        rewrite He1 in Hk1.
+        contradiction.
+      }
+    } {
+      intros Ht.
+      destruct (exprMatchActionEvalF a (EMA_Or e0 e1)) eqn:H. {
+        symmetry in H.
+        rewrite exprMatchActionEvalEquivalentT in H.
+        contradiction.
+      } {
+        reflexivity.
+      }
+    }
+  }
+Qed.
+
+(** The evaluation relation is decidable. *)
+Theorem exprMatchActionEvalRDec : forall a e,
+  {exprMatchActionEvalR a e}+{~exprMatchActionEvalR a e}.
+Proof.
+  intros a e.
+  destruct (exprMatchActionEvalF a e) eqn:Hev. {
+    symmetry in Hev.
+    rewrite exprMatchActionEvalEquivalentT in Hev.
+    left; intuition.
+  } {
+    symmetry in Hev.
+    rewrite exprMatchActionEvalEquivalentF in Hev.
+    right; intuition.
+  }
+Qed.
+
 (** An expression that matches an object. *)
 Inductive exprMatchObject : Type :=
   | EMO_False : exprMatchObject
@@ -609,7 +740,7 @@ Inductive exprMatchObjectEvalR : object -> exprMatchObject -> Prop :=
   .
 
 (** The evaluation function and the evaluation relation are equivalent. *)
-Theorem exprMatchObjectEvalEquivalent : forall s e,
+Theorem exprMatchObjectEvalEquivalentT : forall s e,
   true = exprMatchObjectEvalF s e <-> exprMatchObjectEvalR s e.
 Proof.
   intros o e.
@@ -705,5 +836,136 @@ Proof.
       subst e3.
       intuition.
     }
+  }
+Qed.
+
+(** The evaluation function and the evaluation relation are equivalent. *)
+Theorem exprMatchObjectEvalEquivalentF : forall s e,
+  false = exprMatchObjectEvalF s e <-> ~exprMatchObjectEvalR s e.
+Proof.
+  intros o e.
+  induction e as [
+    |
+    |r
+    |e0 He0 e1 He1
+    |e0 He0 e1 He1
+  ]. {
+    (* EMO_False *)
+    split. {
+      intros H Ht; inversion Ht.
+    } {
+      intros H; reflexivity.
+    }
+  } {
+    (* EMO_True *)
+    split. {
+      intros H Ht.
+      contradict H; discriminate.
+    } {
+      intros H.
+      contradict H; constructor.
+    }
+  } {
+    (* EMO_WithName *)
+    split. {
+      intros H Ht.
+      inversion Ht as [ |o1 t1 Heq| | ].
+      subst o1.
+      subst t1.
+      pose proof (ivIrrelevantEqual _ _ Heq) as Hir.
+      subst r.
+      contradict H.
+      simpl.
+      rewrite eqb_refl.
+      discriminate.
+    } {
+      intros H.
+      destruct (exprMatchObjectEvalF o (EMO_WithName r)) eqn:Hd. {
+        simpl in Hd.
+        rewrite eqb_eq in Hd.
+        pose proof (ivIrrelevantEqual _ _ Hd) as Heq.
+        subst r.
+        assert (
+          exprMatchObjectEvalR o (EMO_WithName (oType o))
+        ) as Hcontra. {
+          constructor.
+          reflexivity.
+        }
+        contradiction.
+      } {
+        reflexivity.
+      }
+    }
+  } {
+    (* EMO_And *)
+    split. {
+      intros Ht.
+      intros Hcontra.
+      inversion Hcontra as [ | |o1 e2 e3 [Hf0 Hf1]| ].
+      subst o1.
+      subst e2.
+      subst e3.
+      simpl in Ht.
+      destruct (Bool.andb_false_elim _ _ (eq_sym Ht)); intuition.
+    } {
+      intros Ht.
+      destruct (exprMatchObjectEvalF o (EMO_And e0 e1)) eqn:H. {
+        symmetry in H.
+        rewrite exprMatchObjectEvalEquivalentT in H.
+        contradiction.
+      } {
+        reflexivity.
+      }
+    }
+  } {
+    (* EMO_Or *)
+    split. {
+      intros Ht.
+      intros Hcontra.
+      inversion Hcontra as [ | | |o1 e2 e3 [Hf0|Hf1]].
+      subst o1.
+      subst e2.
+      subst e3.
+      simpl in Ht.
+      destruct (Bool.orb_false_elim _ _ (eq_sym Ht)) as [Hk0 Hk1]. {
+        symmetry in Hk0.
+        rewrite He0 in Hk0.
+        contradiction.
+      }
+      subst o1.
+      subst e2.
+      subst e3.
+      simpl in Ht.
+      destruct (Bool.orb_false_elim _ _ (eq_sym Ht)) as [Hk0 Hk1]. {
+        symmetry in Hk1.
+        rewrite He1 in Hk1.
+        contradiction.
+      }
+    } {
+      intros Ht.
+      destruct (exprMatchObjectEvalF o (EMO_Or e0 e1)) eqn:H. {
+        symmetry in H.
+        rewrite exprMatchObjectEvalEquivalentT in H.
+        contradiction.
+      } {
+        reflexivity.
+      }
+    }
+  }
+Qed.
+
+(** The evaluation relation is decidable. *)
+Theorem exprMatchObjectEvalRDec : forall o e,
+  {exprMatchObjectEvalR o e}+{~exprMatchObjectEvalR o e}.
+Proof.
+  intros o e.
+  destruct (exprMatchObjectEvalF o e) eqn:Hev. {
+    symmetry in Hev.
+    rewrite exprMatchObjectEvalEquivalentT in Hev.
+    left; intuition.
+  } {
+    symmetry in Hev.
+    rewrite exprMatchObjectEvalEquivalentF in Hev.
+    right; intuition.
   }
 Qed.
