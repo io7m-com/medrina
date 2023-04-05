@@ -84,7 +84,7 @@ Inductive exprMatchSubjectEvalR : subject -> exprMatchSubject -> Prop :=
   .
 
 (** The evaluation function and the evaluation relation are equivalent. *)
-Theorem exprMatchSubjectEvalEquivalent : forall s e,
+Theorem exprMatchSubjectEvalEquivalentT : forall s e,
   true = exprMatchSubjectEvalF s e <-> exprMatchSubjectEvalR s e.
 Proof.
   intros s e.
@@ -228,6 +228,179 @@ Proof.
       subst e3.
       intuition.
     }
+  }
+Qed.
+
+(** The evaluation function and the evaluation relation are equivalent. *)
+Theorem exprMatchSubjectEvalEquivalentF : forall s e,
+  false = exprMatchSubjectEvalF s e <-> ~exprMatchSubjectEvalR s e.
+Proof.
+  intros s e.
+  induction e as [
+    |
+    |r
+    |r
+    |e0 He0 e1 He1
+    |e0 He0 e1 He1
+  ]. {
+    (* EMS_False *)
+    split. {
+      intros Ht H; inversion H.
+    } {
+      intros Ht; reflexivity.
+    }
+  } {
+    (* EMS_True *)
+    split. {
+      intros Ht; inversion Ht.
+    } {
+      intros Ht.
+      intuition.
+      assert (exprMatchSubjectEvalR s EMS_True) by constructor.
+      contradiction.
+    }
+  } {
+    (* EMS_WithRolesAll *)
+    split. {
+      intros Ht.
+      unfold exprMatchSubjectEvalF in Ht.
+      intros H.
+      inversion H as [ |s0 r0 Hsub| | | ].
+      subst s0.
+      subst r0.
+      pose proof (RoleSets.subset_1 Hsub) as Hsub2.
+      rewrite <- Ht in Hsub2.
+      contradict Hsub2; discriminate.
+    } {
+      intros Ht.
+      simpl.
+      assert (~RoleSets.Subset r (sRoles s)) as Hns. {
+        intros Hcontra.
+        apply Ht.
+        constructor.
+        exact Hcontra.
+      }
+      symmetry.
+      rewrite <- roleSubsetFalse.
+      intuition.
+    }
+  } {
+    (* EMS_WithRolesAny *)
+    split. {
+      intros Ht.
+      unfold exprMatchSubjectEvalF in Ht.
+
+      assert (
+        SetoidList.compat_bool
+          RoleSets.E.eq (fun x : RoleSets.elt => RoleSets.mem x (sRoles s))
+      ) as Hsetcomp. {
+        unfold SetoidList.compat_bool.
+        unfold Morphisms.Proper.
+        unfold Morphisms.respectful.
+        intros x y Heq.
+        rewrite Heq.
+        reflexivity.
+      }
+
+      symmetry in Ht.
+      rewrite <- (roleExistsFalse r _ Hsetcomp) in Ht.
+      unfold RoleSets.Exists in Ht.
+
+      intros H.
+      inversion H as [ | |s0 r0 Hsub| | ].
+      subst s0.
+      subst r0.
+
+      inversion Hsub as [y [Hy0 Hy1]].
+      rewrite RoleSetsFacts.mem_iff in Hy1.
+      intuition.
+      apply Ht.
+      exists y.
+      intuition.
+    } {
+      intros Ht.
+      symmetry.
+      intuition.
+      simpl.
+
+      assert (
+        SetoidList.compat_bool
+          RoleSets.E.eq (fun x : RoleSets.elt => RoleSets.mem x (sRoles s))
+      ) as Hsetcomp. {
+        unfold SetoidList.compat_bool.
+        unfold Morphisms.Proper.
+        unfold Morphisms.respectful.
+        intros x y Heq.
+        rewrite Heq.
+        reflexivity.
+      }
+
+      rewrite <- (roleExistsFalse r _ Hsetcomp).
+      intro Hcontra.
+      apply Ht.
+      constructor.
+      inversion Hcontra as [z [Hz0 Hz1]].
+      exists z.
+      intuition.
+    }
+  } {
+    (* EMS_And *)
+    split. {
+      intros Ht.
+      intros Hcontra.
+      inversion Hcontra as [ | | |s0 e2 e3 [Hf0 Hf1]| ].
+      subst s0.
+      subst e2.
+      subst e3.
+      simpl in Ht.
+      destruct (Bool.andb_false_elim _ _ (eq_sym Ht)); intuition.
+    } {
+      intros Ht.
+      destruct (exprMatchSubjectEvalF s (EMS_And e0 e1)) eqn:H. {
+        symmetry in H.
+        rewrite exprMatchSubjectEvalEquivalentT in H.
+        contradiction.
+      } {
+        reflexivity.
+      }
+    }
+  } {
+    (* EMS_Or *)
+    split. {
+      intros Ht.
+      intros Hcontra.
+      inversion Hcontra as [ | | |s0 e2 e3 [Hf0 Hf1]| ].
+      subst s0.
+      subst e2.
+      subst e3.
+      simpl in Ht.
+      destruct (Bool.orb_false_elim _ _ (eq_sym Ht)); intuition.
+    } {
+      intros Ht.
+      destruct (exprMatchSubjectEvalF s (EMS_Or e0 e1)) eqn:H. {
+        symmetry in H.
+        rewrite exprMatchSubjectEvalEquivalentT in H.
+        contradiction.
+      } {
+        reflexivity.
+      }
+    }
+  }
+Qed.
+
+(** The evaluation relation is decidable. *)
+Theorem exprMatchSubjectEvalRDec : forall s e,
+  {exprMatchSubjectEvalR s e}+{~exprMatchSubjectEvalR s e}.
+Proof.
+  intros s e.
+  destruct (exprMatchSubjectEvalF s e) eqn:Hev. {
+    symmetry in Hev.
+    rewrite exprMatchSubjectEvalEquivalentT in Hev.
+    left; intuition.
+  } {
+    symmetry in Hev.
+    rewrite exprMatchSubjectEvalEquivalentF in Hev.
+    right; intuition.
   }
 Qed.
 

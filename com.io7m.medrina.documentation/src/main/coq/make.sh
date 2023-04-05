@@ -7,6 +7,7 @@ coqc -Q Medrina Medrina Medrina/Subjects.v
 coqc -Q Medrina Medrina Medrina/Objects.v
 coqc -Q Medrina Medrina Medrina/Actions.v
 coqc -Q Medrina Medrina Medrina/Matches.v
+coqc -Q Medrina Medrina Medrina/Rules.v
 
 mkdir -p html
 

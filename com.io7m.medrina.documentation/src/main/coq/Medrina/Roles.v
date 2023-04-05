@@ -49,6 +49,7 @@ Qed.
 
 Require Import Coq.FSets.FSetInterface.
 Require Import Coq.FSets.FSetWeakList.
+Require Import Coq.FSets.FSetFacts.
 Require Import Coq.Structures.Equalities.
 
 (** A mini decidable type module to instantiate sets. *)
@@ -77,6 +78,9 @@ Module RoleSets : FSetInterface.WS
   with Definition E.eq := @Logic.eq roleName
 := FSetWeakList.Make RoleNameDec.
 
+Module RoleSetsFacts :=
+  Facts RoleSets.
+
 (** Proof irrelevance allows for equality between instances with equal names. *)
 Theorem roleNameIrrelevance : forall (a b : roleName),
   rnName a = rnName b -> a = b.
@@ -97,3 +101,53 @@ Instance roleNameName : IsValidName roleName := {
   ivValid           := rnValid;
   ivIrrelevantEqual := roleNameIrrelevance
 }.
+
+Theorem roleSubsetFalse : forall (r s : RoleSets.t),
+  ~ RoleSets.Subset r s <-> RoleSets.subset r s = false.
+Proof.
+  intros r s.
+  split. {
+    intros Hnot.
+    destruct (RoleSets.subset r s) eqn:H. {
+      rewrite <- RoleSetsFacts.subset_iff in H.
+      contradiction.
+    } {
+      reflexivity.
+    }
+  } {
+    intros Hnot.
+    destruct (RoleSets.subset r s) eqn:H. {
+      contradict Hnot; discriminate.
+    } {
+      intro Hfalse.
+      rewrite RoleSetsFacts.subset_iff in Hfalse.
+      rewrite Hfalse in H.
+      contradict H; discriminate.
+    }
+  }
+Qed.
+
+Theorem roleExistsFalse : forall (r : RoleSets.t) (f : RoleSets.elt -> bool),
+  compat_bool eq f ->
+    ~ RoleSets.Exists (fun x => f x = true) r <-> RoleSets.exists_ f r = false.
+Proof.
+  intros r f Hf.
+
+  split. {
+    intros Hnot.
+    intuition.
+    destruct (RoleSets.exists_ f r) eqn:H. {
+      rewrite <- (RoleSetsFacts.exists_iff r Hf) in H.
+      contradiction.
+    } {
+      reflexivity.
+    }
+  } {
+    intros Hnot.
+    intros Hfalse.
+    rewrite (RoleSetsFacts.exists_iff _ Hf) in Hfalse.
+    rewrite Hfalse in Hnot.
+    contradict Hnot.
+    discriminate.
+  }
+Qed.
