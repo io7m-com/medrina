@@ -76,3 +76,4 @@ Record object := OMake {
   (** The attributes held by the object. *)
   oAttributes : AttributeNameMaps.t attributeValue
 }.
+

@@ -55,8 +55,29 @@ Record attributeValue := AVMake {
   avValid : validName avValue
 }.
 
+(** Equality of attribute values is decidable. *)
+Theorem attributeValueDec : forall (a b : attributeValue),
+  {a = b}+{a <> b}.
+Proof.
+  intros a b.
+  destruct a as [a0 [a1 [a2 a3]]].
+  destruct b as [b0 [b1 [b2 b3]]].
+  destruct (string_dec a0 b0) as [H0|H1]. {
+    subst b0.
+    left.
+    assert (a1 = b1) by apply proof_irrelevance. subst b1.
+    assert (a2 = b2) by apply proof_irrelevance. subst b2.
+    assert (a3 = b3) by apply proof_irrelevance. subst b3.
+    intuition.
+  } {
+    right.
+    congruence.
+  }
+Qed.
+
 Require Import Coq.FSets.FMapInterface.
 Require Import Coq.FSets.FMapWeakList.
+Require Import Coq.FSets.FMapFacts.
 Require Import Coq.Structures.Equalities.
 
 (** A mini decidable type module to instantiate maps. *)
@@ -84,3 +105,6 @@ Module AttributeNameMaps : FMapInterface.WS
   with Definition E.t  := attributeName
   with Definition E.eq := @Logic.eq attributeName
 := FMapWeakList.Make AttributeNameDec.
+
+Module AttributeNameMapsFacts :=
+  Facts AttributeNameMaps.
