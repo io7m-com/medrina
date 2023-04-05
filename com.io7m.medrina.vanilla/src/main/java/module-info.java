@@ -31,7 +31,6 @@ module com.io7m.medrina.vanilla
   requires transitive com.io7m.medrina.parser.api;
   requires transitive com.io7m.anethum.common;
 
-  requires com.io7m.jaffirm.core;
   requires com.io7m.jdeferthrow.core;
   requires com.io7m.jeucreader.core;
   requires com.io7m.jsx.core;

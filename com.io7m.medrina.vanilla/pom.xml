@@ -47,10 +47,6 @@
       <artifactId>com.io7m.jsx.parser.api</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.io7m.jaffirm</groupId>
-      <artifactId>com.io7m.jaffirm.core</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.io7m.anethum</groupId>
       <artifactId>com.io7m.anethum.api</artifactId>
     </dependency>
@@ -59,16 +55,24 @@
       <artifactId>com.io7m.anethum.common</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.io7m.jxtrand</groupId>
       <artifactId>com.io7m.jxtrand.vanilla</artifactId>
     </dependency>
     <dependency>
       <groupId>com.io7m.jdeferthrow</groupId>
       <artifactId>com.io7m.jdeferthrow.core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.jlexing</groupId>
+      <artifactId>com.io7m.jlexing.core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.jeucreader</groupId>
+      <artifactId>com.io7m.jeucreader.core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.junreachable</groupId>
+      <artifactId>com.io7m.junreachable.core</artifactId>
     </dependency>
 
     <dependency>

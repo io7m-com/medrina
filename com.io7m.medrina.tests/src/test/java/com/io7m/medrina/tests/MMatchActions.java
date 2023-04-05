@@ -23,7 +23,6 @@ import com.io7m.medrina.api.MMatchActionType.MMatchActionTrue;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
 import net.jqwik.api.arbitraries.IntegerArbitrary;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
