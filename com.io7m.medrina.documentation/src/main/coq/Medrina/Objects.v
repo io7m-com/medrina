@@ -18,7 +18,7 @@ Require Import Coq.Strings.String.
 Require Import Medrina.Attributes.
 Require Import Medrina.Names.
 
-(** The type of attribute names. *)
+(** The type of type names. *)
 Record typeName := TNMake {
   (** The name of the type. *)
   tnName  : string;
