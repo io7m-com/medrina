@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section xmlns="urn:com.io7m.structural:8:0"
+         title="Notational Conventions">
+
+  <Subsection title="Gallina/Coq">
+    <Paragraph>
+      The formal specification described here is written in the
+      <LinkExternal target="https://coq.github.io/doc/master/refman/">Gallina specification language of the Coq theorem
+        prover</LinkExternal>. The language is a total, pure-functional, dependently-typed language allowing for
+      describing systems in rigorous detail including machine-checked proofs of various chosen properties.
+    </Paragraph>
+    <Paragraph>
+      Readers are not expected to be able to understand the bodies of the proof texts, and doing so is not in any case
+      required. As long as one can understand the meaning of the <Term type="term">propositions</Term> being expressed,
+      it suffices to trust that the proofs are correct as they are all machine-checked whenever the specification is
+      published.
+    </Paragraph>
+    <Paragraph>
+      The full sources of the entire specification are published <Link target="385c9d95-200d-4e83-8f2e-8b7e50b8ded3">
+      at the end of this book</Link>.
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="Unicode">
+    <Paragraph>
+      The specification makes reference to the
+      <LinkExternal target="https://www.unicode.org">Unicode</LinkExternal>
+      character set which, at the time of writing, is at version 15.0.0. The specification often references specific
+      Unicode characters, and does so using the standard notation <Term type="constant">U+NNNN</Term>, where <Term type="constant">
+      N
+    </Term> represents a hexadecimal digit. For example,
+      <Term type="constant">U+03BB</Term>
+      corresponds to the lowercase lambda symbol
+      <Term type="constant">λ</Term>.
+    </Paragraph>
+  </Subsection>
+
+</Section>

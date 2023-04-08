@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section title="Actions"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         id="d1002bc3-ca15-4cab-88a3-931307976a3c"
+         xmlns="urn:com.io7m.structural:8:0">
+
+  <Paragraph>
+    An <Term type="term">action</Term> is an operation that can be performed
+    on an <Link target="b39f58e4-4980-4e4e-b8fe-af3fdcaba886">object</Link>
+    by a <Link target="bf1b37da-6ffd-47b8-ad79-fa6e457ecf39">subject</Link>.
+  </Paragraph>
+
+  <Paragraph>
+    An action has a <Link target="db2f7a0b-4896-45d1-8e30-0bc3e66fc664">valid name</Link>
+    with decidable equality:
+  </Paragraph>
+
+  <FormalItem title="Action Names">
+    <Verbatim><xi:include href="500.txt" parse="text"/></Verbatim>
+  </FormalItem>
+  <FormalItem title="Action Names (Decidable)">
+    <Verbatim><xi:include href="501.txt" parse="text"/></Verbatim>
+  </FormalItem>
+  <FormalItem title="Actions">
+    <Verbatim><xi:include href="502.txt" parse="text"/></Verbatim>
+  </FormalItem>
+
+</Section>

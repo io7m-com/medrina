@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section title="Policies"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         id="82af4acb-873f-4da7-9ff8-bf1f03f9f98e"
+         xmlns="urn:com.io7m.structural:8:0">
+
+  <Subsection title="Overview">
+    <Paragraph>
+      A <Term type="term">policy</Term> is a sequence of
+      <Link target="b5be6365-e204-4c02-837d-15245204e9b1">rules</Link>. A
+      given
+      <Link target="bf1b37da-6ffd-47b8-ad79-fa6e457ecf39">subject</Link>,
+      <Link target="b39f58e4-4980-4e4e-b8fe-af3fdcaba886">object</Link>,
+      and <Link target="d1002bc3-ca15-4cab-88a3-931307976a3c">action</Link>
+      are matched against each of the rules of the policy in order
+      to determine whether the given action should be permitted or denied.
+    </Paragraph>
+
+    <FormalItem title="Policy">
+      <Verbatim><xi:include href="1000.txt" parse="text"/></Verbatim>
+    </FormalItem>
+  </Subsection>
+
+  <Subsection title="Evaluation">
+    <Paragraph>
+      Evaluation of a policy is expressed as a total function from a policy
+      to an <Link target="9e4d1522-f6b2-431a-9e16-071f96a2f813">access</Link>
+      value.
+    </Paragraph>
+
+    <FormalItem title="Access" id="9e4d1522-f6b2-431a-9e16-071f96a2f813">
+      <Verbatim><xi:include href="1001.txt" parse="text"/></Verbatim>
+    </FormalItem>
+    <FormalItem title="Access Description">
+      <ListUnordered>
+        <Item>
+          A value of <Term type="expression">AccessAllowed</Term> indicates that the
+          action should be permitted.
+        </Item>
+        <Item>
+          A value of <Term type="expression">AccessDenied</Term> indicates that the
+          action should be denied.
+        </Item>
+      </ListUnordered>
+    </FormalItem>
+
+    <Paragraph>
+      Evaluating a rule may cause evaluation of subsequent rules to be cancelled.
+    </Paragraph>
+
+    <FormalItem title="Halt" id="bdfd59b0-568c-4efc-b5fa-3bd6537b5b77">
+      <Verbatim><xi:include href="1002.txt" parse="text"/></Verbatim>
+    </FormalItem>
+    <FormalItem title="Halt Description">
+      <ListUnordered>
+        <Item>
+          A value of <Term type="expression">Halt</Term> indicates that no further
+          rules should be evaluated.
+        </Item>
+        <Item>
+          A value of <Term type="expression">HContinue</Term> indicates that
+          evaluation of rules should continue.
+        </Item>
+      </ListUnordered>
+    </FormalItem>
+
+    <Paragraph>
+      Evaluating a rule has two possible outcomes; the rule
+      <Link target="5df130b9-6edf-490a-aa9a-cd4a8d2c7629">matches</Link> and
+      returns a <Link target="bdfd59b0-568c-4efc-b5fa-3bd6537b5b77">halt</Link>
+      and <Link target="9e4d1522-f6b2-431a-9e16-071f96a2f813">access</Link> value,
+      or the rule fails to match. This is described by the following inductive type:
+    </Paragraph>
+
+    <FormalItem title="evaluationOfRule">
+      <Verbatim><xi:include href="1003.txt" parse="text"/></Verbatim>
+    </FormalItem>
+
+    <Paragraph>
+      The <Term type="expression">evaluateRule</Term> function describes how
+      a single rule is evaluated:
+    </Paragraph>
+
+    <FormalItem title="evaluateRule">
+      <Verbatim><xi:include href="1004.txt" parse="text"/></Verbatim>
+    </FormalItem>
+
+    <Paragraph>
+      The <Term type="expression">evaluateRulesInF</Term> function describes how
+      a list of rules is recursively evaluated:
+    </Paragraph>
+
+    <FormalItem title="evaluateRulesInF">
+      <Verbatim><xi:include href="1005.txt" parse="text"/></Verbatim>
+    </FormalItem>
+
+    <Paragraph>
+      Informally, the body of the <Term type="expression">evaluateRulesInF</Term>
+      maintains a notion of the current access value. If no rule has been evaluated
+      yet, the current access value is a value set by the caller. In this specification,
+      the only caller is the <Term type="expression">evaluateRules</Term> function,
+      which assumes a starting value of <Term type="expression">AccessDenied</Term>.
+      The function checks if the current rule matches. If the current rule does match,
+      the function effectively sets the current access value to that returned by
+      the rule. If the current rule specifies that evaluation should halt, the
+      current access value is returned immediately. If the current rule specifies
+      that evaluation should continue, the rest of the rules are evaluated with
+      the newly set access value. Otherwise, if the rule does not match, the rest
+      of the rules are evaluated with the current access value left unchanged.
+    </Paragraph>
+
+    <Paragraph>
+      Subsequently, the <Term type="expression">evaluateRules</Term> and
+      <Term type="expression">evaluatePolicy</Term> functions describe how
+      an entire policy is evaluated.
+    </Paragraph>
+
+    <FormalItem title="evaluateRules">
+      <Verbatim><xi:include href="1006.txt" parse="text"/></Verbatim>
+    </FormalItem>
+    <FormalItem title="evaluatePolicy">
+      <Verbatim><xi:include href="1007.txt" parse="text"/></Verbatim>
+    </FormalItem>
+  </Subsection>
+
+  <Subsection title="Properties">
+    <Subsection title="Abbreviation">
+      <Paragraph>
+        In order to succinctly describe various properties of policy evaluation, numerous
+        shorthand propositions are used. These propositions do not actually define any new
+        information; they are simply used to make the various theorems and proofs shorter
+        to read.
+      </Paragraph>
+
+      <Paragraph>
+        The proposition <Term type="expression">ruleAllows r</Term> states that
+        <Term type="expression">r</Term> has a conclusion that would result in
+        an action being permitted.
+      </Paragraph>
+      <FormalItem title="ruleAllows">
+        <Verbatim><xi:include href="1008.txt" parse="text"/></Verbatim>
+      </FormalItem>
+
+      <Paragraph>
+        The proposition <Term type="expression">ruleDenies r</Term> states that
+        <Term type="expression">r</Term> has a conclusion that would result in
+        an action being denied.
+      </Paragraph>
+      <FormalItem title="ruleDenies">
+        <Verbatim><xi:include href="1009.txt" parse="text"/></Verbatim>
+      </FormalItem>
+
+      <Paragraph>
+        The proposition <Term type="expression">ruleHaltsOnMatch r</Term> states that
+        <Term type="expression">r</Term> has a conclusion that would result in
+        evaluation being halted if the rule was to match.
+      </Paragraph>
+      <FormalItem title="ruleHaltsOnMatch">
+        <Verbatim><xi:include href="1010.txt" parse="text"/></Verbatim>
+      </FormalItem>
+
+      <Paragraph>
+        The proposition <Term type="expression">ruleDoesNotHaltOnMatch r</Term> states that
+        <Term type="expression">r</Term> has a conclusion that would result in
+        evaluation being continued if the rule was to match.
+      </Paragraph>
+      <FormalItem title="ruleDoesNotHaltOnMatch">
+        <Verbatim><xi:include href="1011.txt" parse="text"/></Verbatim>
+      </FormalItem>
+
+      <Paragraph>
+        The proposition <Term type="expression">ruleDoesNotMatch ... r</Term> states that
+        <Term type="expression">r</Term> does not match against the given inputs.
+      </Paragraph>
+      <FormalItem title="ruleDoesNotMatch">
+        <Verbatim><xi:include href="1012.txt" parse="text"/></Verbatim>
+      </FormalItem>
+
+      <Paragraph>
+        The proposition <Term type="expression">ruleMatchesWithConclusion ... r c</Term> states that
+        <Term type="expression">r</Term> matches against the given inputs and has the
+        conclusion <Term type="expression">c</Term>.
+      </Paragraph>
+      <FormalItem title="ruleMatchesWithConclusion">
+        <Verbatim><xi:include href="1013.txt" parse="text"/></Verbatim>
+      </FormalItem>
+    </Subsection>
+
+    <Subsection title="Theorems">
+      <Paragraph>
+        If no rules in a policy match, the default is to deny access.
+      </Paragraph>
+      <FormalItem title="evaluateRulesDefaultDenyNoMatches">
+        <Verbatim><xi:include href="1100.txt" parse="text"/></Verbatim>
+      </FormalItem>
+      <Paragraph>
+        If a policy consists of a possibly-empty sequence of rules <Term type="expression">r_pre</Term> that do not
+        halt on matching, followed by a rule <Term type="expression">r</Term> that does match, followed by a
+        possibly-empty sequence of rules <Term type="expression">r_post</Term> that do not match, then
+        evaluation is equivalent to evaluating <Term type="expression">r</Term> on its own.
+      </Paragraph>
+      <FormalItem title="evaluateRulesLastMatchingPreNoHalt">
+        <Verbatim><xi:include href="1101.txt" parse="text"/></Verbatim>
+      </FormalItem>
+      <Paragraph>
+        If a policy consists of a possibly-empty sequence of rules <Term type="expression">r_pre</Term>,
+        followed by a possibly-empty sequence of rules <Term type="expression">r_post</Term> that do not match, then
+        evaluation is equivalent to evaluating <Term type="expression">r_pre</Term>.
+      </Paragraph>
+      <FormalItem title="evaluateRulesPostNotMatching">
+        <Verbatim><xi:include href="1102.txt" parse="text"/></Verbatim>
+      </FormalItem>
+      <Paragraph>
+        If a policy consists of a possibly-empty sequence of rules <Term type="expression">r_pre</Term> that do not
+        match, followed by a possibly-empty sequence of rules <Term type="expression">r_post</Term>, then
+        evaluation is equivalent to evaluating <Term type="expression">r_post</Term>.
+      </Paragraph>
+      <FormalItem title="evaluateRulesPreNotMatching">
+        <Verbatim><xi:include href="1103.txt" parse="text"/></Verbatim>
+      </FormalItem>
+    </Subsection>
+  </Subsection>
+
+</Section>

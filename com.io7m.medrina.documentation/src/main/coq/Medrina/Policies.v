@@ -105,14 +105,10 @@ Definition evaluateRule
   match ruleMatchesF s o a r with
   | true =>
     match (rConclusion r) with
-    | RC_Allow =>
-      ERuleMatched HContinue AccessAllowed
-    | RC_AllowImmediately =>
-      ERuleMatched Halt AccessAllowed
-    | RC_Deny =>
-      ERuleMatched HContinue AccessDenied
-    | RC_DenyImmediately =>
-      ERuleMatched Halt AccessDenied
+    | RC_Allow            => ERuleMatched HContinue AccessAllowed
+    | RC_AllowImmediately => ERuleMatched Halt AccessAllowed
+    | RC_Deny             => ERuleMatched HContinue AccessDenied
+    | RC_DenyImmediately  => ERuleMatched Halt AccessDenied
     end
   | false =>
     ERuleDidNotMatch

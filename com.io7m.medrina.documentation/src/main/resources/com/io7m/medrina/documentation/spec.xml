@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section title="Specification"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         id="d5e8f207-a4f7-483a-bf56-5b5ca93d9225"
+         xmlns="urn:com.io7m.structural:8:0">
+
+  <xi:include href="s-overview.xml"/>
+  <xi:include href="s-notation.xml"/>
+  <xi:include href="s-names.xml"/>
+  <xi:include href="s-attributes.xml"/>
+  <xi:include href="s-roles.xml"/>
+  <xi:include href="s-subjects.xml"/>
+  <xi:include href="s-objects.xml"/>
+  <xi:include href="s-actions.xml"/>
+  <xi:include href="s-matches.xml"/>
+  <xi:include href="s-rules.xml"/>
+  <xi:include href="s-policies.xml"/>
+  <xi:include href="s-sources.xml"/>
+
+</Section>

@@ -47,7 +47,7 @@ Proof.
   }
 Qed.
 
-(** The type of attribute names. *)
+(** The type of attribute values. *)
 Record attributeValue := AVMake {
   (** The value of the attribute. *)
   avValue : string;

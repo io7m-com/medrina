@@ -1,4 +1,4 @@
-(*
+/*
  * Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
@@ -12,13 +12,65 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- *)
+ */
 
-Require Import Medrina.Roles.
+.brandingContainer
+{
+  margin: 1em;
+}
 
-(** The type of subjects. *)
-Record subject := SMake {
-  (** The roles held by the subject. *)
-  sRoles : RoleSets.t
-}.
+.branding
+{
+  font-family: monospace;
+  font-size:   80%;
+}
 
+.brandingContainerHeader
+{
+
+}
+.brandingContainerFooter
+{
+  margin-top: 2em;
+}
+
+.command,
+.constant,
+.element,
+.expression,
+.file,
+.package,
+.parameter
+{
+  font-family: monospace;
+}
+
+.term,
+.emphasis
+{
+  font-style: italic;
+}
+
+.genericTable
+{
+  border:          1px solid #dddddd;
+  width:           100%;
+  border-collapse: collapse;
+}
+.genericTable th
+{
+  border:     1px solid #dddddd;
+  text-align: left;
+  font-size:  var(--stFontSize);
+  padding:    0.5em;
+}
+.genericTable td
+{
+  border:    1px solid #dddddd;
+  font-size: var(--stFontSize);
+  padding:   0.5em;
+}
+.genericTable td:nth-child(1)
+{
+  width: 12em;
+}

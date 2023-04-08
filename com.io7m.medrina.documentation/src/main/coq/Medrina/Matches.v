@@ -691,7 +691,7 @@ Qed.
 Inductive exprMatchObject : Type :=
   | EMO_False : exprMatchObject
   | EMO_True : exprMatchObject
-  | EMO_WithName :
+  | EMO_WithType :
     forall (n : typeName),
       exprMatchObject
   | EMO_And :
@@ -712,7 +712,7 @@ Fixpoint exprMatchObjectEvalF
   match e with
   | EMO_False => false
   | EMO_True => true
-  | EMO_WithName n =>
+  | EMO_WithType n =>
     eqb (ivName (oType o)) (ivName n)
   | EMO_And x y =>
     andb (exprMatchObjectEvalF o x) (exprMatchObjectEvalF o y)
@@ -728,7 +728,7 @@ Inductive exprMatchObjectEvalR : object -> exprMatchObject -> Prop :=
   | EMOR_WithName :
     forall (o : object) (t : typeName),
       ivName (oType o) = ivName t ->
-        exprMatchObjectEvalR o (EMO_WithName t)
+        exprMatchObjectEvalR o (EMO_WithType t)
   | EMOR_And :
     forall (o : object) (e0 e1 : exprMatchObject),
       exprMatchObjectEvalR o e0 /\ exprMatchObjectEvalR o e1 ->
@@ -766,7 +766,7 @@ Proof.
       intros Ht; reflexivity.
     }
   } {
-    (* EMO_WithName *)
+    (* EMO_WithType *)
     split. {
       intros Ht.
       unfold exprMatchObjectEvalF in Ht.
@@ -866,7 +866,7 @@ Proof.
       contradict H; constructor.
     }
   } {
-    (* EMO_WithName *)
+    (* EMO_WithType *)
     split. {
       intros H Ht.
       inversion Ht as [ |o1 t1 Heq| | ].
@@ -880,13 +880,13 @@ Proof.
       discriminate.
     } {
       intros H.
-      destruct (exprMatchObjectEvalF o (EMO_WithName r)) eqn:Hd. {
+      destruct (exprMatchObjectEvalF o (EMO_WithType r)) eqn:Hd. {
         simpl in Hd.
         rewrite eqb_eq in Hd.
         pose proof (ivIrrelevantEqual _ _ Hd) as Heq.
         subst r.
         assert (
-          exprMatchObjectEvalR o (EMO_WithName (oType o))
+          exprMatchObjectEvalR o (EMO_WithType (oType o))
         ) as Hcontra. {
           constructor.
           reflexivity.
