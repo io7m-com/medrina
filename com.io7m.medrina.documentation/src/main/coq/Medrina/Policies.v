@@ -18,21 +18,23 @@ Require Import Medrina.Subjects.
 Require Import Medrina.Objects.
 Require Import Medrina.Actions.
 Require Import Medrina.Rules.
-Require Import Medrina.ListEx.
 
 Require Import Coq.Lists.List.
 Require Import Psatz.
 
 Import ListNotations.
 
+(** A policy is a list of rules. *)
 Definition policy :=
   list rule.
 
+(** The result of evaluating a policy either allows or denies access. *)
 Inductive access : Set :=
   | AccessAllowed
   | AccessDenied
   .
 
+(** The conclusion of a rule implies a particular access value. *)
 Definition ruleConclusionAccess (c : ruleConclusion) : access :=
   match c with
   | RC_Allow            => AccessAllowed
@@ -41,16 +43,59 @@ Definition ruleConclusionAccess (c : ruleConclusion) : access :=
   | RC_DenyImmediately  => AccessDenied
   end.
 
+(** The evaluation of a rule may either halt or continue evaluation. *)
 Inductive halt : Set :=
   | Halt
   | HContinue
   .
 
+(** When a rule is evaluated, the rule either matches the input
+    and therefore returns a _halt_ and _access_ value, or the
+    rule does not match (and therefore evaluation implicitly
+    continues). *)
 Inductive evaluationOfRule : Set :=
   | ERuleMatched     : halt -> access -> evaluationOfRule
   | ERuleDidNotMatch : evaluationOfRule
   .
 
+(** Shorthand for the conditions where a matching rule allows access; the 
+    conclusion of the rule is one of the "allow" values. *)
+Definition ruleAllows (r : rule) : Prop :=
+  ((rConclusion r) = RC_AllowImmediately \/ (rConclusion r) = RC_Allow).
+
+(** Shorthand for the conditions where a matching rule denies access; the
+    conclusion of the rule is one of the "deny" values. *)
+Definition ruleDenies (r : rule) : Prop :=
+  ((rConclusion r) = RC_DenyImmediately \/ (rConclusion r) = RC_Deny).
+
+(** Shorthand for the conditions where a matching rule will halt evaluation. *)
+Definition ruleHaltsOnMatch (r : rule) : Prop :=
+  ((rConclusion r) = RC_AllowImmediately \/ (rConclusion r) = RC_DenyImmediately).
+
+(** Shorthand for the conditions where a matching rule will not halt evaluation. *)
+Definition ruleDoesNotHaltOnMatch (r : rule) : Prop :=
+  ((rConclusion r) = RC_Allow \/ (rConclusion r) = RC_Deny).
+
+(** Shorthand for the condition where a rule does not match. *)
+Definition ruleDoesNotMatch
+  (s : subject)
+  (o : object)
+  (a : action)
+  (r : rule)
+: Prop :=
+  ruleMatchesF s o a r = false.
+
+(** Shorthand for a rule that matches and results in a given conclusion. *)
+Definition ruleMatchesWithConclusion
+  (s : subject)
+  (o : object)
+  (a : action)
+  (r : rule)
+  (c : ruleConclusion)
+: Prop :=
+  ruleMatchesF s o a r = true /\ (rConclusion r) = c.
+
+(** The evaluation function for a single rule. *)
 Definition evaluateRule
   (r : rule)
   (s : subject)
@@ -94,6 +139,8 @@ Fixpoint evaluateRulesInF
     end
   end.
 
+(** The function to evaluate a list of rules, using _AccessDenied_
+    as the default access if no rules match. *)
 Definition evaluateRules
   (rs  : list rule)
   (s   : subject)
@@ -102,6 +149,7 @@ Definition evaluateRules
 : access :=
   evaluateRulesInF AccessDenied rs s o a.
 
+(** The function to evaluate a policy. *)
 Definition evaluatePolicy
   (p : policy)
   (s : subject)
@@ -109,25 +157,6 @@ Definition evaluatePolicy
   (a : action)
 : access :=
   evaluateRules p s o a.
-
-Definition ruleMatchesWithConclusion
-  (s : subject)
-  (o : object)
-  (a : action)
-  (r : rule)
-  (c : ruleConclusion)
-: Prop :=
-  ruleMatchesF s o a r = true /\ (rConclusion r) = c.
-
-Definition ruleDoesNotHaltOnMatch
-  (r : rule)
-: Prop :=
-  ((rConclusion r) = RC_Allow \/ (rConclusion r) = RC_Deny).
-
-Definition ruleHaltsOnMatch
-  (r : rule)
-: Prop :=
-  ((rConclusion r) = RC_AllowImmediately \/ (rConclusion r) = RC_DenyImmediately).
 
 Theorem evaluateRulesInFSplit :
   forall (s : subject)
@@ -222,9 +251,6 @@ Proof.
   }
 Qed.
 
-Definition ruleAllows (r : rule) : Prop :=
-  ((rConclusion r) = RC_AllowImmediately \/ (rConclusion r) = RC_Allow).
-
 Theorem evaluateRulesInFHaltAllow :
   forall (s : subject)
          (o : object)
@@ -244,9 +270,6 @@ Proof.
   destruct Hm1R as [H|H]; (rewrite H; reflexivity).
 Qed.
 
-Definition ruleDenies (r : rule) : Prop :=
-  ((rConclusion r) = RC_DenyImmediately \/ (rConclusion r) = RC_Deny).
-
 Theorem evaluateRulesInFHaltDeny :
   forall (s : subject)
          (o : object)
@@ -265,14 +288,6 @@ Proof.
   rewrite Hm0.
   destruct Hm1R as [H|H]; (rewrite H; reflexivity).
 Qed.
-
-Definition ruleDoesNotMatch
-  (s : subject)
-  (o : object)
-  (a : action)
-  (r : rule)
-: Prop :=
-  ruleMatchesF s o a r = false.
 
 Theorem evaluateRulesInFPreNotMatching :
   forall (s : subject)
