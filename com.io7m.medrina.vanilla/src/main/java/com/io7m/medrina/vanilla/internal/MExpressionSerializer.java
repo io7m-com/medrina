@@ -79,6 +79,16 @@ public final class MExpressionSerializer
     Objects.requireNonNull(policy, "policy");
 
     final var rules = new ArrayList<SExpressionType>();
+    rules.add(new SList(
+      zero(),
+      false,
+      List.of(
+        new SSymbol(zero(), "medrina"),
+        new SSymbol(zero(), "1"),
+        new SSymbol(zero(), "0")
+      )
+    ));
+
     for (final var rule : policy.rules()) {
       rules.add(this.serializeRule(rule));
     }
@@ -90,11 +100,11 @@ public final class MExpressionSerializer
     final MRule rule)
   {
     final var subjectMatch =
-      this.serializeSubjectMatch(rule.matchSubject());
+      this.serializeSubjectMatchOuter(rule.matchSubject());
     final var objectMatch =
-      this.serializeObjectMatch(rule.matchObject());
+      this.serializeObjectMatchOuter(rule.matchObject());
     final var actionMatch =
-      this.serializeActionMatch(rule.matchAction());
+      this.serializeActionMatchOuter(rule.matchAction());
 
     return switch (rule.conclusion()) {
       case ALLOW -> new SList(
@@ -143,7 +153,46 @@ public final class MExpressionSerializer
     };
   }
 
-  private SExpressionType serializeActionMatch(
+  private SExpressionType serializeActionMatchOuter(
+    final MMatchActionType m)
+  {
+    return new SList(
+      zero(),
+      true,
+      List.of(
+        new SSymbol(zero(), "action"),
+        this.serializeActionMatchE(m)
+      )
+    );
+  }
+
+  private SExpressionType serializeObjectMatchOuter(
+    final MMatchObjectType m)
+  {
+    return new SList(
+      zero(),
+      true,
+      List.of(
+        new SSymbol(zero(), "object"),
+        this.serializeObjectMatchE(m)
+      )
+    );
+  }
+
+  private SExpressionType serializeSubjectMatchOuter(
+    final MMatchSubjectType m)
+  {
+    return new SList(
+      zero(),
+      true,
+      List.of(
+        new SSymbol(zero(), "subject"),
+        this.serializeSubjectMatchE(m)
+      )
+    );
+  }
+
+  private SExpressionType serializeActionMatchE(
     final MMatchActionType matchAction)
   {
     if (matchAction instanceof MMatchActionTrue) {
@@ -159,7 +208,7 @@ public final class MExpressionSerializer
         zero(),
         true,
         List.of(
-          new SSymbol(zero(), "action-with-name"),
+          new SSymbol(zero(), "with-name"),
           new SSymbol(zero(), name.name().value())
         )
       );
@@ -173,7 +222,7 @@ public final class MExpressionSerializer
           Stream.of(new SSymbol(zero(), "or")),
           or.subExpressions()
             .stream()
-            .map(this::serializeActionMatch)
+            .map(this::serializeActionMatchE)
         ).collect(Collectors.toList())
       );
     }
@@ -186,7 +235,7 @@ public final class MExpressionSerializer
           Stream.of(new SSymbol(zero(), "and")),
           and.subExpressions()
             .stream()
-            .map(this::serializeActionMatch)
+            .map(this::serializeActionMatchE)
         ).collect(Collectors.toList())
       );
     }
@@ -194,7 +243,7 @@ public final class MExpressionSerializer
     throw new UnreachableCodeException();
   }
 
-  private SExpressionType serializeObjectMatch(
+  private SExpressionType serializeObjectMatchE(
     final MMatchObjectType matchObject)
   {
     if (matchObject instanceof MMatchObjectTrue) {
@@ -210,7 +259,7 @@ public final class MExpressionSerializer
         zero(),
         true,
         List.of(
-          new SSymbol(zero(), "object-with-type"),
+          new SSymbol(zero(), "with-type"),
           new SSymbol(zero(), type.type().value())
         )
       );
@@ -224,7 +273,7 @@ public final class MExpressionSerializer
           Stream.of(new SSymbol(zero(), "or")),
           or.subExpressions()
             .stream()
-            .map(this::serializeObjectMatch)
+            .map(this::serializeObjectMatchE)
         ).collect(Collectors.toList())
       );
     }
@@ -237,7 +286,7 @@ public final class MExpressionSerializer
           Stream.of(new SSymbol(zero(), "and")),
           and.subExpressions()
             .stream()
-            .map(this::serializeObjectMatch)
+            .map(this::serializeObjectMatchE)
         ).collect(Collectors.toList())
       );
     }
@@ -245,7 +294,7 @@ public final class MExpressionSerializer
     throw new UnreachableCodeException();
   }
 
-  private SExpressionType serializeSubjectMatch(
+  private SExpressionType serializeSubjectMatchE(
     final MMatchSubjectType matchSubject)
   {
     if (matchSubject instanceof MMatchSubjectTrue) {
@@ -261,7 +310,7 @@ public final class MExpressionSerializer
         zero(),
         true,
         Stream.concat(
-          Stream.of(new SSymbol(zero(), "subject-with-all-roles")),
+          Stream.of(new SSymbol(zero(), "with-all-roles")),
           all.requiredRoles()
             .stream()
             .map(name -> new SSymbol(zero(), name.value()))
@@ -274,7 +323,7 @@ public final class MExpressionSerializer
         zero(),
         true,
         Stream.concat(
-          Stream.of(new SSymbol(zero(), "subject-with-any-roles")),
+          Stream.of(new SSymbol(zero(), "with-any-roles")),
           any.requiredRoles()
             .stream()
             .map(name -> new SSymbol(zero(), name.value()))
@@ -290,7 +339,7 @@ public final class MExpressionSerializer
           Stream.of(new SSymbol(zero(), "or")),
           or.subExpressions()
             .stream()
-            .map(this::serializeSubjectMatch)
+            .map(this::serializeSubjectMatchE)
         ).collect(Collectors.toList())
       );
     }
@@ -303,7 +352,7 @@ public final class MExpressionSerializer
           Stream.of(new SSymbol(zero(), "and")),
           and.subExpressions()
             .stream()
-            .map(this::serializeSubjectMatch)
+            .map(this::serializeSubjectMatchE)
         ).collect(Collectors.toList())
       );
     }

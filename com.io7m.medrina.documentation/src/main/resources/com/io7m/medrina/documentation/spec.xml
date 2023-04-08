@@ -16,6 +16,7 @@
   <xi:include href="s-matches.xml"/>
   <xi:include href="s-rules.xml"/>
   <xi:include href="s-policies.xml"/>
+  <xi:include href="s-syntax.xml"/>
   <xi:include href="s-sources.xml"/>
 
 </Section>

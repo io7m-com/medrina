@@ -33,6 +33,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.time.Duration;
 
@@ -130,5 +132,31 @@ public final class MPolicyParserSerializerTest
         policy
       );
     });
+  }
+
+  @Test
+  public void testParseExample0()
+    throws Exception
+  {
+    final var parsers = new MPolicyParsers();
+
+    try (var stream = resource("example0.mp")) {
+      try {
+        final var policy =
+          parsers.parse(URI.create("urn:create"), stream);
+      } catch (final ParseException e) {
+        e.statusValues().forEach(System.out::println);
+        throw e;
+      }
+    }
+  }
+
+  private static InputStream resource(
+    final String name)
+  {
+    final var path =
+      "/com/io7m/medrina/tests/%s".formatted(name);
+
+    return MPolicyParserSerializerTest.class.getResourceAsStream(path);
   }
 }

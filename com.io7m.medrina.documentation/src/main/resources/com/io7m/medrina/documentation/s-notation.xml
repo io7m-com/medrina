@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <Section xmlns="urn:com.io7m.structural:8:0"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
          title="Notational Conventions">
 
   <Subsection title="Gallina/Coq">
@@ -33,6 +34,48 @@
       <Term type="constant">U+03BB</Term>
       corresponds to the lowercase lambda symbol
       <Term type="constant">λ</Term>.
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="EBNF">
+    <Paragraph>
+      The specification gives grammar definitions in
+      <Term type="package">ISO/IEC 14977:1996</Term>
+      Extended Backus-Naur form.
+    </Paragraph>
+    <Paragraph>
+      Because EBNF was designed prior to the existence of Unicode, it is necessary to extend the syntax to be able to
+      refer to Unicode characters in grammar definitions. This specification makes use of the standard unicode
+      <Term type="constant">U+NNNN</Term>
+      syntax in grammar definitions, to refer to specific Unicode characters. It also makes use of the syntax <Term type="constant">
+      \p{t}
+    </Term> which should be understood to represent any Unicode character with the property <Term type="constant">
+      t</Term>. For example,
+      <Term type="constant">\p{Lowercase_Letter}</Term>
+      describes the set of characters that are both letters and are lowercase. The syntax
+      <Term type="constant">\P{t}</Term>
+      should be understood as the negation of <Term type="constant">\p{t}</Term>; it describes the set of characters
+      without the property <Term type="constant">t</Term>.
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="S-Expressions" id="e8022684-e338-44cf-a401-d69cc70f695e">
+    <Paragraph>
+      The <Term type="package">medrina</Term> policy language uses <Term type="term">s-expressions</Term> as the base
+      for all syntax. An s-expression is described by the following EBNF grammar:
+    </Paragraph>
+    <FormalItem title="S-Expression Syntax">
+      <Verbatim>
+        <xi:include href="sexpr.ebnf"
+                    parse="text"/>
+      </Verbatim>
+    </FormalItem>
+    <Paragraph>
+      As shown, the <Term type="package">medrina</Term> language uses an extension of basic s-expressions that allow
+      for the optional use of either square brackets or parentheses to increase the readability of large nested
+      expressions. These should be treated as interchangeable, but must be correctly balanced as shown by the grammar.
+      For example, the expression <Term type="expression">[]</Term> is semantically equivalent to
+      <Term type="expression">()</Term>, but the expression <Term type="expression">[)</Term> is invalid.
     </Paragraph>
   </Subsection>
 

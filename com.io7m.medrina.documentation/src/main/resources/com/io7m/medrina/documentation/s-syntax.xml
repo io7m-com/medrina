@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section title="Syntax"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         id="4a1420c0-a918-4dca-8026-453c6aa0889a"
+         xmlns="urn:com.io7m.structural:8:0">
+
+  <Subsection title="Overview">
+    <Paragraph>
+      Applications are free to serialize policies in any format. This section of the specification
+      defines a recommended standard syntax for policy files based on
+      <Link target="e8022684-e338-44cf-a401-d69cc70f695e">s-expressions</Link>.
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="Medrina">
+    <Paragraph>
+      Policy files should begin with a <Term type="expression">medrina</Term> expression stating
+      the major and minor version of the language used to express the policy.
+    </Paragraph>
+    <FormalItem title="Medrina">
+      <Verbatim><![CDATA[
+digit =
+  "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+
+digit-and-zero =
+  digit | "0" ;
+
+number =
+  digit , digit-and-zero* ;
+
+medrina =
+  "(" , "medrina" , number , number , ")" ;
+]]></Verbatim>
+    </FormalItem>
+    <FormalItem title="Medrina (Example)">
+      <Verbatim><![CDATA[
+(medrina 1 0)
+]]></Verbatim>
+    </FormalItem>
+  </Subsection>
+
+  <Subsection title="Rule Conclusions">
+    <Paragraph>
+      <Link target="dd11720d-4bb0-4e88-ada8-9dc1199131aa">Rule conclusions</Link> are expressed
+      with the following syntax:
+    </Paragraph>
+    <FormalItem title="Rule Conclusions">
+      <Verbatim><![CDATA[
+ruleConclusion =
+    "allow"
+  | "allow-immediately"
+  | "deny"
+  | "deny-immediately"
+  ;
+]]></Verbatim>
+    </FormalItem>
+    <FormalItem title="Rule Conclusions (Example)">
+      <Verbatim><![CDATA[
+allow
+]]></Verbatim>
+    </FormalItem>
+  </Subsection>
+
+  <Subsection title="Subject Match">
+    <Paragraph>
+      <Link target="9f9c064c-3e52-4f66-b805-52890acf1915">Subject match expressions</Link> are expressed
+      with the following syntax:
+    </Paragraph>
+    <FormalItem title="Subject Match">
+      <Verbatim><![CDATA[
+matchSubjectE =
+    "true"
+  | "false"
+  | "(" , "with-all-roles" , name* , ")"
+  | "(" , "with-any-roles" , name* , ")"
+  | "(" , "or" , matchSubjectE , matchSubjectE , ")"
+  | "(" , "and" , matchSubjectE , matchSubjectE , ")"
+  ;
+
+matchSubject =
+  "(" , "subject" , matchSubjectE , ")" ;
+]]></Verbatim>
+    </FormalItem>
+    <FormalItem title="Subject Match (Example)">
+      <Verbatim><![CDATA[
+(subject
+  [and (or [with-any-roles x y z]
+           [with-all-roles a b])
+       (or true false)])
+]]></Verbatim>
+    </FormalItem>
+  </Subsection>
+
+  <Subsection title="Object Match">
+    <Paragraph>
+      <Link target="fdaccd67-ce7d-4591-ae20-3c44378b17b5">Object match expressions</Link> are expressed
+      with the following syntax:
+    </Paragraph>
+    <FormalItem title="Object Match">
+      <Verbatim><![CDATA[
+matchObjectE =
+    "true"
+  | "false"
+  | "(" , "with-type" , name , ")"
+  | "(" , "or" , matchObjectE , matchObjectE , ")"
+  | "(" , "and" , matchObjectE , matchObjectE , ")"
+  ;
+
+matchObject =
+  "(" , "object" , matchObjectE , ")" ;
+]]></Verbatim>
+    </FormalItem>
+    <FormalItem title="Object Match (Example)">
+      <Verbatim><![CDATA[
+(object
+  [and (or [with-type a] [with-type b])
+       (or true false)])
+]]></Verbatim>
+    </FormalItem>
+  </Subsection>
+
+  <Subsection title="Complete Syntax">
+    <Paragraph>
+      The complete syntax is as follows:
+    </Paragraph>
+    <FormalItem title="Complete Syntax">
+      <Verbatim><xi:include href="policy.ebnf" parse="text"/></Verbatim>
+    </FormalItem>
+  </Subsection>
+
+  <Subsection title="Action Match">
+    <Paragraph>
+      <Link target="0de6c2f0-6dcd-4256-9fde-88278374da0c">Action match expressions</Link> are expressed
+      with the following syntax:
+    </Paragraph>
+    <FormalItem title="Action Match">
+      <Verbatim><![CDATA[
+matchActionE =
+    "true"
+  | "false"
+  | "(" , "with-name" , name , ")"
+  | "(" , "or" , matchActionE , matchActionE , ")"
+  | "(" , "and" , matchActionE , matchActionE , ")"
+  ;
+
+matchAction =
+  "(" , "action" , matchActionE , ")" ;
+]]></Verbatim>
+    </FormalItem>
+    <FormalItem title="Action Match (Example)">
+      <Verbatim><![CDATA[
+(action
+  [and (or [with-name a] [with-name b])
+       (or true false)])
+]]></Verbatim>
+    </FormalItem>
+  </Subsection>
+
+  <Subsection title="Rules">
+    <Paragraph>
+      <Link target="b5be6365-e204-4c02-837d-15245204e9b1">Rules</Link> are expressed with the following syntax:
+    </Paragraph>
+    <FormalItem title="Rule">
+      <Verbatim><![CDATA[
+rule =
+  "(" , ruleConclusion , matchSubject , matchObject , matchAction , ")" ;
+]]></Verbatim>
+    </FormalItem>
+    <FormalItem title="Rule (Example)">
+      <Verbatim><![CDATA[
+(deny
+  (subject
+    [and (or [with-any-roles x y z]
+             [with-all-roles a b])
+         (or true false)])
+  (object
+    [and (or [with-type a] [with-type b])
+         (or true false)])
+  (action
+    [and (or [with-name a] [with-name b])
+         (or true false)]))
+]]></Verbatim>
+    </FormalItem>
+  </Subsection>
+
+  <Subsection title="Complete Syntax">
+    <Paragraph>
+      The complete syntax is as follows:
+    </Paragraph>
+    <FormalItem title="Complete Syntax">
+      <Verbatim><xi:include href="policy.ebnf" parse="text"/></Verbatim>
+    </FormalItem>
+  </Subsection>
+
+</Section>

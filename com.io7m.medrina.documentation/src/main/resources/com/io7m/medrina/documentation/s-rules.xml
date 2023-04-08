@@ -19,7 +19,7 @@
     <Verbatim><xi:include href="900.txt" parse="text"/></Verbatim>
   </FormalItem>
 
-  <Paragraph>
+  <Paragraph id="dd11720d-4bb0-4e88-ada8-9dc1199131aa">
     A <Term type="term">conclusion</Term> is one of the following values:
   </Paragraph>
 
