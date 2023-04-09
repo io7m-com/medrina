@@ -12,7 +12,7 @@
     <dc:identifier>180ec02c-abe9-443d-8b33-722401b34f58</dc:identifier>
     <dc:language>en</dc:language>
     <dc:rights>Public Domain</dc:rights>
-    <dc:title>Medrina 1.0</dc:title>
+    <dc:title>Medrina ${project.version} User Manual</dc:title>
 
     <MetaProperty name="com.io7m.xstructural.epub.colophon">colophon_extra.xml</MetaProperty>
     <MetaProperty name="com.io7m.xstructural.epub.cover">cover.jpg</MetaProperty>
