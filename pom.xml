@@ -14,7 +14,7 @@
 
   <groupId>com.io7m.medrina</groupId>
   <artifactId>com.io7m.medrina</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.2</version>
 
   <packaging>pom</packaging>
   <name>com.io7m.medrina</name>
@@ -34,7 +34,7 @@
     <com.io7m.jsx.version>3.0.1</com.io7m.jsx.version>
     <com.io7m.jxtrand.version>1.1.0</com.io7m.jxtrand.version>
     <com.io7m.xstructural.version>1.8.0</com.io7m.xstructural.version>
-    <io7m.api.previousVersion>0.0.1</io7m.api.previousVersion>
+    <io7m.api.previousVersion>0.0.2</io7m.api.previousVersion>
     <jqwik.version>1.7.3</jqwik.version>
     <junit.version>5.9.2</junit.version>
   </properties>
@@ -213,5 +213,16 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+
+  <build>
+    <plugins>
+      <!-- Generate a site -->
+      <plugin>
+        <groupId>com.io7m.minisite</groupId>
+        <artifactId>com.io7m.minisite.maven_plugin</artifactId>
+        <inherited>false</inherited>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>
