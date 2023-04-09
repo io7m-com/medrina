@@ -94,9 +94,9 @@ Inductive exprMatchSubjectEvalR (s : subject) : exprMatchSubject -> Prop :=
       Forall (exprMatchSubjectEvalR s) es ->
         exprMatchSubjectEvalR s (EMS_And es)
   | EMSR_Or :
-    forall (e : exprMatchSubject) (es : list exprMatchSubject),
-      Exists (exprMatchSubjectEvalR s) (e :: es) ->
-        exprMatchSubjectEvalR s (EMS_Or (e :: es))
+    forall (es : list exprMatchSubject),
+      Exists (exprMatchSubjectEvalR s) es ->
+        exprMatchSubjectEvalR s (EMS_Or es)
   .
 
 (** Implication lifted into the Forall structure. *)
@@ -336,7 +336,7 @@ Proof.
     simpl.
     rewrite existsb_exists.
 
-    inversion Ht as [ | | | |e es0 Hex Heq].
+    inversion Ht as [ | | | |es0 Hex Heq].
     subst es.
     destruct Hex as [k ks Hk|k ks Hk]. {
       exists k.
@@ -520,19 +520,11 @@ Qed.
 
 (** An expression that matches an action. *)
 Inductive exprMatchAction : Type :=
-  | EMA_False : exprMatchAction
-  | EMA_True : exprMatchAction
-  | EMA_WithName :
-    forall (n : actionName),
-      exprMatchAction
-  | EMA_And :
-    exprMatchAction ->
-      exprMatchAction ->
-        exprMatchAction
-  | EMA_Or :
-    exprMatchAction ->
-      exprMatchAction ->
-        exprMatchAction
+  | EMA_False    : exprMatchAction
+  | EMA_True     : exprMatchAction
+  | EMA_WithName : actionName -> exprMatchAction
+  | EMA_And      : list exprMatchAction -> exprMatchAction
+  | EMA_Or       : list exprMatchAction -> exprMatchAction
   .
 
 (** An evaluation function for action match expressions. *)
@@ -541,131 +533,335 @@ Fixpoint exprMatchActionEvalF
   (e : exprMatchAction)
 : bool :=
   match e with
-  | EMA_False => false
-  | EMA_True => true
-  | EMA_WithName n =>
-    eqb (ivName (aName a)) (ivName n)
-  | EMA_And x y =>
-    andb (exprMatchActionEvalF a x) (exprMatchActionEvalF a y)
-  | EMA_Or x y =>
-    orb (exprMatchActionEvalF a x) (exprMatchActionEvalF a y)
+  | EMA_False      => false
+  | EMA_True       => true
+  | EMA_WithName n => eqb (ivName (aName a)) (ivName n)
+  | EMA_And xs     => forallb (exprMatchActionEvalF a) xs
+  | EMA_Or xs      => existsb (exprMatchActionEvalF a) xs
   end.
 
 (** The evaluation function for action match expressions as a relation. *)
-Inductive exprMatchActionEvalR : action -> exprMatchAction -> Prop :=
-  | EMAR_True :
-    forall (a : action),
-      exprMatchActionEvalR a EMA_True
+Inductive exprMatchActionEvalR (a : action) : exprMatchAction -> Prop :=
+  | EMAR_True : exprMatchActionEvalR a EMA_True
   | EMAR_WithName :
-    forall (a : action) (x : actionName),
+    forall (x : actionName),
       ivName (aName a) = ivName x ->
         exprMatchActionEvalR a (EMA_WithName x)
   | EMAR_And :
-    forall (a : action) (e0 e1 : exprMatchAction),
-      exprMatchActionEvalR a e0 /\ exprMatchActionEvalR a e1 ->
-        exprMatchActionEvalR a (EMA_And e0 e1)
+    forall (es : list exprMatchAction),
+      Forall (exprMatchActionEvalR a) es ->
+        exprMatchActionEvalR a (EMA_And es)
   | EMAR_Or :
-    forall (a : action) (e0 e1 : exprMatchAction),
-      exprMatchActionEvalR a e0 \/ exprMatchActionEvalR a e1 ->
-        exprMatchActionEvalR a (EMA_Or e0 e1)
+    forall (es : list exprMatchAction),
+      Exists (exprMatchActionEvalR a) es ->
+        exprMatchActionEvalR a (EMA_Or es)
   .
+
+Section ExprMatchAction_ind.
+  Variable P : exprMatchAction -> Prop.
+  Hypothesis P_False    : P EMA_False.
+  Hypothesis P_True     : P EMA_True.
+  Hypothesis P_WithName : forall n, P (EMA_WithName n).
+  Hypothesis P_And      : forall es, Forall P es -> P (EMA_And es).
+  Hypothesis P_Or       : forall es, Forall P es -> P (EMA_Or es).
+
+  Fixpoint exprMatchAction_extendedInd (e : exprMatchAction) : P e :=
+    let
+      fix e_list (xs : list exprMatchAction) : Forall P xs :=
+        match xs as rxs return (Forall P rxs) with
+        | []        => Forall_nil _
+        | (y :: ys) => @Forall_cons _ _ y ys (exprMatchAction_extendedInd y) (e_list ys)
+        end
+    in
+      match e with
+      | EMA_False      => P_False
+      | EMA_True       => P_True
+      | EMA_WithName a => P_WithName a
+      | EMA_And es     => P_And es (e_list es)
+      | EMA_Or es      => P_Or es (e_list es)
+      end.
+
+End ExprMatchAction_ind.
+
+Lemma exprMatchActionEvalEquivalent_FR_T : forall s e,
+  true = exprMatchActionEvalF s e -> exprMatchActionEvalR s e.
+Proof.
+  intros s e.
+  induction e as [
+    |
+    |
+    |es Hes
+    |es Hes
+  ] using exprMatchAction_extendedInd. {
+    (* EMA_False *)
+    intros Ht.
+    inversion Ht.
+  } {
+    (* EMA_True *)
+    intros Ht.
+    constructor.
+  } {
+    (* EMA_WithName *)
+    intros Ht.
+    unfold exprMatchActionEvalF in Ht.
+    symmetry in Ht.
+    rewrite eqb_eq in Ht.
+    pose proof (ivIrrelevantEqual _ _ Ht) as H.
+    subst n.
+    constructor.
+    reflexivity.
+  } {
+    (* EMA_And *)
+    destruct es as [|y ys]. {
+      intros Ht.
+      constructor.
+      constructor.
+    } {
+      simpl.
+      intros Ht.
+
+      (* We need to show that the relation holds for all (y :: ys). *)
+      assert (Forall (exprMatchActionEvalR s) (y :: ys)) as H0. {
+        (* We do this by showing it holds for y... *)
+        assert (exprMatchActionEvalR s y) as H1. {
+          symmetry in Ht.
+          rewrite Bool.andb_true_iff in Ht.
+          rewrite forallb_forall in Ht.
+          destruct Ht as [HT0 HT1].
+          rewrite <- (@Forall_forall exprMatchAction _ ys) in HT1.
+
+          apply (Forall_inv Hes).
+          symmetry.
+          exact HT0.
+        }
+
+        (* ... And for all ys. *)
+        assert (Forall (exprMatchActionEvalR s) ys) as H2. {
+          symmetry in Ht.
+          rewrite Bool.andb_true_iff in Ht.
+          rewrite forallb_forall in Ht.
+          destruct Ht as [HT0 HT1].
+          rewrite <- (@Forall_forall exprMatchAction _ ys) in HT1.
+
+          assert (Forall (fun x => true = exprMatchActionEvalF s x) ys) as H2. {
+            rewrite Forall_forall.
+            symmetry.
+            generalize dependent x.
+            rewrite <- Forall_forall.
+            exact HT1.
+          }
+
+          pose proof (Forall_inv_tail Hes) as HesT.
+          apply (Forall_impl_lifted _ _ _ ys H2 HesT).
+        }
+
+        (* ... And then composing the two. *)
+        constructor.
+        exact H1.
+        exact H2.
+      }
+
+      constructor.
+      exact H0.
+    }
+  } {
+    (* EMA_Or *)
+    destruct es as [|y ys]. {
+      intros Ht.
+      contradict Ht. simpl. discriminate.
+    } {
+      intros Ht.
+
+      (* We need to show that the relation holds for y or something in ys. *)
+      constructor.
+
+      simpl in Ht.
+      symmetry in Ht.
+      destruct (Bool.orb_true_elim _ _ Ht) as [HtL|HtR]. {
+        constructor.
+        apply (Forall_inv Hes).
+        auto.
+      } {
+        assert (Exists (exprMatchActionEvalR s) (y :: ys)) as H0. {
+          rewrite existsb_exists in HtR.
+          destruct HtR as [k [Htk0 Htk1]].
+          rewrite Forall_forall in Hes.
+          pose proof (in_cons y k ys Htk0) as H0.
+          pose proof (Hes k H0 (eq_sym Htk1)) as H1.
+          apply Exists_cons_tl.
+          rewrite Exists_exists.
+          exists k.
+          auto.
+        }
+        exact H0.
+      }
+    }
+  }
+Qed.
+
+Lemma exprMatchActionEvalEquivalent_RF_T : forall s e,
+  exprMatchActionEvalR s e -> true = exprMatchActionEvalF s e.
+Proof.
+  intros s e.
+  induction e as [
+    |
+    |
+    |es Hes
+    |es Hes
+  ] using exprMatchAction_extendedInd. {
+    (* EMA_False *)
+    intros Ht.
+    inversion Ht.
+  } {
+    (* EMA_True *)
+    intros Ht.
+    reflexivity.
+  } {
+    (* EMA_WithName *)
+    intros Ht.
+    simpl.
+    inversion Ht as [ |y Hyz| | ].
+    subst y.
+    pose proof (ivIrrelevantEqual _ _ Hyz) as H0.
+    rewrite H0.
+    symmetry.
+    apply eqb_refl.
+  } {
+    (* EMA_And *)
+    intros Ht.
+    inversion Ht as [ | |es0 Hfa Heq|].
+    subst es0.
+    simpl.
+    symmetry.
+    rewrite forallb_forall.
+    intros x Hin.
+    symmetry.
+    generalize dependent x.
+    rewrite <- Forall_forall.
+    apply (Forall_impl_lifted exprMatchAction _ _ es Hfa Hes).
+  } {
+    (* EMA_Or *)
+    intros Ht.
+    symmetry.
+    simpl.
+    rewrite existsb_exists.
+
+    inversion Ht as [ | | |es0 Hex Heq].
+    subst es.
+    destruct Hex as [k ks Hk|k ks Hk]. {
+      exists k.
+      constructor.
+      constructor; reflexivity.
+      apply (eq_sym (Forall_inv Hes Hk)).
+    } {
+      rewrite Exists_exists in Hk.
+      destruct Hk as [q [Hq0 Hq1]].
+      exists q.
+      constructor.
+      apply (in_cons k q ks Hq0).
+      pose proof (Forall_inv_tail Hes) as HesT.
+      rewrite Forall_forall in HesT.
+      apply (eq_sym (HesT q Hq0 Hq1)).
+    }
+  }
+Qed.
 
 (** The evaluation function and the evaluation relation are equivalent. *)
 Theorem exprMatchActionEvalEquivalentT : forall s e,
   true = exprMatchActionEvalF s e <-> exprMatchActionEvalR s e.
 Proof.
-  intros a e.
+  split.
+  apply exprMatchActionEvalEquivalent_FR_T.
+  apply exprMatchActionEvalEquivalent_RF_T.
+Qed.
+
+Lemma exprMatchActionEvalEquivalent_FR_F : forall a e,
+  false = exprMatchActionEvalF a e -> ~exprMatchActionEvalR a e.
+Proof.
+  intros s e.
   induction e as [
     |
-    |r
-    |e0 He0 e1 He1
-    |e0 He0 e1 He1
-  ]. {
+    |
+    |es Hes
+    |es Hes
+  ] using exprMatchAction_extendedInd. {
     (* EMA_False *)
-    split. {
-      intros Ht.
-      inversion Ht.
-    } {
-      intros Ht.
-      inversion Ht.
-    }
+    intros Ht.
+    intro Hcontra.
+    inversion Hcontra.
   } {
     (* EMA_True *)
-    split. {
-      intros Ht; constructor.
-    } {
-      intros Ht; reflexivity.
-    }
+    intros Ht.
+    contradict Ht.
+    discriminate.
   } {
     (* EMA_WithName *)
-    split. {
-      intros Ht.
-      unfold exprMatchActionEvalF in Ht.
-      symmetry in Ht.
-      rewrite eqb_eq in Ht.
-      pose proof (ivIrrelevantEqual _ _ Ht).
-      subst r.
-      constructor.
-      intuition.
+    intros Ht.
+    intros Hcontra.
+    rewrite <- (exprMatchActionEvalEquivalent_RF_T _ _ Hcontra) in Ht.
+    contradict Ht; discriminate.
+  } {
+    (* EMS_And *)
+    intros Ht.
+    intros Hcontra.
+    rewrite <- (exprMatchActionEvalEquivalent_RF_T _ _ Hcontra) in Ht.
+    contradict Ht; discriminate.
+  } {
+    (* EMS_Or *)
+    intros Ht.
+    intros Hcontra.
+    rewrite <- (exprMatchActionEvalEquivalent_RF_T _ _ Hcontra) in Ht.
+    contradict Ht; discriminate.
+  }
+Qed.
+
+Lemma exprMatchActionEvalEquivalent_RF_F : forall a e,
+  ~exprMatchActionEvalR a e -> false = exprMatchActionEvalF a e.
+Proof.
+  intros s e.
+  induction e as [
+    |
+    |
+    |es Hes
+    |es Hes
+  ] using exprMatchAction_extendedInd. {
+    (* EMA_False *)
+    intros Ht.
+    reflexivity.
+  } {
+    (* EMA_True *)
+    intros Ht.
+    contradict Ht.
+    constructor.
+  } {
+    (* EMS_WithName *)
+    intros Ht.
+    destruct (exprMatchActionEvalF s (EMA_WithName n)) eqn:H. {
+      symmetry in H.
+      rewrite exprMatchActionEvalEquivalentT in H.
+      contradiction.
     } {
-      intros Ht.
-      simpl.
-      inversion Ht as [ |y z Hyz| | ].
-      subst y.
-      subst z.
-      pose proof (ivIrrelevantEqual _ _ Hyz) as H0.
-      rewrite H0.
-      symmetry.
-      apply eqb_refl.
+      reflexivity.
     }
   } {
-    (* EMA_And *)
-    split. {
-      intros Ht.
-      simpl in Ht.
-      pose proof (Bool.andb_true_eq _ _ Ht) as [HT0 HT1].
-      constructor.
-      intuition.
+    (* EMS_And *)
+    intros Ht.
+    destruct (exprMatchActionEvalF s (EMA_And es)) eqn:H. {
+      symmetry in H.
+      rewrite exprMatchActionEvalEquivalentT in H.
+      contradiction.
     } {
-      intros Ht.
-      inversion Ht as [ | |a0 e2 e3 He| ].
-      subst a0.
-      subst e2.
-      subst e3.
-      rewrite <- He0 in He.
-      rewrite <- He1 in He.
-      symmetry.
-      simpl.
-      rewrite Bool.andb_true_iff.
-      intuition.
+      reflexivity.
     }
   } {
-    (* EMA_Or *)
-    split. {
-      intros Ht.
-      constructor.
-      simpl in Ht.
-      symmetry in Ht.
-      pose proof (Bool.orb_prop _ _ Ht) as Hb.
-      destruct Hb as [Hb0|Hb1]. {
-        symmetry in Hb0.
-        rewrite He0 in Hb0.
-        intuition.
-      } {
-        symmetry in Hb1.
-        rewrite He1 in Hb1.
-        intuition.
-      }
+    (* EMS_Or *)
+    intros Ht.
+    destruct (exprMatchActionEvalF s (EMA_Or es)) eqn:H. {
+      symmetry in H.
+      rewrite exprMatchActionEvalEquivalentT in H.
+      contradiction.
     } {
-      intros Ht.
-      simpl.
-      symmetry.
-      rewrite Bool.orb_true_iff.
-      inversion Ht as [ | | |a0 e2 e3 He].
-      subst a0.
-      subst e2.
-      subst e3.
-      intuition.
+      reflexivity.
     }
   }
 Qed.
@@ -674,115 +870,9 @@ Qed.
 Theorem exprMatchActionEvalEquivalentF : forall a e,
   false = exprMatchActionEvalF a e <-> ~exprMatchActionEvalR a e.
 Proof.
-  intros a e.
-  induction e as [
-    |
-    |r
-    |e0 He0 e1 He1
-    |e0 He0 e1 He1
-  ]. {
-    (* EMA_False *)
-    split. {
-      intros H Ht; inversion Ht.
-    } {
-      intros H; reflexivity.
-    }
-  } {
-    (* EMA_True *)
-    split. {
-      intros H Ht.
-      contradict H; discriminate.
-    } {
-      intros H.
-      contradict H; constructor.
-    }
-  } {
-    (* EMA_WithName *)
-    split. {
-      intros H Ht.
-      inversion Ht as [ |o1 t1 Heq| | ].
-      subst o1.
-      subst t1.
-      pose proof (ivIrrelevantEqual _ _ Heq) as Hir.
-      subst r.
-      contradict H.
-      simpl.
-      rewrite eqb_refl.
-      discriminate.
-    } {
-      intros H.
-      destruct (exprMatchActionEvalF a (EMA_WithName r)) eqn:Hd. {
-        simpl in Hd.
-        rewrite eqb_eq in Hd.
-        pose proof (@ivIrrelevantEqual actionName _ _ _ Hd) as Heq.
-        subst r.
-        assert (
-          exprMatchActionEvalR a (EMA_WithName (aName a))
-        ) as Hcontra. {
-          constructor.
-          reflexivity.
-        }
-        contradiction.
-      } {
-        reflexivity.
-      }
-    }
-  } {
-    (* EMA_And *)
-    split. {
-      intros Ht.
-      intros Hcontra.
-      inversion Hcontra as [ | |a1 e2 e3 [Hf0 Hf1]| ].
-      subst a1.
-      subst e2.
-      subst e3.
-      simpl in Ht.
-      destruct (Bool.andb_false_elim _ _ (eq_sym Ht)); intuition.
-    } {
-      intros Ht.
-      destruct (exprMatchActionEvalF a (EMA_And e0 e1)) eqn:H. {
-        symmetry in H.
-        rewrite exprMatchActionEvalEquivalentT in H.
-        contradiction.
-      } {
-        reflexivity.
-      }
-    }
-  } {
-    (* EMA_Or *)
-    split. {
-      intros Ht.
-      intros Hcontra.
-      inversion Hcontra as [ | | |a1 e2 e3 [Hf0|Hf1]].
-      subst a1.
-      subst e2.
-      subst e3.
-      simpl in Ht.
-      destruct (Bool.orb_false_elim _ _ (eq_sym Ht)) as [Hk0 Hk1]. {
-        symmetry in Hk0.
-        rewrite He0 in Hk0.
-        contradiction.
-      }
-      subst a1.
-      subst e2.
-      subst e3.
-      simpl in Ht.
-      destruct (Bool.orb_false_elim _ _ (eq_sym Ht)) as [Hk0 Hk1]. {
-        symmetry in Hk1.
-        rewrite He1 in Hk1.
-        contradiction.
-      }
-    } {
-      intros Ht.
-      destruct (exprMatchActionEvalF a (EMA_Or e0 e1)) eqn:H. {
-        symmetry in H.
-        rewrite exprMatchActionEvalEquivalentT in H.
-        contradiction.
-      } {
-        reflexivity.
-      }
-    }
-  }
+  split.
+  apply exprMatchActionEvalEquivalent_FR_F.
+  apply exprMatchActionEvalEquivalent_RF_F.
 Qed.
 
 (** The evaluation relation is decidable. *)
@@ -803,20 +893,38 @@ Qed.
 
 (** An expression that matches an object. *)
 Inductive exprMatchObject : Type :=
-  | EMO_False : exprMatchObject
-  | EMO_True : exprMatchObject
-  | EMO_WithType :
-    forall (n : typeName),
-      exprMatchObject
-  | EMO_And :
-    exprMatchObject ->
-      exprMatchObject ->
-        exprMatchObject
-  | EMO_Or :
-    exprMatchObject ->
-      exprMatchObject ->
-        exprMatchObject
+  | EMO_False    : exprMatchObject
+  | EMO_True     : exprMatchObject
+  | EMO_WithType : typeName -> exprMatchObject
+  | EMO_And      : list exprMatchObject -> exprMatchObject
+  | EMO_Or       : list exprMatchObject -> exprMatchObject
   .
+
+Section ExprMatchObject_ind.
+  Variable P : exprMatchObject -> Prop.
+  Hypothesis P_False    : P EMO_False.
+  Hypothesis P_True     : P EMO_True.
+  Hypothesis P_WithType : forall n, P (EMO_WithType n).
+  Hypothesis P_And      : forall es, Forall P es -> P (EMO_And es).
+  Hypothesis P_Or       : forall es, Forall P es -> P (EMO_Or es).
+
+  Fixpoint exprMatchObject_extendedInd (e : exprMatchObject) : P e :=
+    let
+      fix e_list (xs : list exprMatchObject) : Forall P xs :=
+        match xs as rxs return (Forall P rxs) with
+        | []        => Forall_nil _
+        | (y :: ys) => @Forall_cons _ _ y ys (exprMatchObject_extendedInd y) (e_list ys)
+        end
+    in
+      match e with
+      | EMO_False      => P_False
+      | EMO_True       => P_True
+      | EMO_WithType a => P_WithType a
+      | EMO_And es     => P_And es (e_list es)
+      | EMO_Or es      => P_Or es (e_list es)
+      end.
+
+End ExprMatchObject_ind.
 
 (** An evaluation function for object match expressions. *)
 Fixpoint exprMatchObjectEvalF
@@ -824,248 +932,320 @@ Fixpoint exprMatchObjectEvalF
   (e : exprMatchObject)
 : bool :=
   match e with
-  | EMO_False => false
-  | EMO_True => true
-  | EMO_WithType n =>
-    eqb (ivName (oType o)) (ivName n)
-  | EMO_And x y =>
-    andb (exprMatchObjectEvalF o x) (exprMatchObjectEvalF o y)
-  | EMO_Or x y =>
-    orb (exprMatchObjectEvalF o x) (exprMatchObjectEvalF o y)
+  | EMO_False      => false
+  | EMO_True       => true
+  | EMO_WithType n => eqb (ivName (oType o)) (ivName n)
+  | EMO_And xs     => forallb (exprMatchObjectEvalF o) xs
+  | EMO_Or xs      => existsb (exprMatchObjectEvalF o) xs
   end.
 
 (** The evaluation function for object match expressions as a relation. *)
-Inductive exprMatchObjectEvalR : object -> exprMatchObject -> Prop :=
-  | EMOR_True :
-    forall (o : object),
-      exprMatchObjectEvalR o EMO_True
+Inductive exprMatchObjectEvalR (o : object) : exprMatchObject -> Prop :=
+  | EMOR_True : exprMatchObjectEvalR o EMO_True
   | EMOR_WithName :
-    forall (o : object) (t : typeName),
+    forall (t : typeName),
       ivName (oType o) = ivName t ->
         exprMatchObjectEvalR o (EMO_WithType t)
   | EMOR_And :
-    forall (o : object) (e0 e1 : exprMatchObject),
-      exprMatchObjectEvalR o e0 /\ exprMatchObjectEvalR o e1 ->
-        exprMatchObjectEvalR o (EMO_And e0 e1)
+    forall (es : list exprMatchObject),
+      Forall (exprMatchObjectEvalR o) es ->
+        exprMatchObjectEvalR o (EMO_And es)
   | EMOR_Or :
-    forall (o : object) (e0 e1 : exprMatchObject),
-      exprMatchObjectEvalR o e0 \/ exprMatchObjectEvalR o e1 ->
-        exprMatchObjectEvalR o (EMO_Or e0 e1)
+    forall (es : list exprMatchObject),
+      Exists (exprMatchObjectEvalR o) es ->
+        exprMatchObjectEvalR o (EMO_Or es)
   .
 
-(** The evaluation function and the evaluation relation are equivalent. *)
-Theorem exprMatchObjectEvalEquivalentT : forall s e,
-  true = exprMatchObjectEvalF s e <-> exprMatchObjectEvalR s e.
+Lemma exprMatchObjectEvalEquivalent_FR_T : forall s e,
+  true = exprMatchObjectEvalF s e -> exprMatchObjectEvalR s e.
 Proof.
-  intros o e.
+  intros s e.
   induction e as [
     |
-    |r
-    |e0 He0 e1 He1
-    |e0 He0 e1 He1
-  ]. {
+    |
+    |es Hes
+    |es Hes
+  ] using exprMatchObject_extendedInd. {
     (* EMO_False *)
-    split. {
-      intros Ht.
-      inversion Ht.
-    } {
-      intros Ht.
-      inversion Ht.
-    }
+    intros Ht.
+    inversion Ht.
   } {
     (* EMO_True *)
-    split. {
-      intros Ht; constructor.
-    } {
-      intros Ht; reflexivity.
-    }
+    intros Ht.
+    constructor.
   } {
     (* EMO_WithType *)
-    split. {
-      intros Ht.
-      unfold exprMatchObjectEvalF in Ht.
-      symmetry in Ht.
-      rewrite eqb_eq in Ht.
-      pose proof (ivIrrelevantEqual _ _ Ht).
-      subst r.
-      constructor.
-      intuition.
-    } {
-      intros Ht.
-      simpl.
-      inversion Ht as [ |y z Hyz| | ].
-      subst y.
-      subst z.
-      pose proof (ivIrrelevantEqual _ _ Hyz) as H0.
-      rewrite H0.
-      symmetry.
-      apply eqb_refl.
-    }
+    intros Ht.
+    unfold exprMatchObjectEvalF in Ht.
+    symmetry in Ht.
+    rewrite eqb_eq in Ht.
+    pose proof (ivIrrelevantEqual _ _ Ht) as H.
+    subst n.
+    constructor.
+    reflexivity.
   } {
     (* EMO_And *)
-    split. {
+    destruct es as [|y ys]. {
       intros Ht.
-      simpl in Ht.
-      pose proof (Bool.andb_true_eq _ _ Ht) as [HT0 HT1].
       constructor.
-      intuition.
+      constructor.
     } {
-      intros Ht.
-      inversion Ht as [ | |a0 e2 e3 He| ].
-      subst a0.
-      subst e2.
-      subst e3.
-      rewrite <- He0 in He.
-      rewrite <- He1 in He.
-      symmetry.
       simpl.
-      rewrite Bool.andb_true_iff.
-      intuition.
+      intros Ht.
+
+      (* We need to show that the relation holds for all (y :: ys). *)
+      assert (Forall (exprMatchObjectEvalR s) (y :: ys)) as H0. {
+        (* We do this by showing it holds for y... *)
+        assert (exprMatchObjectEvalR s y) as H1. {
+          symmetry in Ht.
+          rewrite Bool.andb_true_iff in Ht.
+          rewrite forallb_forall in Ht.
+          destruct Ht as [HT0 HT1].
+          rewrite <- (@Forall_forall exprMatchObject _ ys) in HT1.
+
+          apply (Forall_inv Hes).
+          symmetry.
+          exact HT0.
+        }
+
+        (* ... And for all ys. *)
+        assert (Forall (exprMatchObjectEvalR s) ys) as H2. {
+          symmetry in Ht.
+          rewrite Bool.andb_true_iff in Ht.
+          rewrite forallb_forall in Ht.
+          destruct Ht as [HT0 HT1].
+          rewrite <- (@Forall_forall exprMatchObject _ ys) in HT1.
+
+          assert (Forall (fun x => true = exprMatchObjectEvalF s x) ys) as H2. {
+            rewrite Forall_forall.
+            symmetry.
+            generalize dependent x.
+            rewrite <- Forall_forall.
+            exact HT1.
+          }
+
+          pose proof (Forall_inv_tail Hes) as HesT.
+          apply (Forall_impl_lifted _ _ _ ys H2 HesT).
+        }
+
+        (* ... And then composing the two. *)
+        constructor.
+        exact H1.
+        exact H2.
+      }
+
+      constructor.
+      exact H0.
     }
   } {
     (* EMO_Or *)
-    split. {
+    destruct es as [|y ys]. {
       intros Ht.
-      constructor.
-      simpl in Ht.
-      symmetry in Ht.
-      pose proof (Bool.orb_prop _ _ Ht) as Hb.
-      destruct Hb as [Hb0|Hb1]. {
-        symmetry in Hb0.
-        rewrite He0 in Hb0.
-        intuition.
-      } {
-        symmetry in Hb1.
-        rewrite He1 in Hb1.
-        intuition.
-      }
+      contradict Ht. simpl. discriminate.
     } {
       intros Ht.
-      simpl.
-      symmetry.
-      rewrite Bool.orb_true_iff.
-      inversion Ht as [ | | |a0 e2 e3 He].
-      subst a0.
-      subst e2.
-      subst e3.
-      intuition.
+
+      (* We need to show that the relation holds for y or something in ys. *)
+      constructor.
+
+      simpl in Ht.
+      symmetry in Ht.
+      destruct (Bool.orb_true_elim _ _ Ht) as [HtL|HtR]. {
+        constructor.
+        apply (Forall_inv Hes).
+        auto.
+      } {
+        assert (Exists (exprMatchObjectEvalR s) (y :: ys)) as H0. {
+          rewrite existsb_exists in HtR.
+          destruct HtR as [k [Htk0 Htk1]].
+          rewrite Forall_forall in Hes.
+          pose proof (in_cons y k ys Htk0) as H0.
+          pose proof (Hes k H0 (eq_sym Htk1)) as H1.
+          apply Exists_cons_tl.
+          rewrite Exists_exists.
+          exists k.
+          auto.
+        }
+        exact H0.
+      }
+    }
+  }
+Qed.
+
+Lemma exprMatchObjectEvalEquivalent_RF_T : forall s e,
+  exprMatchObjectEvalR s e -> true = exprMatchObjectEvalF s e.
+Proof.
+  intros s e.
+  induction e as [
+    |
+    |
+    |es Hes
+    |es Hes
+  ] using exprMatchObject_extendedInd. {
+    (* EMO_False *)
+    intros Ht.
+    inversion Ht.
+  } {
+    (* EMO_True *)
+    intros Ht.
+    reflexivity.
+  } {
+    (* EMO_WithType *)
+    intros Ht.
+    simpl.
+    inversion Ht as [ |y Hyz| | ].
+    subst y.
+    pose proof (ivIrrelevantEqual _ _ Hyz) as H0.
+    rewrite H0.
+    symmetry.
+    apply eqb_refl.
+  } {
+    (* EMO_And *)
+    intros Ht.
+    inversion Ht as [ | |es0 Hfa Heq|].
+    subst es0.
+    simpl.
+    symmetry.
+    rewrite forallb_forall.
+    intros x Hin.
+    symmetry.
+    generalize dependent x.
+    rewrite <- Forall_forall.
+    apply (Forall_impl_lifted exprMatchObject _ _ es Hfa Hes).
+  } {
+    (* EMO_Or *)
+    intros Ht.
+    symmetry.
+    simpl.
+    rewrite existsb_exists.
+
+    inversion Ht as [ | | |es0 Hex Heq].
+    subst es.
+    destruct Hex as [k ks Hk|k ks Hk]. {
+      exists k.
+      constructor.
+      constructor; reflexivity.
+      apply (eq_sym (Forall_inv Hes Hk)).
+    } {
+      rewrite Exists_exists in Hk.
+      destruct Hk as [q [Hq0 Hq1]].
+      exists q.
+      constructor.
+      apply (in_cons k q ks Hq0).
+      pose proof (Forall_inv_tail Hes) as HesT.
+      rewrite Forall_forall in HesT.
+      apply (eq_sym (HesT q Hq0 Hq1)).
     }
   }
 Qed.
 
 (** The evaluation function and the evaluation relation are equivalent. *)
-Theorem exprMatchObjectEvalEquivalentF : forall s e,
-  false = exprMatchObjectEvalF s e <-> ~exprMatchObjectEvalR s e.
+Theorem exprMatchObjectEvalEquivalentT : forall s e,
+  true = exprMatchObjectEvalF s e <-> exprMatchObjectEvalR s e.
 Proof.
-  intros o e.
+  split.
+  apply exprMatchObjectEvalEquivalent_FR_T.
+  apply exprMatchObjectEvalEquivalent_RF_T.
+Qed.
+
+Lemma exprMatchObjectEvalEquivalent_FR_F : forall a e,
+  false = exprMatchObjectEvalF a e -> ~exprMatchObjectEvalR a e.
+Proof.
+  intros s e.
   induction e as [
     |
-    |r
-    |e0 He0 e1 He1
-    |e0 He0 e1 He1
-  ]. {
+    |
+    |es Hes
+    |es Hes
+  ] using exprMatchObject_extendedInd. {
     (* EMO_False *)
-    split. {
-      intros H Ht; inversion Ht.
-    } {
-      intros H; reflexivity.
-    }
+    intros Ht.
+    intro Hcontra.
+    inversion Hcontra.
   } {
     (* EMO_True *)
-    split. {
-      intros H Ht.
-      contradict H; discriminate.
-    } {
-      intros H.
-      contradict H; constructor.
-    }
+    intros Ht.
+    contradict Ht.
+    discriminate.
   } {
     (* EMO_WithType *)
-    split. {
-      intros H Ht.
-      inversion Ht as [ |o1 t1 Heq| | ].
-      subst o1.
-      subst t1.
-      pose proof (ivIrrelevantEqual _ _ Heq) as Hir.
-      subst r.
-      contradict H.
-      simpl.
-      rewrite eqb_refl.
-      discriminate.
+    intros Ht.
+    intros Hcontra.
+    rewrite <- (exprMatchObjectEvalEquivalent_RF_T _ _ Hcontra) in Ht.
+    contradict Ht; discriminate.
+  } {
+    (* EMS_And *)
+    intros Ht.
+    intros Hcontra.
+    rewrite <- (exprMatchObjectEvalEquivalent_RF_T _ _ Hcontra) in Ht.
+    contradict Ht; discriminate.
+  } {
+    (* EMS_Or *)
+    intros Ht.
+    intros Hcontra.
+    rewrite <- (exprMatchObjectEvalEquivalent_RF_T _ _ Hcontra) in Ht.
+    contradict Ht; discriminate.
+  }
+Qed.
+
+Lemma exprMatchObjectEvalEquivalent_RF_F : forall a e,
+  ~exprMatchObjectEvalR a e -> false = exprMatchObjectEvalF a e.
+Proof.
+  intros s e.
+  induction e as [
+    |
+    |
+    |es Hes
+    |es Hes
+  ] using exprMatchObject_extendedInd. {
+    (* EMO_False *)
+    intros Ht.
+    reflexivity.
+  } {
+    (* EMO_True *)
+    intros Ht.
+    contradict Ht.
+    constructor.
+  } {
+    (* EMS_WithType *)
+    intros Ht.
+    destruct (exprMatchObjectEvalF s (EMO_WithType n)) eqn:H. {
+      symmetry in H.
+      rewrite exprMatchObjectEvalEquivalentT in H.
+      contradiction.
     } {
-      intros H.
-      destruct (exprMatchObjectEvalF o (EMO_WithType r)) eqn:Hd. {
-        simpl in Hd.
-        rewrite eqb_eq in Hd.
-        pose proof (ivIrrelevantEqual _ _ Hd) as Heq.
-        subst r.
-        assert (
-          exprMatchObjectEvalR o (EMO_WithType (oType o))
-        ) as Hcontra. {
-          constructor.
-          reflexivity.
-        }
-        contradiction.
-      } {
-        reflexivity.
-      }
+      reflexivity.
     }
   } {
-    (* EMO_And *)
-    split. {
-      intros Ht.
-      intros Hcontra.
-      inversion Hcontra as [ | |o1 e2 e3 [Hf0 Hf1]| ].
-      subst o1.
-      subst e2.
-      subst e3.
-      simpl in Ht.
-      destruct (Bool.andb_false_elim _ _ (eq_sym Ht)); intuition.
+    (* EMS_And *)
+    intros Ht.
+    destruct (exprMatchObjectEvalF s (EMO_And es)) eqn:H. {
+      symmetry in H.
+      rewrite exprMatchObjectEvalEquivalentT in H.
+      contradiction.
     } {
-      intros Ht.
-      destruct (exprMatchObjectEvalF o (EMO_And e0 e1)) eqn:H. {
-        symmetry in H.
-        rewrite exprMatchObjectEvalEquivalentT in H.
-        contradiction.
-      } {
-        reflexivity.
-      }
+      reflexivity.
     }
   } {
-    (* EMO_Or *)
-    split. {
-      intros Ht.
-      intros Hcontra.
-      inversion Hcontra as [ | | |o1 e2 e3 [Hf0|Hf1]].
-      subst o1.
-      subst e2.
-      subst e3.
-      simpl in Ht.
-      destruct (Bool.orb_false_elim _ _ (eq_sym Ht)) as [Hk0 Hk1]. {
-        symmetry in Hk0.
-        rewrite He0 in Hk0.
-        contradiction.
-      }
-      subst o1.
-      subst e2.
-      subst e3.
-      simpl in Ht.
-      destruct (Bool.orb_false_elim _ _ (eq_sym Ht)) as [Hk0 Hk1]. {
-        symmetry in Hk1.
-        rewrite He1 in Hk1.
-        contradiction.
-      }
+    (* EMS_Or *)
+    intros Ht.
+    destruct (exprMatchObjectEvalF s (EMO_Or es)) eqn:H. {
+      symmetry in H.
+      rewrite exprMatchObjectEvalEquivalentT in H.
+      contradiction.
     } {
-      intros Ht.
-      destruct (exprMatchObjectEvalF o (EMO_Or e0 e1)) eqn:H. {
-        symmetry in H.
-        rewrite exprMatchObjectEvalEquivalentT in H.
-        contradiction.
-      } {
-        reflexivity.
-      }
+      reflexivity.
     }
   }
+Qed.
+
+(** The evaluation function and the evaluation relation are equivalent. *)
+Theorem exprMatchObjectEvalEquivalentF : forall a e,
+  false = exprMatchObjectEvalF a e <-> ~exprMatchObjectEvalR a e.
+Proof.
+  split.
+  apply exprMatchObjectEvalEquivalent_FR_F.
+  apply exprMatchObjectEvalEquivalent_RF_F.
 Qed.
 
 (** The evaluation relation is decidable. *)

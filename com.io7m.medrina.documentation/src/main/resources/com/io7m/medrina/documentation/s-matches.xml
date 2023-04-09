@@ -54,12 +54,12 @@
           has at least one of the roles in <Term type="expression">s</Term>.
         </Item>
         <Item>
-          The expression <Term type="expression">EMS_And e0 e1</Term> matches when
-          <Term type="expression">e0</Term> and <Term type="expression">e1</Term> both match.
+          The expression <Term type="expression">EMS_And es</Term> matches when
+          all the subexpressions in <Term type="expression">es</Term> match.
         </Item>
         <Item>
-          The expression <Term type="expression">EMS_Or e0 e1</Term> matches when either
-          <Term type="expression">e0</Term> or <Term type="expression">e1</Term> matches.
+          The expression <Term type="expression">EMS_Or es</Term> matches when
+          any of the subexpressions in <Term type="expression">es</Term> match.
         </Item>
       </ListUnordered>
     </FormalItem>
@@ -115,12 +115,12 @@
           has the name <Term type="expression">n</Term>.
         </Item>
         <Item>
-          The expression <Term type="expression">EMA_And e0 e1</Term> matches when
-          <Term type="expression">e0</Term> and <Term type="expression">e1</Term> both match.
+          The expression <Term type="expression">EMA_And es</Term> matches when
+          all the subexpressions in <Term type="expression">es</Term> match.
         </Item>
         <Item>
-          The expression <Term type="expression">EMA_Or e0 e1</Term> matches when either
-          <Term type="expression">e0</Term> or <Term type="expression">e1</Term> matches.
+          The expression <Term type="expression">EMA_Or es</Term> matches when
+          any of the subexpressions in <Term type="expression">es</Term> match.
         </Item>
       </ListUnordered>
     </FormalItem>
@@ -176,12 +176,12 @@
           has the type <Term type="expression">t</Term>.
         </Item>
         <Item>
-          The expression <Term type="expression">EMO_And e0 e1</Term> matches when
-          <Term type="expression">e0</Term> and <Term type="expression">e1</Term> both match.
+          The expression <Term type="expression">EMO_And es</Term> matches when
+          all the subexpressions in <Term type="expression">es</Term> match.
         </Item>
         <Item>
-          The expression <Term type="expression">EMO_Or e0 e1</Term> matches when either
-          <Term type="expression">e0</Term> or <Term type="expression">e1</Term> matches.
+          The expression <Term type="expression">EMO_Or es</Term> matches when
+          any of the subexpressions in <Term type="expression">es</Term> match.
         </Item>
       </ListUnordered>
     </FormalItem>

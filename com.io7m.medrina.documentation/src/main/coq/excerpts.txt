@@ -21,19 +21,19 @@
 502 ! Record action : Set :=
 
 600 ! Inductive exprMatchSubject : Type
-601 ! Inductive exprMatchSubjectEvalR : subject
+601 ! Inductive exprMatchSubjectEvalR (
 602 ! Fixpoint exprMatchSubjectEvalF
 603 ! Theorem exprMatchSubjectEvalEquivalentT :
 604 ! Theorem exprMatchSubjectEvalEquivalentF :
 
 700 ! Inductive exprMatchAction : Type
-701 ! Inductive exprMatchActionEvalR : action
+701 ! Inductive exprMatchActionEvalR (
 702 ! Fixpoint exprMatchActionEvalF
 703 ! Theorem exprMatchActionEvalEquivalentT :
 704 ! Theorem exprMatchActionEvalEquivalentF :
 
 800 ! Inductive exprMatchObject : Type
-801 ! Inductive exprMatchObjectEvalR : object
+801 ! Inductive exprMatchObjectEvalR (
 802 ! Fixpoint exprMatchObjectEvalF
 803 ! Theorem exprMatchObjectEvalEquivalentT :
 804 ! Theorem exprMatchObjectEvalEquivalentF :
