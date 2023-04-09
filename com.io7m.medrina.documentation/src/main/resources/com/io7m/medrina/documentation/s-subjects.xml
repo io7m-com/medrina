@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section title="Subjects"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         id="bf1b37da-6ffd-47b8-ad79-fa6e457ecf39"
+         xmlns="urn:com.io7m.structural:8:0">
+
+  <Paragraph>
+    A <Term type="term">subject</Term> represents an entity attempting to perform
+    an <Link target="d1002bc3-ca15-4cab-88a3-931307976a3c">action</Link>. A
+    subject is in possession of a set of zero or more <Link target="0073a4fd-2f8a-4dc6-99f2-8166468c750a">roles</Link>:
+  </Paragraph>
+
+  <FormalItem title="Subjects">
+    <Verbatim><xi:include href="300.txt" parse="text"/></Verbatim>
+  </FormalItem>
+
+</Section>

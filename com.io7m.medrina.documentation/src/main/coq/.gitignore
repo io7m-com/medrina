@@ -1,0 +1,10 @@
+*.glob
+*.vo
+*.vok
+*.vos
+*.aux
+.csdp.cache
+.lia.cache
+old
+html
+junk

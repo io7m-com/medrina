@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section title="Matches"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         id="5df130b9-6edf-490a-aa9a-cd4a8d2c7629"
+         xmlns="urn:com.io7m.structural:8:0">
+
+  <Subsection title="Overview">
+    <Paragraph>
+      A <Term type="package">medrina</Term> security policy is evaluated by
+      <Term type="term">matching</Term> a
+      <Link target="bf1b37da-6ffd-47b8-ad79-fa6e457ecf39">subject</Link>,
+      <Link target="b39f58e4-4980-4e4e-b8fe-af3fdcaba886">object</Link>,
+      and <Link target="d1002bc3-ca15-4cab-88a3-931307976a3c">action</Link>
+      against a sequence of
+      <Link target="b5be6365-e204-4c02-837d-15245204e9b1">rules</Link>.
+    </Paragraph>
+  </Subsection>
+  
+  <Subsection title="Matching Subjects" id="9f9c064c-3e52-4f66-b805-52890acf1915">
+    <Paragraph>
+      The expression used to match a subject is described by the following
+      inductive type:
+    </Paragraph>
+    <FormalItem title="exprMatchSubject">
+      <Verbatim><xi:include href="600.txt" parse="text"/></Verbatim>
+    </FormalItem>
+    <Paragraph>
+      The expression, when evaluated, matches a subject when any of the following
+      conditions hold:
+    </Paragraph>
+    <FormalItem title="exprMatchSubjectEvalR">
+      <Verbatim><xi:include href="601.txt" parse="text"/></Verbatim>
+    </FormalItem>
+    <FormalItem title="exprMatchSubjectEvalR Description">
+      <ListUnordered>
+        <Item>
+          The expression <Term type="expression">EMS_False</Term> never matches
+          any subject. Note that there is no corresponding relationship expressed
+          in the <Term type="type">exprMatchSubjectEvalR</Term> type.
+        </Item>
+        <Item>
+          The expression <Term type="expression">EMS_True</Term> trivially matches
+          any subject.
+        </Item>
+        <Item>
+          The expression <Term type="expression">EMS_WithRolesAll r</Term> matches
+          any subject <Term type="expression">s</Term> where <Term type="expression">r</Term>
+          is a subset of the roles held by <Term type="expression">s</Term>.
+        </Item>
+        <Item>
+          The expression <Term type="expression">EMS_WithRolesAny r</Term> matches
+          any subject <Term type="expression">s</Term> where <Term type="expression">s</Term>
+          has at least one of the roles in <Term type="expression">s</Term>.
+        </Item>
+        <Item>
+          The expression <Term type="expression">EMS_And es</Term> matches when
+          all the subexpressions in <Term type="expression">es</Term> match.
+        </Item>
+        <Item>
+          The expression <Term type="expression">EMS_Or es</Term> matches when
+          any of the subexpressions in <Term type="expression">es</Term> match.
+        </Item>
+      </ListUnordered>
+    </FormalItem>
+    <Paragraph>
+      Given a subject <Term type="expression">s</Term> and expression
+      <Term type="expression">e</Term>, the following evaluation function
+      returns <Term type="expression">true</Term> if <Term type="expression">e</Term>
+      matches <Term type="expression">s</Term>:
+    </Paragraph>
+    <FormalItem title="exprMatchSubjectEvalF">
+      <Verbatim><xi:include href="602.txt" parse="text"/></Verbatim>
+    </FormalItem>
+    <Paragraph>
+      The evaluation function and the evaluation relation are equivalent.
+    </Paragraph>
+    <FormalItem title="exprMatchSubjectEvalEquivalentT">
+      <Verbatim><xi:include href="603.txt" parse="text"/></Verbatim>
+    </FormalItem>
+    <FormalItem title="exprMatchSubjectEvalEquivalentF">
+      <Verbatim><xi:include href="604.txt" parse="text"/></Verbatim>
+    </FormalItem>
+  </Subsection>
+
+  <Subsection title="Matching Actions" id="0de6c2f0-6dcd-4256-9fde-88278374da0c">
+    <Paragraph>
+      The expression used to match a action is described by the following
+      inductive type:
+    </Paragraph>
+    <FormalItem title="exprMatchAction">
+      <Verbatim><xi:include href="700.txt" parse="text"/></Verbatim>
+    </FormalItem>
+    <Paragraph>
+      The expression, when evaluated, matches a action when any of the following
+      conditions hold:
+    </Paragraph>
+    <FormalItem title="exprMatchActionEvalR">
+      <Verbatim><xi:include href="701.txt" parse="text"/></Verbatim>
+    </FormalItem>
+    <FormalItem title="exprMatchActionEvalR Description">
+      <ListUnordered>
+        <Item>
+          The expression <Term type="expression">EMA_False</Term> never matches
+          any action. Note that there is no corresponding relationship expressed
+          in the <Term type="type">exprMatchActionEvalR</Term> type.
+        </Item>
+        <Item>
+          The expression <Term type="expression">EMA_True</Term> trivially matches
+          any action.
+        </Item>
+        <Item>
+          The expression <Term type="expression">EMA_WithName n</Term> matches
+          any action <Term type="expression">a</Term> where <Term type="expression">a</Term>
+          has the name <Term type="expression">n</Term>.
+        </Item>
+        <Item>
+          The expression <Term type="expression">EMA_And es</Term> matches when
+          all the subexpressions in <Term type="expression">es</Term> match.
+        </Item>
+        <Item>
+          The expression <Term type="expression">EMA_Or es</Term> matches when
+          any of the subexpressions in <Term type="expression">es</Term> match.
+        </Item>
+      </ListUnordered>
+    </FormalItem>
+    <Paragraph>
+      Given a action <Term type="expression">a</Term> and expression
+      <Term type="expression">e</Term>, the following evaluation function
+      returns <Term type="expression">true</Term> if <Term type="expression">e</Term>
+      matches <Term type="expression">a</Term>:
+    </Paragraph>
+    <FormalItem title="exprMatchActionEvalF">
+      <Verbatim><xi:include href="702.txt" parse="text"/></Verbatim>
+    </FormalItem>
+    <Paragraph>
+      The evaluation function and the evaluation relation are equivalent.
+    </Paragraph>
+    <FormalItem title="exprMatchActionEvalEquivalentT">
+      <Verbatim><xi:include href="703.txt" parse="text"/></Verbatim>
+    </FormalItem>
+    <FormalItem title="exprMatchActionEvalEquivalentF">
+      <Verbatim><xi:include href="704.txt" parse="text"/></Verbatim>
+    </FormalItem>
+  </Subsection>
+
+  <Subsection title="Matching Objects" id="fdaccd67-ce7d-4591-ae20-3c44378b17b5">
+    <Paragraph>
+      The expression used to match an object is described by the following
+      inductive type:
+    </Paragraph>
+    <FormalItem title="exprMatchObject">
+      <Verbatim><xi:include href="800.txt" parse="text"/></Verbatim>
+    </FormalItem>
+    <Paragraph>
+      The expression, when evaluated, matches an object when any of the following
+      conditions hold:
+    </Paragraph>
+    <FormalItem title="exprMatchObjectEvalR">
+      <Verbatim><xi:include href="801.txt" parse="text"/></Verbatim>
+    </FormalItem>
+    <FormalItem title="exprMatchObjectEvalR Description">
+      <ListUnordered>
+        <Item>
+          The expression <Term type="expression">EMO_False</Term> never matches
+          any object. Note that there is no corresponding relationship expressed
+          in the <Term type="type">exprMatchObjectEvalR</Term> type.
+        </Item>
+        <Item>
+          The expression <Term type="expression">EMO_True</Term> trivially matches
+          any object.
+        </Item>
+        <Item>
+          The expression <Term type="expression">EMO_WithType t</Term> matches
+          any object <Term type="expression">o</Term> where <Term type="expression">o</Term>
+          has the type <Term type="expression">t</Term>.
+        </Item>
+        <Item>
+          The expression <Term type="expression">EMO_And es</Term> matches when
+          all the subexpressions in <Term type="expression">es</Term> match.
+        </Item>
+        <Item>
+          The expression <Term type="expression">EMO_Or es</Term> matches when
+          any of the subexpressions in <Term type="expression">es</Term> match.
+        </Item>
+      </ListUnordered>
+    </FormalItem>
+    <Paragraph>
+      Given an object <Term type="expression">o</Term> and expression
+      <Term type="expression">e</Term>, the following evaluation function
+      returns <Term type="expression">true</Term> if <Term type="expression">e</Term>
+      matches <Term type="expression">o</Term>:
+    </Paragraph>
+    <FormalItem title="exprMatchObjectEvalF">
+      <Verbatim><xi:include href="802.txt" parse="text"/></Verbatim>
+    </FormalItem>
+    <Paragraph>
+      The evaluation function and the evaluation relation are equivalent.
+    </Paragraph>
+    <FormalItem title="exprMatchObjectEvalEquivalentT">
+      <Verbatim><xi:include href="803.txt" parse="text"/></Verbatim>
+    </FormalItem>
+    <FormalItem title="exprMatchObjectEvalEquivalentF">
+      <Verbatim><xi:include href="804.txt" parse="text"/></Verbatim>
+    </FormalItem>
+  </Subsection>
+
+</Section>

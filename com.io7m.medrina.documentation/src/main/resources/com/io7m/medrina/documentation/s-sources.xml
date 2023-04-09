@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section title="Sources"
+         id="385c9d95-200d-4e83-8f2e-8b7e50b8ded3"
+         xmlns="urn:com.io7m.structural:8:0"
+         xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <Paragraph>
+    The full sources for the Coq/Gallina model underlying this specification are
+    included here.
+  </Paragraph>
+
+  <FormalItem title="Medrina/Actions.v" id="965a7e0f-c984-5c54-bfcc-889e9856221b">
+    <Verbatim><xi:include href="Medrina/Actions.v" parse="text"/></Verbatim>
+  </FormalItem>
+  <FormalItem title="Medrina/Attributes.v" id="7dc244d3-0d0c-558f-9a9e-fb9f4de247bd">
+    <Verbatim><xi:include href="Medrina/Attributes.v" parse="text"/></Verbatim>
+  </FormalItem>
+  <FormalItem title="Medrina/Matches.v" id="a498d8a2-a275-5861-a41a-5be84ab43648">
+    <Verbatim><xi:include href="Medrina/Matches.v" parse="text"/></Verbatim>
+  </FormalItem>
+  <FormalItem title="Medrina/Names.v" id="0d19ef89-4476-54c4-a722-f6d8299ff9dd">
+    <Verbatim><xi:include href="Medrina/Names.v" parse="text"/></Verbatim>
+  </FormalItem>
+  <FormalItem title="Medrina/Objects.v" id="e63163ce-742d-5a37-91b7-3da302d2b5c3">
+    <Verbatim><xi:include href="Medrina/Objects.v" parse="text"/></Verbatim>
+  </FormalItem>
+  <FormalItem title="Medrina/Policies.v" id="df762284-e8d9-5a8a-be04-c527f42a114c">
+    <Verbatim><xi:include href="Medrina/Policies.v" parse="text"/></Verbatim>
+  </FormalItem>
+  <FormalItem title="Medrina/Roles.v" id="9300959c-fbb0-5e08-9faf-6a2d053f9be3">
+    <Verbatim><xi:include href="Medrina/Roles.v" parse="text"/></Verbatim>
+  </FormalItem>
+  <FormalItem title="Medrina/Rules.v" id="7187a6d5-121d-53e5-8be4-e14d467651ce">
+    <Verbatim><xi:include href="Medrina/Rules.v" parse="text"/></Verbatim>
+  </FormalItem>
+  <FormalItem title="Medrina/Subjects.v" id="1090b7d7-aaf6-5846-815b-3c9b764f4033">
+    <Verbatim><xi:include href="Medrina/Subjects.v" parse="text"/></Verbatim>
+  </FormalItem>
+
+</Section>

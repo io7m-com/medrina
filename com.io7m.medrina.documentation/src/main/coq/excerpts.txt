@@ -1,0 +1,67 @@
+0 ! Definition acceptableCharacters :
+1 ! Definition validName (s : string) :
+2 ! Theorem validNameDecidable : forall s,
+
+100 ! Record attributeName :=
+101 ! Theorem attributeNameDec :
+102 ! Record attributeValue :=
+103 ! Theorem attributeValueDec :
+
+200 ! Record roleName :=
+201 ! Theorem roleNameDec :
+
+300 ! Record subject :=
+
+400 ! Record typeName :=
+401 ! Theorem typeNameDec :
+402 ! Record object :=
+
+500 ! Record actionName :=
+501 ! Theorem actionNameDec :
+502 ! Record action : Set :=
+
+600 ! Inductive exprMatchSubject : Type
+601 ! Inductive exprMatchSubjectEvalR (
+602 ! Fixpoint exprMatchSubjectEvalF
+603 ! Theorem exprMatchSubjectEvalEquivalentT :
+604 ! Theorem exprMatchSubjectEvalEquivalentF :
+
+700 ! Inductive exprMatchAction : Type
+701 ! Inductive exprMatchActionEvalR (
+702 ! Fixpoint exprMatchActionEvalF
+703 ! Theorem exprMatchActionEvalEquivalentT :
+704 ! Theorem exprMatchActionEvalEquivalentF :
+
+800 ! Inductive exprMatchObject : Type
+801 ! Inductive exprMatchObjectEvalR (
+802 ! Fixpoint exprMatchObjectEvalF
+803 ! Theorem exprMatchObjectEvalEquivalentT :
+804 ! Theorem exprMatchObjectEvalEquivalentF :
+
+900 ! Record rule := Rule
+901 ! Inductive ruleConclusion : Set
+902 ! Inductive ruleMatchesR :
+903 ! Definition ruleMatchesF
+904 ! Theorem ruleMatchesFEquivalentT :
+905 ! Theorem ruleMatchesFEquivalentF :
+
+1000 ! Definition policy :=
+1001 ! Inductive access : Set
+1002 ! Inductive halt : Set
+1003 ! Inductive evaluationOfRule : Set
+1004 ! Definition evaluateRule
+1005 ! Fixpoint evaluateRulesInF
+1006 ! Definition evaluateRules
+1007 ! Definition evaluatePolicy
+
+1008 ! Definition ruleAllows (r : rule) :
+1009 ! Definition ruleDenies (r : rule) :
+1010 ! Definition ruleHaltsOnMatch (r : rule) :
+1011 ! Definition ruleDoesNotHaltOnMatch (r : rule) :
+1012 ! Definition ruleDoesNotMatch
+1013 ! Definition ruleMatchesWithConclusion
+
+1100 ! Theorem evaluateRulesDefaultDenyNoMatches :
+1101 ! Theorem evaluateRulesLastMatchingPreNoHalt :
+1102 ! Theorem evaluateRulesPostNotMatching :
+1103 ! Theorem evaluateRulesPreNotMatching :

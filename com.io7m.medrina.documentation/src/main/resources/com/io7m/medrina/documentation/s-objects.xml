@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section title="Objects"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         id="b39f58e4-4980-4e4e-b8fe-af3fdcaba886"
+         xmlns="urn:com.io7m.structural:8:0">
+
+  <Paragraph>
+    An <Term type="term">object</Term> is an entity upon which
+    <Link target="bf1b37da-6ffd-47b8-ad79-fa6e457ecf39">subjects</Link> may attempt
+    to perform <Link target="d1002bc3-ca15-4cab-88a3-931307976a3c">actions</Link>.
+  </Paragraph>
+
+  <Paragraph>
+    An object has an associated <Term type="term">type</Term>. Type names are
+    <Link target="db2f7a0b-4896-45d1-8e30-0bc3e66fc664">valid names</Link> and
+    have decidable equality:
+  </Paragraph>
+
+  <FormalItem title="Type Names">
+    <Verbatim><xi:include href="400.txt" parse="text"/></Verbatim>
+  </FormalItem>
+  <FormalItem title="Type Names (Decidable)">
+    <Verbatim><xi:include href="401.txt" parse="text"/></Verbatim>
+  </FormalItem>
+
+  <Paragraph>
+    An object has a set of associated <Link target="deeb7a77-578e-4ab9-b971-c16a1bdf516e">attributes</Link>:
+  </Paragraph>
+
+  <FormalItem title="Objects">
+    <Verbatim><xi:include href="402.txt" parse="text"/></Verbatim>
+  </FormalItem>
+
+</Section>

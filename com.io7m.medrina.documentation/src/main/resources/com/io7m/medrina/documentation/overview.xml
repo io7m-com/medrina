@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section title="Overview"
+         id="f94d3e93-255a-421c-ae1f-dbeba43a4a7c"
+         xmlns="urn:com.io7m.structural:8:0">
+
+  <Paragraph>
+    The <Term type="package">medrina</Term> package provides a completely application-neutral implementation
+    of a role-based mandatory access control system.
+  </Paragraph>
+
+</Section>
