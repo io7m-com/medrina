@@ -105,10 +105,9 @@ public final class MPolicyParsers implements MPolicyParserFactoryType
     private final MStrings strings;
     private final JSXParserType parser;
     private final InputStream stream;
-    private final Consumer<ParseStatus> statusConsumer;
     private final ArrayList<ParseStatus> errors;
+    private final Consumer<ParseStatus> statusLogger;
     private int errorCount;
-    private boolean failed;
 
     MPolicyParser(
       final MStrings inStrings,
@@ -122,11 +121,17 @@ public final class MPolicyParsers implements MPolicyParserFactoryType
         Objects.requireNonNull(inParser, "parser");
       this.stream =
         Objects.requireNonNull(inStream, "stream");
-      this.statusConsumer =
-        Objects.requireNonNull(inStatusConsumer, "inStatusConsumer");
-      this.errors =
-        new ArrayList<>();
+
+      Objects.requireNonNull(inStatusConsumer, "inStatusConsumer");
+      this.errors = new ArrayList<>();
       this.errorCount = 0;
+      this.statusLogger = status -> {
+        this.errors.add(status);
+        if (status.severity() == ParseSeverity.PARSE_ERROR) {
+          ++this.errorCount;
+        }
+        inStatusConsumer.accept(status);
+      };
     }
 
     @Override
@@ -136,8 +141,26 @@ public final class MPolicyParsers implements MPolicyParserFactoryType
       final var expressionParser =
         new MExpressionParser(
           this.strings,
-          this.statusConsumer
+          this.statusLogger
         );
+
+      try {
+        final Optional<SExpressionType> expressionOpt =
+          this.parser.parseExpressionOrEOF();
+        if (expressionOpt.isEmpty()) {
+          return new MPolicy(List.of());
+        }
+
+        expressionParser.checkVersion(
+          expressionParser.parseVersion(expressionOpt.get())
+        );
+      } catch (final JSXParserException e) {
+        this.statusLogger.accept(parserExceptionToStatus(e));
+      } catch (final IOException e) {
+        this.statusLogger.accept(ioExceptionToStatus(e));
+      } catch (final MExpressionParser.ExpressionParseException e) {
+        this.errorCount += 1;
+      }
 
       final var rules = new ArrayList<MRule>();
       while (this.errorCount < 20) {
@@ -150,29 +173,19 @@ public final class MPolicyParsers implements MPolicyParserFactoryType
 
           rules.add(expressionParser.parseRule(expressionOpt.get()));
         } catch (final JSXParserException e) {
-          this.publishError(parserExceptionToStatus(e));
+          this.statusLogger.accept(parserExceptionToStatus(e));
         } catch (final IOException e) {
-          this.publishError(ioExceptionToStatus(e));
+          this.statusLogger.accept(ioExceptionToStatus(e));
         } catch (final MExpressionParser.ExpressionParseException e) {
-          this.failed = true;
           this.errorCount += 1;
         }
       }
 
-      if (!this.failed) {
+      if (this.errorCount == 0) {
         return new MPolicy(List.copyOf(rules));
       }
 
       throw new ParseException("Parse failed.", List.copyOf(this.errors));
-    }
-
-    private void publishError(
-      final ParseStatus status)
-    {
-      this.errors.add(status);
-      this.failed = true;
-      this.errorCount += 1;
-      this.statusConsumer.accept(status);
     }
 
     private static ParseStatus parserExceptionToStatus(

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section title="Overview"
+         id="ef074067-7b40-4880-960f-e70b7f3c9236"
+         xmlns="urn:com.io7m.structural:8:0">
+
+  <Paragraph>
+    This section of the user manual defines the formal specification for the
+    <Term type="package">medrina</Term>
+    package. The purpose of the specification is to provide a description of the expected behaviour of the
+    package, along with proofs of correctness of various properties of the specification
+    <LinkFootnote target="4814cd9d-148c-45c3-b077-65b1159a65c7"/>.
+  </Paragraph>
+
+  <Footnote id="4814cd9d-148c-45c3-b077-65b1159a65c7">
+    Note that the proofs of correctness do not constitute proof that the <Term type="term">implementation</Term>
+    of the <Term type="package">medrina</Term> package is correct; the implementation code is manually translated
+    from the specification code, and this allows for human error in the transcription and the possibility of
+    differing semantics of the execution environment. The specification itself is intended to provide an unambiguous
+    description of the behaviour that an implementation <Term type="term">should</Term> have, and the proofs of
+    correctness are intended to demonstrate the absence of design flaws in the system as specified.
+  </Footnote>
+
+</Section>

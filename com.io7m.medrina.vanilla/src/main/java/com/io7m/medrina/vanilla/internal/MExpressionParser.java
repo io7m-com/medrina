@@ -43,7 +43,9 @@ import com.io7m.medrina.api.MRoleName;
 import com.io7m.medrina.api.MRule;
 import com.io7m.medrina.api.MRuleConclusion;
 import com.io7m.medrina.api.MTypeName;
+import com.io7m.medrina.api.MVersion;
 
+import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -68,21 +70,25 @@ import static com.io7m.medrina.api.MMatchSubjectType.MMatchSubjectTrue;
 public final class MExpressionParser
 {
   private final MStrings strings;
-  private final ArrayList<ParseStatus> errors;
   private final Consumer<ParseStatus> errorConsumer;
-  private final String syntaxRoleName;
-  private final String syntaxRoleMatch;
-  private final String objectSubjectMatch;
-  private final String objectObjectMatch;
-  private final String syntaxObjectMatch;
-  private final String syntaxTypeName;
-  private final String objectActionMatch;
-  private final String syntaxActionMatch;
-  private final String syntaxActionName;
+  private final String describeMatchAction;
+  private final String describeMatchActionE;
+  private final String describeMatchObject;
+  private final String describeMatchObjectE;
+  private final String describeMatchSubject;
+  private final String describeMatchSubjectE;
+  private final String describeRule;
+  private final String describeRuleConclusion;
+  private final String describeVersion;
+  private final String syntaxMatchAction;
+  private final String syntaxMatchActionE;
+  private final String syntaxMatchObject;
+  private final String syntaxMatchObjectE;
+  private final String syntaxMatchSubject;
+  private final String syntaxMatchSubjectE;
   private final String syntaxRule;
-  private final String objectRule;
   private final String syntaxRuleConclusion;
-  private final String objectRuleConclusion;
+  private final String syntaxVersion;
 
   /**
    * Construct a parser.
@@ -99,35 +105,44 @@ public final class MExpressionParser
       Objects.requireNonNull(inStrings, "strings");
     this.errorConsumer =
       Objects.requireNonNull(inErrorConsumer, "errorConsumer");
-    this.errors =
-      new ArrayList<ParseStatus>();
 
-    this.objectActionMatch =
-      this.strings.format("objectActionMatch");
-    this.objectSubjectMatch =
-      this.strings.format("objectSubjectMatch");
-    this.objectObjectMatch =
-      this.strings.format("objectObjectMatch");
-    this.objectRule =
-      this.strings.format("objectRule");
-    this.objectRuleConclusion =
-      this.strings.format("objectRuleConclusion");
-    this.syntaxRoleName =
-      this.strings.format("syntaxRoleName");
-    this.syntaxActionName =
-      this.strings.format("syntaxActionName");
-    this.syntaxRoleMatch =
-      this.strings.format("syntaxSubjectMatch");
-    this.syntaxObjectMatch =
-      this.strings.format("syntaxObjectMatch");
-    this.syntaxActionMatch =
-      this.strings.format("syntaxActionMatch");
-    this.syntaxTypeName =
-      this.strings.format("syntaxTypeName");
+    this.syntaxMatchActionE =
+      inStrings.format("matchActionE");
+    this.syntaxMatchSubjectE =
+      inStrings.format("matchSubjectE");
+    this.syntaxMatchObjectE =
+      inStrings.format("matchObjectE");
+    this.syntaxMatchAction =
+      inStrings.format("matchAction");
+    this.syntaxMatchSubject =
+      inStrings.format("matchSubject");
+    this.syntaxMatchObject =
+      inStrings.format("matchObject");
     this.syntaxRule =
-      this.strings.format("syntaxRule");
+      inStrings.format("rule");
     this.syntaxRuleConclusion =
-      this.strings.format("syntaxRuleConclusion");
+      inStrings.format("ruleConclusion");
+    this.syntaxVersion =
+      inStrings.format("version");
+
+    this.describeMatchActionE =
+      inStrings.format("describeMatchActionE");
+    this.describeMatchSubjectE =
+      inStrings.format("describeMatchSubjectE");
+    this.describeMatchObjectE =
+      inStrings.format("describeMatchObjectE");
+    this.describeMatchAction =
+      inStrings.format("describeMatchAction");
+    this.describeMatchSubject =
+      inStrings.format("describeMatchSubject");
+    this.describeMatchObject =
+      inStrings.format("describeMatchObject");
+    this.describeRule =
+      inStrings.format("describeRule");
+    this.describeRuleConclusion =
+      inStrings.format("describeRuleConclusion");
+    this.describeVersion =
+      inStrings.format("describeVersion");
   }
 
   private MMatchActionAnd parseMatchActionAnd(
@@ -142,7 +157,7 @@ public final class MExpressionParser
     for (int index = 1; index < subExpressions.size(); ++index) {
       final var expression = subExpressions.get(index);
       try {
-        matches.add(this.parseMatchAction(expression));
+        matches.add(this.parseMatchActionE(expression));
       } catch (final ExpressionParseException e) {
         exceptions.addException(e);
       }
@@ -164,7 +179,7 @@ public final class MExpressionParser
     for (int index = 1; index < subExpressions.size(); ++index) {
       final var expression = subExpressions.get(index);
       try {
-        matches.add(this.parseMatchAction(expression));
+        matches.add(this.parseMatchActionE(expression));
       } catch (final ExpressionParseException e) {
         exceptions.addException(e);
       }
@@ -190,27 +205,46 @@ public final class MExpressionParser
   {
     Objects.requireNonNull(expression, "expression");
 
-    if (expression instanceof SSymbol symbol) {
+    if (expression instanceof SList list
+        && list.size() == 2
+        && list.get(0) instanceof SSymbol symbol
+        && Objects.equals(symbol.text(), "action")) {
+      return this.parseMatchActionE(list.get(1));
+    }
+
+    throw this.errorExpectedReceived(
+      expression.lexical(),
+      this.describeMatchAction,
+      this.show(expression),
+      this.syntaxMatchAction
+    );
+  }
+
+  private MMatchActionType parseMatchActionE(
+    final SExpressionType expression)
+    throws ExpressionParseException
+  {
+    if (expression instanceof final SSymbol symbol) {
       return switch (symbol.text()) {
         case "true" -> new MMatchActionTrue();
         case "false" -> new MMatchActionFalse();
         default -> throw this.errorExpectedReceived(
           expression.lexical(),
-          this.objectActionMatch,
+          this.describeMatchActionE,
           this.show(expression),
-          this.syntaxActionMatch
+          this.syntaxMatchActionE
         );
       };
     }
 
-    if (expression instanceof SList list) {
+    if (expression instanceof final SList list) {
       final var subExpressions = list.expressions();
       if (subExpressions.size() >= 1) {
         final var symbol =
           this.requireSymbol(
             subExpressions.get(0),
-            this.objectActionMatch,
-            this.syntaxActionMatch
+            this.describeMatchActionE,
+            this.syntaxMatchActionE
           );
 
         return switch (symbol.text()) {
@@ -220,9 +254,9 @@ public final class MExpressionParser
             } catch (final ExpressionParseException e) {
               throw this.errorExpectedReceived(
                 expression.lexical(),
-                this.objectActionMatch,
+                this.describeMatchActionE,
                 this.show(expression),
-                this.syntaxActionMatch
+                this.syntaxMatchActionE
               );
             }
           }
@@ -232,29 +266,29 @@ public final class MExpressionParser
             } catch (final ExpressionParseException e) {
               throw this.errorExpectedReceived(
                 expression.lexical(),
-                this.objectActionMatch,
+                this.describeMatchActionE,
                 this.show(expression),
-                this.syntaxActionMatch
+                this.syntaxMatchActionE
               );
             }
           }
-          case "action-with-name" -> {
+          case "with-name" -> {
             try {
               yield this.parseMatchActionWithName(subExpressions);
             } catch (final ExpressionParseException e) {
               throw this.errorExpectedReceived(
                 expression.lexical(),
-                this.objectActionMatch,
+                this.describeMatchActionE,
                 this.show(expression),
-                this.syntaxActionMatch
+                this.syntaxMatchActionE
               );
             }
           }
           default -> throw this.errorExpectedReceived(
             expression.lexical(),
-            this.objectActionMatch,
+            this.describeMatchActionE,
             this.show(expression),
-            this.syntaxActionMatch
+            this.syntaxMatchActionE
           );
         };
       }
@@ -262,9 +296,9 @@ public final class MExpressionParser
 
     throw this.errorExpectedReceived(
       expression.lexical(),
-      this.objectActionMatch,
+      this.describeMatchActionE,
       this.show(expression),
-      this.syntaxActionMatch
+      this.syntaxMatchActionE
     );
   }
 
@@ -282,17 +316,17 @@ public final class MExpressionParser
         return new MMatchActionWithName(new MActionName(
           this.requireSymbol(
               expression,
-              this.objectActionMatch,
-              this.syntaxActionName)
+              this.describeMatchActionE,
+              this.syntaxMatchActionE)
             .text()
         ));
       } catch (final IllegalArgumentException e) {
         try {
           throw this.errorExpectedReceived(
             expression.lexical(),
-            this.objectActionMatch,
+            this.describeMatchActionE,
             this.show(expression),
-            this.syntaxTypeName
+            this.syntaxMatchActionE
           );
         } catch (final ExpressionParseException ex) {
           exceptions.addException(ex);
@@ -304,9 +338,9 @@ public final class MExpressionParser
 
     throw this.errorExpectedReceived(
       subExpressions.get(0).lexical(),
-      this.objectActionMatch,
+      this.describeMatchActionE,
       this.show(subExpressions.get(0)),
-      this.syntaxActionName
+      this.syntaxMatchActionE
     );
   }
 
@@ -326,27 +360,46 @@ public final class MExpressionParser
   {
     Objects.requireNonNull(expression, "expression");
 
-    if (expression instanceof SSymbol symbol) {
+    if (expression instanceof SList list
+        && list.size() == 2
+        && list.get(0) instanceof SSymbol symbol
+        && Objects.equals(symbol.text(), "object")) {
+      return this.parseMatchObjectE(list.get(1));
+    }
+
+    throw this.errorExpectedReceived(
+      expression.lexical(),
+      this.describeMatchObject,
+      this.show(expression),
+      this.syntaxMatchObject
+    );
+  }
+
+  private MMatchObjectType parseMatchObjectE(
+    final SExpressionType expression)
+    throws ExpressionParseException
+  {
+    if (expression instanceof final SSymbol symbol) {
       return switch (symbol.text()) {
         case "true" -> new MMatchObjectTrue();
         case "false" -> new MMatchObjectFalse();
         default -> throw this.errorExpectedReceived(
           expression.lexical(),
-          this.objectActionMatch,
+          this.describeMatchObjectE,
           this.show(expression),
-          this.syntaxActionMatch
+          this.syntaxMatchObjectE
         );
       };
     }
 
-    if (expression instanceof SList list) {
+    if (expression instanceof final SList list) {
       final var subExpressions = list.expressions();
       if (subExpressions.size() >= 1) {
         final var symbol =
           this.requireSymbol(
             subExpressions.get(0),
-            this.objectObjectMatch,
-            this.syntaxObjectMatch
+            this.describeMatchObjectE,
+            this.syntaxMatchObjectE
           );
 
         return switch (symbol.text()) {
@@ -356,9 +409,9 @@ public final class MExpressionParser
             } catch (final ExpressionParseException e) {
               throw this.errorExpectedReceived(
                 expression.lexical(),
-                this.objectObjectMatch,
+                this.describeMatchObjectE,
                 this.show(expression),
-                this.syntaxObjectMatch
+                this.syntaxMatchObjectE
               );
             }
           }
@@ -368,29 +421,29 @@ public final class MExpressionParser
             } catch (final ExpressionParseException e) {
               throw this.errorExpectedReceived(
                 expression.lexical(),
-                this.objectObjectMatch,
+                this.describeMatchObjectE,
                 this.show(expression),
-                this.syntaxObjectMatch
+                this.syntaxMatchObjectE
               );
             }
           }
-          case "object-with-type" -> {
+          case "with-type" -> {
             try {
               yield this.parseMatchObjectWithType(subExpressions);
             } catch (final ExpressionParseException e) {
               throw this.errorExpectedReceived(
                 expression.lexical(),
-                this.objectObjectMatch,
+                this.describeMatchObjectE,
                 this.show(expression),
-                this.syntaxObjectMatch
+                this.syntaxMatchObjectE
               );
             }
           }
           default -> throw this.errorExpectedReceived(
             expression.lexical(),
-            this.objectObjectMatch,
+            this.describeMatchObjectE,
             this.show(expression),
-            this.syntaxObjectMatch
+            this.syntaxMatchObjectE
           );
         };
       }
@@ -398,9 +451,9 @@ public final class MExpressionParser
 
     throw this.errorExpectedReceived(
       expression.lexical(),
-      this.objectObjectMatch,
+      this.describeMatchObjectE,
       this.show(expression),
-      this.syntaxObjectMatch
+      this.syntaxMatchObjectE
     );
   }
 
@@ -418,17 +471,17 @@ public final class MExpressionParser
         return new MMatchObjectWithType(new MTypeName(
           this.requireSymbol(
               expression,
-              this.objectSubjectMatch,
-              this.syntaxTypeName)
+              this.describeMatchObjectE,
+              this.syntaxMatchObjectE)
             .text()
         ));
       } catch (final IllegalArgumentException e) {
         try {
           throw this.errorExpectedReceived(
             expression.lexical(),
-            this.objectSubjectMatch,
+            this.describeMatchObjectE,
             this.show(expression),
-            this.syntaxTypeName
+            this.syntaxMatchObjectE
           );
         } catch (final ExpressionParseException ex) {
           exceptions.addException(ex);
@@ -440,9 +493,9 @@ public final class MExpressionParser
 
     throw this.errorExpectedReceived(
       subExpressions.get(0).lexical(),
-      this.objectSubjectMatch,
+      this.describeMatchObjectE,
       this.show(subExpressions.get(0)),
-      this.syntaxTypeName
+      this.syntaxMatchObjectE
     );
   }
 
@@ -462,83 +515,102 @@ public final class MExpressionParser
   {
     Objects.requireNonNull(expression, "expression");
 
-    if (expression instanceof SSymbol symbol) {
+    if (expression instanceof SList list
+        && list.size() == 2
+        && list.get(0) instanceof SSymbol symbol
+        && Objects.equals(symbol.text(), "subject")) {
+      return this.parseMatchSubjectE(list.get(1));
+    }
+
+    throw this.errorExpectedReceived(
+      expression.lexical(),
+      this.describeMatchSubject,
+      this.show(expression),
+      this.syntaxMatchSubject
+    );
+  }
+
+  private MMatchSubjectType parseMatchSubjectE(
+    final SExpressionType expression)
+    throws ExpressionParseException
+  {
+    if (expression instanceof final SSymbol symbol) {
       return switch (symbol.text()) {
         case "true" -> new MMatchSubjectTrue();
         case "false" -> new MMatchSubjectFalse();
         default -> throw this.errorExpectedReceived(
           expression.lexical(),
-          this.objectActionMatch,
+          this.describeMatchSubjectE,
           this.show(expression),
-          this.syntaxActionMatch
+          this.syntaxMatchSubjectE
         );
       };
     }
 
-    if (expression instanceof SList list) {
+    if (expression instanceof final SList list) {
       final var subExpressions = list.expressions();
       if (subExpressions.size() >= 1) {
         final var symbol =
           this.requireSymbol(
             subExpressions.get(0),
-            this.objectSubjectMatch,
-            this.syntaxRoleMatch
+            this.describeMatchSubjectE,
+            this.syntaxMatchSubjectE
           );
 
         return switch (symbol.text()) {
           case "and" -> {
             try {
-              yield this.parseMatchRolesAnd(subExpressions);
+              yield this.parseMatchSubjectAnd(subExpressions);
             } catch (final ExpressionParseException e) {
               throw this.errorExpectedReceived(
                 expression.lexical(),
-                this.objectSubjectMatch,
+                this.describeMatchSubjectE,
                 this.show(expression),
-                this.syntaxRoleMatch
+                this.syntaxMatchSubjectE
               );
             }
           }
           case "or" -> {
             try {
-              yield this.parseMatchRolesOr(subExpressions);
+              yield this.parseMatchSubjectOr(subExpressions);
             } catch (final ExpressionParseException e) {
               throw this.errorExpectedReceived(
                 expression.lexical(),
-                this.objectSubjectMatch,
+                this.describeMatchSubjectE,
                 this.show(expression),
-                this.syntaxRoleMatch
+                this.syntaxMatchSubjectE
               );
             }
           }
-          case "subject-with-all-roles" -> {
+          case "with-all-roles" -> {
             try {
-              yield this.parseMatchRolesWithAll(subExpressions);
+              yield this.parseMatchSubjectRolesWithAll(subExpressions);
             } catch (final ExpressionParseException e) {
               throw this.errorExpectedReceived(
                 expression.lexical(),
-                this.objectSubjectMatch,
+                this.describeMatchSubjectE,
                 this.show(expression),
-                this.syntaxRoleMatch
+                this.syntaxMatchSubjectE
               );
             }
           }
-          case "subject-with-any-roles" -> {
+          case "with-any-roles" -> {
             try {
-              yield this.parseMatchRolesWithAny(subExpressions);
+              yield this.parseMatchSubjectRolesWithAny(subExpressions);
             } catch (final ExpressionParseException e) {
               throw this.errorExpectedReceived(
                 expression.lexical(),
-                this.objectSubjectMatch,
+                this.describeMatchSubjectE,
                 this.show(expression),
-                this.syntaxRoleMatch
+                this.syntaxMatchSubjectE
               );
             }
           }
           default -> throw this.errorExpectedReceived(
             expression.lexical(),
-            this.objectSubjectMatch,
+            this.describeMatchSubjectE,
             this.show(expression),
-            this.syntaxRoleMatch
+            this.syntaxMatchSubjectE
           );
         };
       }
@@ -546,9 +618,9 @@ public final class MExpressionParser
 
     throw this.errorExpectedReceived(
       expression.lexical(),
-      this.objectSubjectMatch,
+      this.describeMatchSubjectE,
       this.show(expression),
-      this.syntaxRoleMatch
+      this.syntaxMatchSubjectE
     );
   }
 
@@ -564,7 +636,7 @@ public final class MExpressionParser
     for (int index = 1; index < subExpressions.size(); ++index) {
       final var expression = subExpressions.get(index);
       try {
-        matches.add(this.parseMatchObject(expression));
+        matches.add(this.parseMatchObjectE(expression));
       } catch (final ExpressionParseException e) {
         exceptions.addException(e);
       }
@@ -586,7 +658,7 @@ public final class MExpressionParser
     for (int index = 1; index < subExpressions.size(); ++index) {
       final var expression = subExpressions.get(index);
       try {
-        matches.add(this.parseMatchObject(expression));
+        matches.add(this.parseMatchObjectE(expression));
       } catch (final ExpressionParseException e) {
         exceptions.addException(e);
       }
@@ -596,7 +668,7 @@ public final class MExpressionParser
     return new MMatchObjectOr(matches);
   }
 
-  private MMatchSubjectAnd parseMatchRolesAnd(
+  private MMatchSubjectAnd parseMatchSubjectAnd(
     final List<SExpressionType> subExpressions)
     throws ExpressionParseException
   {
@@ -608,7 +680,7 @@ public final class MExpressionParser
     for (int index = 1; index < subExpressions.size(); ++index) {
       final var expression = subExpressions.get(index);
       try {
-        matches.add(this.parseMatchSubject(expression));
+        matches.add(this.parseMatchSubjectE(expression));
       } catch (final ExpressionParseException e) {
         exceptions.addException(e);
       }
@@ -618,7 +690,7 @@ public final class MExpressionParser
     return new MMatchSubjectAnd(matches);
   }
 
-  private MMatchSubjectOr parseMatchRolesOr(
+  private MMatchSubjectOr parseMatchSubjectOr(
     final List<SExpressionType> subExpressions)
     throws ExpressionParseException
   {
@@ -630,7 +702,7 @@ public final class MExpressionParser
     for (int index = 1; index < subExpressions.size(); ++index) {
       final var expression = subExpressions.get(index);
       try {
-        matches.add(this.parseMatchSubject(expression));
+        matches.add(this.parseMatchSubjectE(expression));
       } catch (final ExpressionParseException e) {
         exceptions.addException(e);
       }
@@ -640,7 +712,7 @@ public final class MExpressionParser
     return new MMatchSubjectOr(matches);
   }
 
-  private MMatchSubjectWithRolesAny parseMatchRolesWithAny(
+  private MMatchSubjectWithRolesAny parseMatchSubjectRolesWithAny(
     final List<SExpressionType> subExpressions)
     throws ExpressionParseException
   {
@@ -655,17 +727,17 @@ public final class MExpressionParser
         names.add(new MRoleName(
           this.requireSymbol(
               expression,
-              this.objectSubjectMatch,
-              this.syntaxRoleName)
+              this.describeMatchSubjectE,
+              this.syntaxMatchSubjectE)
             .text()
         ));
       } catch (final IllegalArgumentException e) {
         try {
           throw this.errorExpectedReceived(
             expression.lexical(),
-            this.objectSubjectMatch,
+            this.describeMatchSubjectE,
             this.show(expression),
-            this.syntaxRoleName
+            this.syntaxMatchSubjectE
           );
         } catch (final ExpressionParseException ex) {
           exceptions.addException(ex);
@@ -679,7 +751,7 @@ public final class MExpressionParser
     return new MMatchSubjectWithRolesAny(Set.copyOf(names));
   }
 
-  private MMatchSubjectWithRolesAll parseMatchRolesWithAll(
+  private MMatchSubjectWithRolesAll parseMatchSubjectRolesWithAll(
     final List<SExpressionType> subExpressions)
     throws ExpressionParseException
   {
@@ -694,17 +766,17 @@ public final class MExpressionParser
         names.add(new MRoleName(
           this.requireSymbol(
               expression,
-              this.objectSubjectMatch,
-              this.syntaxRoleName)
+              this.describeMatchSubjectE,
+              this.syntaxMatchSubjectE)
             .text()
         ));
       } catch (final IllegalArgumentException e) {
         try {
           throw this.errorExpectedReceived(
             expression.lexical(),
-            this.objectSubjectMatch,
+            this.describeMatchSubjectE,
             this.show(expression),
-            this.syntaxRoleName
+            this.syntaxMatchSubjectE
           );
         } catch (final ExpressionParseException ex) {
           exceptions.addException(ex);
@@ -724,7 +796,7 @@ public final class MExpressionParser
     final String expected)
     throws ExpressionParseException
   {
-    if (expression instanceof SSymbol symbol) {
+    if (expression instanceof final SSymbol symbol) {
       return symbol;
     }
 
@@ -742,7 +814,7 @@ public final class MExpressionParser
     final String expected)
     throws ExpressionParseException
   {
-    if (expression instanceof SList list) {
+    if (expression instanceof final SList list) {
       return list;
     }
 
@@ -772,7 +844,6 @@ public final class MExpressionParser
         .setSeverity(PARSE_ERROR)
         .build();
 
-    this.errors.add(error);
     this.errorConsumer.accept(error);
     return new ExpressionParseException();
   }
@@ -781,7 +852,7 @@ public final class MExpressionParser
     final SExpressionType expression,
     final boolean expand)
   {
-    if (expression instanceof SList list) {
+    if (expression instanceof final SList list) {
       final String inner;
       if (expand) {
         inner = list.expressions()
@@ -798,15 +869,57 @@ public final class MExpressionParser
       return String.format("(%s)", inner);
     }
 
-    if (expression instanceof SSymbol symbol) {
+    if (expression instanceof final SSymbol symbol) {
       return symbol.text();
     }
 
-    if (expression instanceof SQuotedString quotedString) {
+    if (expression instanceof final SQuotedString quotedString) {
       return String.format("\"%s\"", quotedString.text());
     }
 
     throw new UnreachableCodeException();
+  }
+
+  /**
+   * Parse a version expression.
+   *
+   * @param expression The raw expression
+   *
+   * @return A version
+   *
+   * @throws ExpressionParseException On errors
+   */
+
+  public MVersion parseVersion(
+    final SExpressionType expression)
+    throws ExpressionParseException
+  {
+    Objects.requireNonNull(expression, "expression");
+
+    try {
+      if (expression instanceof final SList list) {
+        if (list.size() == 3
+            && list.get(0) instanceof final SSymbol symbol
+            && list.get(1) instanceof final SSymbol major
+            && list.get(2) instanceof final SSymbol minor) {
+          if (Objects.equals(symbol.text(), "medrina")) {
+            return new MVersion(
+              new BigInteger(major.text()),
+              new BigInteger(minor.text())
+            );
+          }
+        }
+      }
+    } catch (final Exception e) {
+      throw new ExpressionParseException(e);
+    }
+
+    throw this.errorExpectedReceived(
+      expression.lexical(),
+      this.describeVersion,
+      this.show(expression),
+      this.syntaxVersion
+    );
   }
 
   /**
@@ -828,7 +941,7 @@ public final class MExpressionParser
     final SList list =
       this.requireList(
         expression,
-        this.objectRule,
+        this.describeRule,
         this.syntaxRule);
 
     final var subExpressions = list.expressions();
@@ -875,7 +988,7 @@ public final class MExpressionParser
 
     throw this.errorExpectedReceived(
       expression.lexical(),
-      this.objectRule,
+      this.describeRule,
       this.show(expression),
       this.syntaxRule
     );
@@ -902,7 +1015,19 @@ public final class MExpressionParser
     final var rules =
       new ArrayList<MRule>(expressions.size());
 
+    var first = true;
     for (final var expression : expressions) {
+      if (first) {
+        first = false;
+        try {
+          this.checkVersion(this.parseVersion(expression));
+          continue;
+        } catch (final ExpressionParseException e) {
+          exceptions.addException(e);
+          continue;
+        }
+      }
+
       try {
         rules.add(this.parseRule(expression));
       } catch (final ExpressionParseException e) {
@@ -921,7 +1046,7 @@ public final class MExpressionParser
     final SSymbol symbol =
       this.requireSymbol(
         expression,
-        this.objectRuleConclusion,
+        this.describeRuleConclusion,
         this.syntaxRuleConclusion);
 
     return switch (symbol.text()) {
@@ -931,7 +1056,7 @@ public final class MExpressionParser
       case "deny-immediately" -> MRuleConclusion.DENY_IMMEDIATELY;
       default -> throw this.errorExpectedReceived(
         expression.lexical(),
-        this.objectRuleConclusion,
+        this.describeRuleConclusion,
         this.show(expression),
         this.syntaxRuleConclusion
       );
@@ -945,12 +1070,58 @@ public final class MExpressionParser
   }
 
   /**
+   * Check the given version is supported.
+   *
+   * @param version The version
+   *
+   * @throws ExpressionParseException On errors
+   */
+
+  public void checkVersion(
+    final MVersion version)
+    throws ExpressionParseException
+  {
+    if (Objects.equals(version.major(), BigInteger.ONE)
+        && Objects.equals(version.minor(), BigInteger.ZERO)) {
+      return;
+    }
+
+    final var error =
+      ParseStatus.builder()
+        .setErrorCode("unsupported-version")
+        .setMessage(this.strings.format(
+          "errorUnsupportedVersion",
+          version.major(),
+          version.minor(),
+          BigInteger.ONE,
+          BigInteger.ZERO
+        ))
+        .setSeverity(PARSE_ERROR)
+        .build();
+
+    this.errorConsumer.accept(error);
+    throw new ExpressionParseException();
+  }
+
+  /**
    * Parsing failed.
    */
 
   public static final class ExpressionParseException
     extends Exception
   {
+    /**
+     * Parsing failed.
+     *
+     * @param cause The cause
+     */
+
+    public ExpressionParseException(
+      final Throwable cause)
+    {
+      super(cause);
+    }
+
     /**
      * Parsing failed.
      */

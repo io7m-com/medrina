@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section title="Roles"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         id="0073a4fd-2f8a-4dc6-99f2-8166468c750a"
+         xmlns="urn:com.io7m.structural:8:0">
+
+  <Paragraph>
+    A <Term type="term">role</Term> is a value held by a
+    <Link target="bf1b37da-6ffd-47b8-ad79-fa6e457ecf39">subject</Link>.
+  </Paragraph>
+
+  <Paragraph>
+    Role names are valid <Link target="db2f7a0b-4896-45d1-8e30-0bc3e66fc664">names</Link>:
+  </Paragraph>
+
+  <FormalItem title="Role Names">
+    <Verbatim><xi:include href="200.txt" parse="text"/></Verbatim>
+  </FormalItem>
+
+  <Paragraph>
+    Equality of role names is decidable:
+  </Paragraph>
+
+  <FormalItem title="Roles (Decidable)">
+    <Verbatim><xi:include href="201.txt" parse="text"/></Verbatim>
+  </FormalItem>
+
+</Section>

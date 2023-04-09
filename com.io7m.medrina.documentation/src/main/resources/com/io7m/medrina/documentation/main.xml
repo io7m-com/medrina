@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Document xmlns="urn:com.io7m.structural:8:0"
+          xmlns:dc="http://purl.org/dc/elements/1.1/"
+          xmlns:xi="http://www.w3.org/2001/XInclude"
+          tableOfContentsDepth="1">
+
+  <Metadata>
+    <dc:creator>Mark Raynsford</dc:creator>
+    <dc:date>2023-04-08T12:57:18+00:00</dc:date>
+    <dc:description>Medrina User Manual</dc:description>
+    <dc:identifier>180ec02c-abe9-443d-8b33-722401b34f58</dc:identifier>
+    <dc:language>en</dc:language>
+    <dc:rights>Public Domain</dc:rights>
+    <dc:title>Medrina ${project.version} User Manual</dc:title>
+
+    <MetaProperty name="com.io7m.xstructural.epub.colophon">colophon_extra.xml</MetaProperty>
+    <MetaProperty name="com.io7m.xstructural.epub.cover">cover.jpg</MetaProperty>
+    <MetaProperty name="com.io7m.xstructural.web.branding.header">brand-header.xml</MetaProperty>
+    <MetaProperty name="com.io7m.xstructural.web.branding.footer">brand-footer.xml</MetaProperty>
+  </Metadata>
+
+  <xi:include href="overview.xml"/>
+  <xi:include href="spec.xml"/>
+
+</Document>

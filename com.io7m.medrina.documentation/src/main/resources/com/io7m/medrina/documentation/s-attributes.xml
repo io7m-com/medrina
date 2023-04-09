@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section title="Attributes"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         id="deeb7a77-578e-4ab9-b971-c16a1bdf516e"
+         xmlns="urn:com.io7m.structural:8:0">
+
+  <Paragraph>
+    An <Term type="term">attribute</Term> is a named value held by an
+    <Link target="b39f58e4-4980-4e4e-b8fe-af3fdcaba886">object</Link>.
+  </Paragraph>
+
+  <Paragraph>
+    Attribute names are valid <Link target="db2f7a0b-4896-45d1-8e30-0bc3e66fc664">names</Link>:
+  </Paragraph>
+
+  <FormalItem title="Attribute Names">
+    <Verbatim><xi:include href="100.txt" parse="text"/></Verbatim>
+  </FormalItem>
+
+  <Paragraph>
+    Attribute values are valid <Link target="db2f7a0b-4896-45d1-8e30-0bc3e66fc664">names</Link>:
+  </Paragraph>
+
+  <FormalItem title="Attribute Values">
+    <Verbatim><xi:include href="102.txt" parse="text"/></Verbatim>
+  </FormalItem>
+
+  <Paragraph>
+    Equality of both attribute names and attribute values is decidable:
+  </Paragraph>
+
+  <FormalItem title="Attribute Names (Decidable)">
+    <Verbatim><xi:include href="101.txt" parse="text"/></Verbatim>
+  </FormalItem>
+  <FormalItem title="Attribute Values (Decidable)">
+    <Verbatim><xi:include href="103.txt" parse="text"/></Verbatim>
+  </FormalItem>
+
+</Section>

@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * An expression that matches objects.
+ * An expression that matches actions.
  */
 
 public sealed interface MMatchActionType

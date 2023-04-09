@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section title="Rules"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         id="b5be6365-e204-4c02-837d-15245204e9b1"
+         xmlns="urn:com.io7m.structural:8:0">
+
+  <Paragraph>
+    A <Term type="term">rule</Term> consists of a <Term type="term">conclusion</Term>,
+    an expression that may match a
+    <Link target="9f9c064c-3e52-4f66-b805-52890acf1915">subject</Link>,
+    an expression that may match an
+    <Link target="0de6c2f0-6dcd-4256-9fde-88278374da0c">action</Link>,
+    and an expression that may match an
+    <Link target="fdaccd67-ce7d-4591-ae20-3c44378b17b5">object</Link>.
+  </Paragraph>
+
+  <FormalItem title="Rule">
+    <Verbatim><xi:include href="900.txt" parse="text"/></Verbatim>
+  </FormalItem>
+
+  <Paragraph id="dd11720d-4bb0-4e88-ada8-9dc1199131aa">
+    A <Term type="term">conclusion</Term> is one of the following values:
+  </Paragraph>
+
+  <FormalItem title="Conclusion">
+    <Verbatim><xi:include href="901.txt" parse="text"/></Verbatim>
+  </FormalItem>
+
+  <FormalItem title="Conclusion Description">
+    <ListUnordered>
+      <Item>
+        A value of <Term type="expression">RC_Allow</Term> indicates that the action in
+        question should be allowed, assuming that no further rules cause the action to be
+        denied.
+      </Item>
+      <Item>
+        A value of <Term type="expression">RC_AllowImmediately</Term> indicates that the action in
+        question should be allowed, and no further rules should be evaluated.
+      </Item>
+      <Item>
+        A value of <Term type="expression">RC_Deny</Term> indicates that the action in
+        question should be denied, assuming that no further rules cause the action to be
+        allowed.
+      </Item>
+      <Item>
+        A value of <Term type="expression">RC_DenyImmediately</Term> indicates that the action in
+        question should be denied, and no further rules should be evaluated.
+      </Item>
+    </ListUnordered>
+  </FormalItem>
+
+  <Paragraph>
+    A rule <Term type="term">matches</Term> against a
+    <Link target="bf1b37da-6ffd-47b8-ad79-fa6e457ecf39">subject</Link>,
+    <Link target="b39f58e4-4980-4e4e-b8fe-af3fdcaba886">object</Link>,
+    and <Link target="d1002bc3-ca15-4cab-88a3-931307976a3c">action</Link>
+    iff all the expressions contained within it match:
+  </Paragraph>
+
+  <FormalItem title="ruleMatchesR">
+    <Verbatim><xi:include href="902.txt" parse="text"/></Verbatim>
+  </FormalItem>
+
+  <Paragraph>
+    The following evaluation function returns <Term type="constant">true</Term> iff
+    the expressions evaluate to <Term type="constant">true</Term>:
+  </Paragraph>
+
+  <FormalItem title="ruleMatchesF">
+    <Verbatim><xi:include href="903.txt" parse="text"/></Verbatim>
+  </FormalItem>
+
+  <Paragraph>
+    The evaluation function and the evaluation relation are equivalent.
+  </Paragraph>
+
+  <FormalItem title="ruleMatchesFEquivalentT">
+    <Verbatim><xi:include href="904.txt" parse="text"/></Verbatim>
+  </FormalItem>
+  <FormalItem title="ruleMatchesFEquivalentF">
+    <Verbatim><xi:include href="905.txt" parse="text"/></Verbatim>
+  </FormalItem>
+
+</Section>

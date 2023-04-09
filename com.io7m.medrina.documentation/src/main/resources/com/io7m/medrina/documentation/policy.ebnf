@@ -1,0 +1,58 @@
+ruleConclusion =
+    "allow"
+  | "allow-immediately"
+  | "deny"
+  | "deny-immediately"
+  ;
+
+matchSubjectE =
+    "true"
+  | "false"
+  | "(" , "with-all-roles" , name* , ")"
+  | "(" , "with-any-roles" , name* , ")"
+  | "(" , "or" , matchSubjectE , matchSubjectE , ")"
+  | "(" , "and" , matchSubjectE , matchSubjectE , ")"
+  ;
+
+matchSubject =
+  "(" , "subject" , matchSubjectE , ")" ;
+
+matchObjectE =
+    "true"
+  | "false"
+  | "(" , "with-type" , name , ")"
+  | "(" , "or" , matchObjectE , matchObjectE , ")"
+  | "(" , "and" , matchObjectE , matchObjectE , ")"
+  ;
+
+matchObject =
+  "(" , "object" , matchObjectE , ")" ;
+
+matchActionE =
+    "true"
+  | "false"
+  | "(" , "with-name" , name , ")"
+  | "(" , "or" , matchActionE , matchActionE , ")"
+  | "(" , "and" , matchActionE , matchActionE , ")"
+  ;
+
+matchAction =
+  "(" , "action" , matchActionE , ")" ;
+
+rule =
+  "(" , ruleConclusion , matchSubject , matchObject , matchAction , ")" ;
+
+digit =
+  "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+
+digit-and-zero =
+  digit | "0" ;
+
+number =
+  digit , digit-and-zero* ;
+
+medrina =
+  "(" , "medrina" , number , number , ")" ;
+
+policy =
+  medrina , rule* ;
