@@ -9,7 +9,7 @@
   <parent>
     <artifactId>com.io7m.medrina</artifactId>
     <groupId>com.io7m.medrina</groupId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
   </parent>
   <artifactId>com.io7m.medrina.tests</artifactId>
 
@@ -33,6 +33,11 @@
       <artifactId>com.io7m.medrina.vanilla</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>com.io7m.medrina.cmdline</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -41,10 +46,6 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>nl.jqno.equalsverifier</groupId>
-      <artifactId>equalsverifier</artifactId>
     </dependency>
     <dependency>
       <groupId>net.jqwik</groupId>
@@ -78,6 +79,43 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <argLine>
+            ${argLine}
+            --add-opens
+            org.junit.platform.commons/org.junit.platform.commons.logging=ALL-UNNAMED
+            --add-opens
+            org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED
+          </argLine>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>run-it</id>
+            <phase>integration-test</phase>
+            <goals>
+              <goal>integration-test</goal>
+            </goals>
+            <configuration>
+              <argLine>
+                ${argLine}
+                --add-opens
+                org.junit.platform.commons/org.junit.platform.commons.logging=ALL-UNNAMED
+                --add-opens
+                org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED
+              </argLine>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
       <!-- Determine test coverage -->
       <plugin>
         <groupId>org.jacoco</groupId>

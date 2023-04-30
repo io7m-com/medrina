@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 Mark Raynsford <code@io7m.com> https://www.io7m.com
+ * Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,22 +14,16 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-import com.io7m.medrina.parser.api.MPolicyParserFactoryType;
-import com.io7m.medrina.parser.api.MPolicySerializerFactoryType;
-import com.io7m.medrina.vanilla.MPolicyParsers;
-import com.io7m.medrina.vanilla.MPolicySerializers;
-
 /**
- * Mandatory Access Control (Vanilla implementation)
+ * Mandatory Access Control (Test suite)
  */
 
-module com.io7m.medrina.vanilla
+open module com.io7m.medrina.tests
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
-
-  requires transitive com.io7m.medrina.parser.api;
-  requires transitive com.io7m.anethum.common;
+  requires com.io7m.medrina.api;
+  requires com.io7m.medrina.cmdline;
+  requires com.io7m.medrina.parser.api;
+  requires com.io7m.medrina.vanilla;
 
   requires com.io7m.jdeferthrow.core;
   requires com.io7m.jeucreader.core;
@@ -39,17 +33,18 @@ module com.io7m.medrina.vanilla
   requires com.io7m.jsx.prettyprint;
   requires com.io7m.junreachable.core;
   requires com.io7m.jxtrand.vanilla;
+  requires net.jqwik.api;
+  requires org.apiguardian.api;
   requires org.slf4j;
 
-  exports com.io7m.medrina.vanilla;
+  provides net.jqwik.api.providers.ArbitraryProvider
+    with com.io7m.medrina.tests.MActionNames,
+      com.io7m.medrina.tests.MAttributeNames,
+      com.io7m.medrina.tests.MAttributeValues,
+      com.io7m.medrina.tests.MObjects,
+      com.io7m.medrina.tests.MRoleNames,
+      com.io7m.medrina.tests.MTypeNames,
+      com.io7m.medrina.tests.MSubjects;
 
-  opens com.io7m.medrina.vanilla.internal
-    to com.io7m.jxtrand.vanilla, com.io7m.medrina.tests;
-  exports com.io7m.medrina.vanilla.internal
-    to com.io7m.medrina.tests;
-
-  provides MPolicyParserFactoryType
-    with MPolicyParsers;
-  provides MPolicySerializerFactoryType
-    with MPolicySerializers;
+  exports com.io7m.medrina.tests;
 }

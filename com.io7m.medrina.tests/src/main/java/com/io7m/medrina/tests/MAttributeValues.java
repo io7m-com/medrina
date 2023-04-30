@@ -16,22 +16,25 @@
 
 package com.io7m.medrina.tests;
 
-import com.io7m.medrina.api.MAttributeName;
 import com.io7m.medrina.api.MAttributeValue;
-import com.io7m.medrina.api.MObject;
-import com.io7m.medrina.api.MTypeName;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
-import net.jqwik.api.Combinators;
 import net.jqwik.api.providers.ArbitraryProvider;
 import net.jqwik.api.providers.TypeUsage;
 
 import java.util.Set;
-import java.util.TreeMap;
 
-public final class MObjects implements ArbitraryProvider
+/**
+ * Arbitrary attribute values.
+ */
+
+public final class MAttributeValues implements ArbitraryProvider
 {
-  public MObjects()
+  /**
+   * Arbitrary attribute values.
+   */
+
+  public MAttributeValues()
   {
 
   }
@@ -40,7 +43,7 @@ public final class MObjects implements ArbitraryProvider
   public boolean canProvideFor(
     final TypeUsage targetType)
   {
-    return targetType.isOfType(MObject.class);
+    return targetType.isOfType(MAttributeValue.class);
   }
 
   @Override
@@ -48,19 +51,12 @@ public final class MObjects implements ArbitraryProvider
     final TypeUsage targetType,
     final SubtypeProvider subtypeProvider)
   {
-    final var names =
-      Arbitraries.defaultFor(MTypeName.class);
-
-    final var attributes =
-      Arbitraries.maps(
-        Arbitraries.defaultFor(MAttributeName.class),
-        Arbitraries.defaultFor(MAttributeValue.class)
-      ).map(TreeMap::new);
-
-    final var objects =
-      Combinators.combine(names, attributes)
-        .as(MObject::new);
-
-    return Set.of(objects);
+    return Set.of(
+      Arbitraries.strings()
+        .withChars("abcdefghijklmnopqrstuvwxyz0123456789-_.")
+        .ofMinLength(1)
+        .ofMaxLength(256)
+        .map(MAttributeValue::new)
+    );
   }
 }

@@ -14,7 +14,7 @@
 
   <groupId>com.io7m.medrina</groupId>
   <artifactId>com.io7m.medrina</artifactId>
-  <version>0.0.2</version>
+  <version>0.0.3</version>
 
   <packaging>pom</packaging>
   <name>com.io7m.medrina</name>
@@ -23,6 +23,7 @@
 
   <modules>
     <module>com.io7m.medrina.api</module>
+    <module>com.io7m.medrina.cmdline</module>
     <module>com.io7m.medrina.documentation</module>
     <module>com.io7m.medrina.parser.api</module>
     <module>com.io7m.medrina.tests</module>
@@ -34,14 +35,14 @@
     <com.io7m.jsx.version>3.0.1</com.io7m.jsx.version>
     <com.io7m.jxtrand.version>1.1.0</com.io7m.jxtrand.version>
     <com.io7m.xstructural.version>1.8.0</com.io7m.xstructural.version>
-    <io7m.api.previousVersion>0.0.2</io7m.api.previousVersion>
+    <io7m.api.previousVersion>0.0.3</io7m.api.previousVersion>
     <jqwik.version>1.7.3</jqwik.version>
-    <junit.version>5.9.2</junit.version>
+    <junit.version>5.9.3</junit.version>
   </properties>
 
   <licenses>
     <license>
-      <name>ISC License</name>
+      <name>ISC</name>
       <url>https://io7m.com/license/isc.txt</url>
     </license>
   </licenses>
@@ -92,6 +93,16 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <groupId>com.io7m.claypot</groupId>
+        <artifactId>com.io7m.claypot.core</artifactId>
+        <version>0.0.8</version>
+      </dependency>
+      <dependency>
+        <groupId>com.beust</groupId>
+        <artifactId>jcommander</artifactId>
+        <version>1.82</version>
+      </dependency>
+      <dependency>
         <groupId>com.io7m.anethum</groupId>
         <artifactId>com.io7m.anethum.api</artifactId>
         <version>${com.io7m.anethum.api.version}</version>
@@ -124,7 +135,7 @@
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.4.6</version>
+        <version>1.4.7</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.jsx</groupId>
@@ -216,6 +227,12 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>com.io7m.stmp</groupId>
+        <artifactId>string-template-maven-plugin</artifactId>
+        <version>1.2.0</version>
+      </plugin>
+
       <!-- Generate a site -->
       <plugin>
         <groupId>com.io7m.minisite</groupId>

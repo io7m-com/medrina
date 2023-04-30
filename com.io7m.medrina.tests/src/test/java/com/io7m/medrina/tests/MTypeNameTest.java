@@ -22,10 +22,8 @@ import net.jqwik.api.Property;
 import net.jqwik.api.constraints.LowerChars;
 import net.jqwik.api.constraints.NumericChars;
 import net.jqwik.api.constraints.StringLength;
-import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DynamicTest;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 
 import java.util.stream.Stream;
@@ -52,14 +50,6 @@ public final class MTypeNameTest
           new MTypeName(text);
         });
       });
-  }
-
-  @Test
-  public void testEquals()
-  {
-    EqualsVerifier.forClass(MTypeName.class)
-      .withNonnullFields("value")
-      .verify();
   }
 
   @TestFactory
