@@ -24,8 +24,16 @@ import net.jqwik.api.providers.TypeUsage;
 
 import java.util.Set;
 
+/**
+ * Arbitrary role names.
+ */
+
 public final class MRoleNames implements ArbitraryProvider
 {
+  /**
+   * Arbitrary role names.
+   */
+
   public MRoleNames()
   {
 

@@ -16,20 +16,25 @@
 
 package com.io7m.medrina.tests;
 
-import com.io7m.medrina.api.MRoleName;
-import com.io7m.medrina.api.MSubject;
+import com.io7m.medrina.api.MActionName;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
 import net.jqwik.api.providers.ArbitraryProvider;
 import net.jqwik.api.providers.TypeUsage;
 
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
-public final class MSubjects implements ArbitraryProvider
+/**
+ * Arbitrary action names.
+ */
+
+public final class MActionNames implements ArbitraryProvider
 {
-  public MSubjects()
+  /**
+   * Arbitrary action names.
+   */
+
+  public MActionNames()
   {
 
   }
@@ -38,7 +43,7 @@ public final class MSubjects implements ArbitraryProvider
   public boolean canProvideFor(
     final TypeUsage targetType)
   {
-    return targetType.isOfType(MSubject.class);
+    return targetType.isOfType(MActionName.class);
   }
 
   @Override
@@ -46,13 +51,14 @@ public final class MSubjects implements ArbitraryProvider
     final TypeUsage targetType,
     final SubtypeProvider subtypeProvider)
   {
-    final Arbitrary<MRoleName> names =
-      Arbitraries.defaultFor(MRoleName.class);
-    final Arbitrary<SortedSet<MRoleName>> setArbitrary =
-      names.set().map(TreeSet::new);
-    final var subjects =
-      setArbitrary.map(MSubject::new);
-
-    return Set.of(subjects);
+    return Set.of(
+      Arbitraries.strings()
+        .withCharRange('a', 'z')
+        .withCharRange('0', '9')
+        .withChars('.', '_', '-')
+        .ofMinLength(1)
+        .ofMaxLength(256)
+        .map(MActionName::new)
+    );
   }
 }

@@ -16,7 +16,7 @@
 
 package com.io7m.medrina.tests;
 
-import com.io7m.medrina.api.MTypeName;
+import com.io7m.medrina.api.MAttributeName;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
 import net.jqwik.api.providers.ArbitraryProvider;
@@ -24,9 +24,17 @@ import net.jqwik.api.providers.TypeUsage;
 
 import java.util.Set;
 
-public final class MTypeNames implements ArbitraryProvider
+/**
+ * Arbitrary attribute names.
+ */
+
+public final class MAttributeNames implements ArbitraryProvider
 {
-  public MTypeNames()
+  /**
+   * Arbitrary attribute names.
+   */
+
+  public MAttributeNames()
   {
 
   }
@@ -35,7 +43,7 @@ public final class MTypeNames implements ArbitraryProvider
   public boolean canProvideFor(
     final TypeUsage targetType)
   {
-    return targetType.isOfType(MTypeName.class);
+    return targetType.isOfType(MAttributeName.class);
   }
 
   @Override
@@ -48,7 +56,7 @@ public final class MTypeNames implements ArbitraryProvider
         .withChars("abcdefghijklmnopqrstuvwxyz0123456789-_.")
         .ofMinLength(1)
         .ofMaxLength(256)
-        .map(MTypeName::new)
+        .map(MAttributeName::new)
     );
   }
 }
