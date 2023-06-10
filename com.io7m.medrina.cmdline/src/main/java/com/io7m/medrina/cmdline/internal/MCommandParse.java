@@ -16,64 +16,58 @@
 
 package com.io7m.medrina.cmdline.internal;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
-import com.io7m.anethum.common.ParseException;
-import com.io7m.anethum.common.ParseStatus;
-import com.io7m.claypot.core.CLPAbstractCommand;
-import com.io7m.claypot.core.CLPCommandContextType;
+import com.io7m.anethum.api.ParseStatus;
+import com.io7m.anethum.api.ParsingException;
 import com.io7m.medrina.vanilla.MPolicyParsers;
+import com.io7m.quarrel.core.QCommandContextType;
+import com.io7m.quarrel.core.QCommandMetadata;
+import com.io7m.quarrel.core.QCommandStatus;
+import com.io7m.quarrel.core.QCommandType;
+import com.io7m.quarrel.core.QParameterNamed1;
+import com.io7m.quarrel.core.QParameterNamedType;
+import com.io7m.quarrel.core.QStringType;
+import com.io7m.quarrel.ext.logback.QLogback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
 
-import static com.io7m.claypot.core.CLPCommandType.Status.FAILURE;
-import static com.io7m.claypot.core.CLPCommandType.Status.SUCCESS;
+import static com.io7m.quarrel.core.QCommandStatus.FAILURE;
+import static com.io7m.quarrel.core.QCommandStatus.SUCCESS;
 
 /**
  * The "parse" command.
  */
 
-@Parameters(commandDescription = "Parse a security policy.")
-public final class MCommandParse extends CLPAbstractCommand
+public final class MCommandParse implements QCommandType
 {
   private static final Logger LOG =
     LoggerFactory.getLogger(MCommandParse.class);
 
-  @Parameter(
-    names = "--file",
-    required = true,
-    description = "The policy file.")
-  private Path file;
+  private static final QParameterNamed1<Path> POLICY_FILE =
+    new QParameterNamed1<>(
+      "--file",
+      List.of(),
+      new QStringType.QConstant("The policy file."),
+      Optional.empty(),
+      Path.class
+    );
+
+  private final QCommandMetadata metadata;
 
   /**
    * Construct a command.
-   *
-   * @param inContext The command context
    */
 
-  public MCommandParse(
-    final CLPCommandContextType inContext)
+  public MCommandParse()
   {
-    super(inContext);
-  }
-
-  @Override
-  protected Status executeActual()
-    throws Exception
-  {
-    final var parsers =
-      new MPolicyParsers();
-
-    try (var parser =
-           parsers.createParser(this.file, MCommandParse::logStatus)) {
-      parser.execute();
-    } catch (final ParseException e) {
-      LOG.error("One or more parse errors were encountered.");
-      return FAILURE;
-    }
-    return SUCCESS;
+    this.metadata = new QCommandMetadata(
+      "parse",
+      new QStringType.QConstant("Parse a security policy."),
+      Optional.empty()
+    );
   }
 
   private static void logStatus(
@@ -111,8 +105,36 @@ public final class MCommandParse extends CLPAbstractCommand
   }
 
   @Override
-  public String name()
+  public List<QParameterNamedType<?>> onListNamedParameters()
   {
-    return "parse";
+    return QLogback.plusParameters(
+      List.of(POLICY_FILE)
+    );
+  }
+
+  @Override
+  public QCommandStatus onExecute(
+    final QCommandContextType context)
+    throws Exception
+  {
+    final var file =
+      context.parameterValue(POLICY_FILE);
+    final var parsers =
+      new MPolicyParsers();
+
+    try (var parser =
+           parsers.createParser(file, MCommandParse::logStatus)) {
+      parser.execute();
+    } catch (final ParsingException e) {
+      LOG.error("One or more parse errors were encountered.");
+      return FAILURE;
+    }
+    return SUCCESS;
+  }
+
+  @Override
+  public QCommandMetadata metadata()
+  {
+    return this.metadata;
   }
 }

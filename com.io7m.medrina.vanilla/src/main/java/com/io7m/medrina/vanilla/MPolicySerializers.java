@@ -16,7 +16,8 @@
 
 package com.io7m.medrina.vanilla;
 
-import com.io7m.anethum.common.SerializeException;
+import com.io7m.anethum.api.SerializationException;
+import com.io7m.anethum.api.Unused;
 import com.io7m.jsx.prettyprint.JSXPrettyPrinterCodeStyle;
 import com.io7m.jsx.prettyprint.JSXPrettyPrinterType;
 import com.io7m.medrina.api.MPolicy;
@@ -49,7 +50,7 @@ public final class MPolicySerializers implements MPolicySerializerFactoryType
 
   @Override
   public MPolicySerializerType createSerializerWithContext(
-    final Void context,
+    final Unused context,
     final URI target,
     final OutputStream stream)
   {
@@ -81,7 +82,7 @@ public final class MPolicySerializers implements MPolicySerializerFactoryType
     @Override
     public void execute(
       final MPolicy value)
-      throws SerializeException
+      throws SerializationException
     {
       Objects.requireNonNull(value, "value");
 
@@ -96,7 +97,7 @@ public final class MPolicySerializers implements MPolicySerializerFactoryType
 
         this.printer.close();
       } catch (final IOException e) {
-        throw new SerializeException(e.getMessage(), e);
+        throw new SerializationException(e.getMessage(), e);
       }
     }
 

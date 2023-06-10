@@ -16,7 +16,7 @@
 
 package com.io7m.medrina.vanilla.internal;
 
-import com.io7m.anethum.common.ParseStatus;
+import com.io7m.anethum.api.ParseStatus;
 import com.io7m.jdeferthrow.core.ExceptionTracker;
 import com.io7m.jlexing.core.LexicalPosition;
 import com.io7m.jsx.SExpressionType;
@@ -55,7 +55,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static com.io7m.anethum.common.ParseSeverity.PARSE_ERROR;
+import static com.io7m.anethum.api.ParseSeverity.PARSE_ERROR;
 import static com.io7m.medrina.api.MMatchActionType.MMatchActionFalse;
 import static com.io7m.medrina.api.MMatchActionType.MMatchActionTrue;
 import static com.io7m.medrina.api.MMatchObjectType.MMatchObjectFalse;
@@ -205,9 +205,9 @@ public final class MExpressionParser
   {
     Objects.requireNonNull(expression, "expression");
 
-    if (expression instanceof SList list
+    if (expression instanceof final SList list
         && list.size() == 2
-        && list.get(0) instanceof SSymbol symbol
+        && list.get(0) instanceof final SSymbol symbol
         && Objects.equals(symbol.text(), "action")) {
       return this.parseMatchActionE(list.get(1));
     }
@@ -360,9 +360,9 @@ public final class MExpressionParser
   {
     Objects.requireNonNull(expression, "expression");
 
-    if (expression instanceof SList list
+    if (expression instanceof final SList list
         && list.size() == 2
-        && list.get(0) instanceof SSymbol symbol
+        && list.get(0) instanceof final SSymbol symbol
         && Objects.equals(symbol.text(), "object")) {
       return this.parseMatchObjectE(list.get(1));
     }
@@ -515,9 +515,9 @@ public final class MExpressionParser
   {
     Objects.requireNonNull(expression, "expression");
 
-    if (expression instanceof SList list
+    if (expression instanceof final SList list
         && list.size() == 2
-        && list.get(0) instanceof SSymbol symbol
+        && list.get(0) instanceof final SSymbol symbol
         && Objects.equals(symbol.text(), "subject")) {
       return this.parseMatchSubjectE(list.get(1));
     }
@@ -832,19 +832,19 @@ public final class MExpressionParser
     final String received,
     final String expected)
   {
-    final var error =
-      ParseStatus.builder()
-        .setErrorCode("parse-error")
-        .setMessage(this.strings.format(
-          "errorExpectedReceived",
-          objectType,
-          expected,
-          received))
-        .setLexical(lexical)
-        .setSeverity(PARSE_ERROR)
-        .build();
+    final var builder =
+      ParseStatus.builder(
+        "parse-error",
+        this.strings.format("errorParse")
+      );
 
-    this.errorConsumer.accept(error);
+    builder.withSeverity(PARSE_ERROR);
+    builder.withLexical(lexical);
+    builder.withAttribute("Expected", expected);
+    builder.withAttribute("Received", received);
+    builder.withAttribute("Type", objectType);
+
+    this.errorConsumer.accept(builder.build());
     return new ExpressionParseException();
   }
 
@@ -1086,20 +1086,23 @@ public final class MExpressionParser
       return;
     }
 
-    final var error =
-      ParseStatus.builder()
-        .setErrorCode("unsupported-version")
-        .setMessage(this.strings.format(
-          "errorUnsupportedVersion",
-          version.major(),
-          version.minor(),
-          BigInteger.ONE,
-          BigInteger.ZERO
-        ))
-        .setSeverity(PARSE_ERROR)
-        .build();
+    final var builder =
+      ParseStatus.builder(
+        "unsupported-version",
+        this.strings.format("errorUnsupportedVersion")
+      );
 
-    this.errorConsumer.accept(error);
+    builder.withAttribute(
+      "Expected",
+      String.format("%s.%s", BigInteger.ONE, BigInteger.ZERO)
+    );
+    builder.withAttribute(
+      "Received",
+      String.format("%s.%s", version.major(), version.minor())
+    );
+    builder.withSeverity(PARSE_ERROR);
+
+    this.errorConsumer.accept(builder.build());
     throw new ExpressionParseException();
   }
 

@@ -16,12 +16,8 @@
 
 package com.io7m.medrina.cmdline.internal;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
-import com.io7m.anethum.common.ParseException;
-import com.io7m.anethum.common.ParseStatus;
-import com.io7m.claypot.core.CLPAbstractCommand;
-import com.io7m.claypot.core.CLPCommandContextType;
+import com.io7m.anethum.api.ParseStatus;
+import com.io7m.anethum.api.ParsingException;
 import com.io7m.medrina.api.MActionName;
 import com.io7m.medrina.api.MObject;
 import com.io7m.medrina.api.MPolicy;
@@ -30,114 +26,85 @@ import com.io7m.medrina.api.MRoleName;
 import com.io7m.medrina.api.MSubject;
 import com.io7m.medrina.api.MTypeName;
 import com.io7m.medrina.vanilla.MPolicyParsers;
+import com.io7m.quarrel.core.QCommandContextType;
+import com.io7m.quarrel.core.QCommandMetadata;
+import com.io7m.quarrel.core.QCommandStatus;
+import com.io7m.quarrel.core.QCommandType;
+import com.io7m.quarrel.core.QParameterNamed0N;
+import com.io7m.quarrel.core.QParameterNamed1;
+import com.io7m.quarrel.core.QParameterNamedType;
+import com.io7m.quarrel.core.QStringType.QConstant;
+import com.io7m.quarrel.ext.logback.QLogback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.io7m.claypot.core.CLPCommandType.Status.FAILURE;
-import static com.io7m.claypot.core.CLPCommandType.Status.SUCCESS;
+import static com.io7m.quarrel.core.QCommandStatus.FAILURE;
+import static com.io7m.quarrel.core.QCommandStatus.SUCCESS;
 
 /**
  * The "parse" command.
  */
 
-@Parameters(commandDescription = "Evaluate an action against a security policy.")
-public final class MCommandEvaluate extends CLPAbstractCommand
+public final class MCommandEvaluate implements QCommandType
 {
   private static final Logger LOG =
     LoggerFactory.getLogger(MCommandEvaluate.class);
 
-  @Parameter(
-    names = "--file",
-    required = true,
-    description = "The policy file.")
-  private Path file;
+  private final QCommandMetadata metadata;
 
-  @Parameter(
-    names = "--subject-role",
-    required = false,
-    description = "The subject's roles.")
-  private List<String> rolesS = new ArrayList<>();
+  private static final QParameterNamed1<Path> POLICY_FILE =
+    new QParameterNamed1<>(
+      "--file",
+      List.of(),
+      new QConstant("The policy file."),
+      Optional.empty(),
+      Path.class
+    );
 
-  @Parameter(
-    names = "--object-type",
-    required = true,
-    description = "The object type.")
-  private String objectTypeS;
+  private static final QParameterNamed0N<String> SUBJECT_ROLES =
+    new QParameterNamed0N<>(
+      "--subject-role",
+      List.of(),
+      new QConstant("The subject's roles."),
+      List.of(),
+      String.class
+    );
 
-  @Parameter(
-    names = "--action",
-    required = true,
-    description = "The action.")
-  private String actionS;
+  private static final QParameterNamed1<String> OBJECT_TYPE =
+    new QParameterNamed1<>(
+      "--object-type",
+      List.of(),
+      new QConstant("The object type."),
+      Optional.empty(),
+      String.class
+    );
+
+  private static final QParameterNamed1<String> ACTION =
+    new QParameterNamed1<>(
+      "--action",
+      List.of(),
+      new QConstant("The action."),
+      Optional.empty(),
+      String.class
+    );
 
   /**
    * Construct a command.
-   *
-   * @param inContext The command context
    */
 
-  public MCommandEvaluate(
-    final CLPCommandContextType inContext)
+  public MCommandEvaluate()
   {
-    super(inContext);
-  }
-
-  @Override
-  protected Status executeActual()
-    throws Exception
-  {
-    final var parsers =
-      new MPolicyParsers();
-
-    final MPolicy policy;
-    try (var parser =
-           parsers.createParser(this.file, MCommandEvaluate::logStatus)) {
-      policy = parser.execute();
-    } catch (final ParseException e) {
-      LOG.error("One or more parse errors were encountered.");
-      return FAILURE;
-    }
-
-    final var subject =
-      new MSubject(
-        this.rolesS.stream()
-          .map(MRoleName::new)
-          .collect(Collectors.toUnmodifiableSet())
-      );
-
-    final var object =
-      new MObject(
-        new MTypeName(this.objectTypeS),
-        Map.of()
-      );
-
-    final var action =
-      new MActionName(this.actionS);
-
-    final var evaluator =
-      MPolicyEvaluator.create();
-
-    final var result =
-      evaluator.evaluate(policy, subject, object, action);
-
-    for (final var info : result.results()) {
-      LOG.debug(
-        "[{}] {} {} {}",
-        Integer.valueOf(info.index()),
-        Boolean.valueOf(info.matchedSubject()),
-        Boolean.valueOf(info.matchedObject()),
-        Boolean.valueOf(info.matchedAction())
-      );
-    }
-
-    LOG.info("{}", result.accessResult());
-    return SUCCESS;
+    this.metadata = new QCommandMetadata(
+      "evaluate",
+      new QConstant("Evaluate an action against a security policy."),
+      Optional.empty()
+    );
   }
 
   private static void logStatus(
@@ -175,8 +142,78 @@ public final class MCommandEvaluate extends CLPAbstractCommand
   }
 
   @Override
-  public String name()
+  public List<QParameterNamedType<?>> onListNamedParameters()
   {
-    return "evaluate";
+    return QLogback.plusParameters(
+      List.of(POLICY_FILE, SUBJECT_ROLES, OBJECT_TYPE, ACTION)
+    );
+  }
+
+  @Override
+  public QCommandStatus onExecute(
+    final QCommandContextType context)
+    throws Exception
+  {
+    final var parsers =
+      new MPolicyParsers();
+
+    final var file =
+      context.parameterValue(POLICY_FILE);
+    final var rolesS =
+      context.parameterValues(SUBJECT_ROLES);
+    final var objectTypeS =
+      context.parameterValue(OBJECT_TYPE);
+    final var actionS =
+      context.parameterValue(ACTION);
+
+    final MPolicy policy;
+    try (var parser =
+           parsers.createParser(file, MCommandEvaluate::logStatus)) {
+      policy = parser.execute();
+    } catch (final ParsingException e) {
+      LOG.error("One or more parse errors were encountered.");
+      return FAILURE;
+    }
+
+    final var subject =
+      new MSubject(
+        rolesS.stream()
+          .map(MRoleName::new)
+          .collect(Collectors.toUnmodifiableSet())
+      );
+
+    final var object =
+      new MObject(
+        new MTypeName(objectTypeS),
+        Map.of()
+      );
+
+    final var action =
+      new MActionName(actionS);
+
+    final var evaluator =
+      MPolicyEvaluator.create();
+
+    final var result =
+      evaluator.evaluate(policy, subject, object, action);
+
+    for (final var info : result.results()) {
+      LOG.debug(
+        "[{}] {} {} {}",
+        Integer.valueOf(info.index()),
+        Boolean.valueOf(info.matchedSubject()),
+        Boolean.valueOf(info.matchedObject()),
+        Boolean.valueOf(info.matchedAction())
+      );
+    }
+
+    LOG.info("{}", result.accessResult());
+    return SUCCESS;
+  }
+
+  @Override
+  public QCommandMetadata metadata()
+  {
+    return this.metadata;
   }
 }

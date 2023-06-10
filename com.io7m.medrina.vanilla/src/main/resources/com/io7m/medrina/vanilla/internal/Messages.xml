@@ -3,12 +3,8 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 
 <properties>
-  <entry key="errorExpectedReceived"><![CDATA[Unparseable {0}.
-Expected:
-{1}
-Received:
-  {2}
-]]></entry>
+  <entry key="errorParse">Parse error.</entry>
+  <entry key="errorUnsupportedVersion">Unsupported version.</entry>
 
   <entry key="describeVersion">A version expression.</entry>
   <entry key="describeRule">A rule expression.</entry>

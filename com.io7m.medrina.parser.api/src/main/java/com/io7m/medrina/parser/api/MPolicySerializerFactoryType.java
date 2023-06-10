@@ -17,6 +17,7 @@
 package com.io7m.medrina.parser.api;
 
 import com.io7m.anethum.api.SerializerFactoryType;
+import com.io7m.anethum.api.Unused;
 import com.io7m.medrina.api.MPolicy;
 
 /**
@@ -24,7 +25,7 @@ import com.io7m.medrina.api.MPolicy;
  */
 
 public interface MPolicySerializerFactoryType
-  extends SerializerFactoryType<Void, MPolicy, MPolicySerializerType>
+  extends SerializerFactoryType<Unused, MPolicy, MPolicySerializerType>
 {
 
 }

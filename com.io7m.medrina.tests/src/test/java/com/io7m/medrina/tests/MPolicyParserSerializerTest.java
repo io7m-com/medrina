@@ -16,8 +16,8 @@
 
 package com.io7m.medrina.tests;
 
-import com.io7m.anethum.common.ParseException;
-import com.io7m.anethum.common.SerializeException;
+import com.io7m.anethum.api.ParsingException;
+import com.io7m.anethum.api.SerializationException;
 import com.io7m.medrina.api.MPolicy;
 import com.io7m.medrina.vanilla.MPolicyParsers;
 import com.io7m.medrina.vanilla.MPolicySerializers;
@@ -34,7 +34,6 @@ import org.opentest4j.AssertionFailedError;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.time.Duration;
@@ -96,7 +95,7 @@ public final class MPolicyParserSerializerTest
 
     Assertions.assertTimeout(Duration.ofSeconds(1000L), () -> {
       try {
-        Assertions.assertThrows(ParseException.class, () -> {
+        Assertions.assertThrows(ParsingException.class, () -> {
           parsers.parse(
             URI.create("urn:create"),
             new ByteArrayInputStream(data.getBytes(UTF_8)));
@@ -112,7 +111,7 @@ public final class MPolicyParserSerializerTest
   {
     final var parsers = new MPolicyParsers();
 
-    Assertions.assertThrows(ParseException.class, () -> {
+    Assertions.assertThrows(ParsingException.class, () -> {
       parsers.parse(
         URI.create("urn:create"),
         new BrokenInputStream()
@@ -130,7 +129,7 @@ public final class MPolicyParserSerializerTest
     final var serializers =
       new MPolicySerializers();
 
-    Assertions.assertThrows(SerializeException.class, () -> {
+    Assertions.assertThrows(SerializationException.class, () -> {
       serializers.serialize(
         URI.create("urn:create"),
         new BrokenOutputStream(),
@@ -149,7 +148,7 @@ public final class MPolicyParserSerializerTest
       try {
         final var policy =
           parsers.parse(URI.create("urn:create"), stream);
-      } catch (final ParseException e) {
+      } catch (final ParsingException e) {
         e.statusValues().forEach(System.out::println);
         throw e;
       }

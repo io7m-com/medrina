@@ -29,7 +29,7 @@ module com.io7m.medrina.vanilla
   requires static org.osgi.annotation.versioning;
 
   requires transitive com.io7m.medrina.parser.api;
-  requires transitive com.io7m.anethum.common;
+  requires transitive com.io7m.anethum.api;
 
   requires com.io7m.jdeferthrow.core;
   requires com.io7m.jeucreader.core;

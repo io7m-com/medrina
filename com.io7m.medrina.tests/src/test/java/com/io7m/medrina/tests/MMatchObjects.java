@@ -16,8 +16,6 @@
 
 package com.io7m.medrina.tests;
 
-import com.io7m.medrina.api.MActionName;
-import com.io7m.medrina.api.MMatchActionType;
 import com.io7m.medrina.api.MMatchObjectType;
 import com.io7m.medrina.api.MMatchObjectType.MMatchObjectFalse;
 import com.io7m.medrina.api.MMatchObjectType.MMatchObjectTrue;

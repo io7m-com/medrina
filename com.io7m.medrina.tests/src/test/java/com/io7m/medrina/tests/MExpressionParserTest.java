@@ -16,7 +16,7 @@
 
 package com.io7m.medrina.tests;
 
-import com.io7m.anethum.common.ParseStatus;
+import com.io7m.anethum.api.ParseStatus;
 import com.io7m.jeucreader.UnicodeCharacterReader;
 import com.io7m.jsx.SExpressionType;
 import com.io7m.jsx.api.lexer.JSXLexerComment;
@@ -85,7 +85,7 @@ public final class MExpressionParserTest
   @BeforeProperty
   public void setup()
   {
-    this.errors = new ArrayList<ParseStatus>();
+    this.errors = new ArrayList<>();
   }
 
   private SExpressionType parse(

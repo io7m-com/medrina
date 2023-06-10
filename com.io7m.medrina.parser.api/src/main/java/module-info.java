@@ -25,7 +25,6 @@ module com.io7m.medrina.parser.api
 
   requires transitive com.io7m.medrina.api;
   requires transitive com.io7m.anethum.api;
-  requires transitive com.io7m.anethum.common;
 
   exports com.io7m.medrina.parser.api;
 }

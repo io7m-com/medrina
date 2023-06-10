@@ -16,7 +16,7 @@
 
 package com.io7m.medrina.tests;
 
-import com.io7m.medrina.cmdline.MainExitless;
+import com.io7m.medrina.cmdline.Main;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public final class MCommandLineTest
 {
@@ -50,7 +50,7 @@ public final class MCommandLineTest
   public void testHelp()
     throws IOException
   {
-    MainExitless.main(new String[]{
+    Main.mainExitless(new String[]{
       "help"
     });
   }
@@ -60,7 +60,7 @@ public final class MCommandLineTest
     throws IOException
   {
     for (final var command : List.of("help", "version", "parse", "evaluate")) {
-      MainExitless.main(new String[]{"help", command});
+      Main.mainExitless(new String[]{"help", command});
     }
   }
 
@@ -75,7 +75,7 @@ public final class MCommandLineTest
         "example0.mp"
       );
 
-    MainExitless.main(
+    Main.mainExitless(
       new String[]{
         "parse",
         "--file",
@@ -93,15 +93,15 @@ public final class MCommandLineTest
 
     Files.writeString(path, "Hello!");
 
-    assertThrows(IOException.class, () -> {
-      MainExitless.main(
+    assertEquals(
+      1,
+      Main.mainExitless(
         new String[]{
           "parse",
           "--file",
           path.toAbsolutePath().toString()
         }
-      );
-    });
+      ));
   }
 
   @Test
@@ -111,15 +111,15 @@ public final class MCommandLineTest
     final var path =
       this.directory.resolve("x.txt");
 
-    assertThrows(IOException.class, () -> {
-      MainExitless.main(
+    assertEquals(
+      1,
+      Main.mainExitless(
         new String[]{
           "parse",
           "--file",
           path.toAbsolutePath().toString()
         }
-      );
-    });
+      ));
   }
 
   @Test
@@ -133,7 +133,7 @@ public final class MCommandLineTest
         "example0.mp"
       );
 
-    MainExitless.main(
+    Main.mainExitless(
       new String[]{
         "evaluate",
         "--file",
@@ -157,8 +157,9 @@ public final class MCommandLineTest
 
     Files.writeString(path, "Hello!");
 
-    assertThrows(IOException.class, () -> {
-      MainExitless.main(
+    assertEquals(
+      1,
+      Main.mainExitless(
         new String[]{
           "evaluate",
           "--file",
@@ -170,15 +171,14 @@ public final class MCommandLineTest
           "--subject-role",
           "r"
         }
-      );
-    });
+      ));
   }
 
   @Test
   public void testVersion()
     throws IOException
   {
-    MainExitless.main(new String[]{
+    Main.mainExitless(new String[]{
       "version"
     });
   }
