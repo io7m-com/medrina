@@ -16,10 +16,12 @@
 
 Require Import Coq.Strings.String.
 Require Import Coq.Lists.List.
+Require Import Coq.Lists.SetoidList.
 
 Import ListNotations.
 
 Require Import Medrina.Actions.
+Require Import Medrina.Attributes.
 Require Import Medrina.Names.
 Require Import Medrina.Subjects.
 Require Import Medrina.Roles.
@@ -893,20 +895,24 @@ Qed.
 
 (** An expression that matches an object. *)
 Inductive exprMatchObject : Type :=
-  | EMO_False    : exprMatchObject
-  | EMO_True     : exprMatchObject
-  | EMO_WithType : typeName -> exprMatchObject
-  | EMO_And      : list exprMatchObject -> exprMatchObject
-  | EMO_Or       : list exprMatchObject -> exprMatchObject
+  | EMO_False             : exprMatchObject
+  | EMO_True              : exprMatchObject
+  | EMO_WithType          : typeName -> exprMatchObject
+  | EMO_WithAttributesAll : AttributeNameMaps.t attributeValue -> exprMatchObject
+  | EMO_WithAttributesAny : AttributeNameMaps.t attributeValue -> exprMatchObject
+  | EMO_And               : list exprMatchObject -> exprMatchObject
+  | EMO_Or                : list exprMatchObject -> exprMatchObject
   .
 
 Section ExprMatchObject_ind.
   Variable P : exprMatchObject -> Prop.
-  Hypothesis P_False    : P EMO_False.
-  Hypothesis P_True     : P EMO_True.
-  Hypothesis P_WithType : forall n, P (EMO_WithType n).
-  Hypothesis P_And      : forall es, Forall P es -> P (EMO_And es).
-  Hypothesis P_Or       : forall es, Forall P es -> P (EMO_Or es).
+  Hypothesis P_False             : P EMO_False.
+  Hypothesis P_True              : P EMO_True.
+  Hypothesis P_WithType          : forall n, P (EMO_WithType n).
+  Hypothesis P_WithAttributesAll : forall n, P (EMO_WithAttributesAll n).
+  Hypothesis P_WithAttributesAny : forall n, P (EMO_WithAttributesAny n).
+  Hypothesis P_And               : forall es, Forall P es -> P (EMO_And es).
+  Hypothesis P_Or                : forall es, Forall P es -> P (EMO_Or es).
 
   Fixpoint exprMatchObject_extendedInd (e : exprMatchObject) : P e :=
     let
@@ -917,14 +923,66 @@ Section ExprMatchObject_ind.
         end
     in
       match e with
-      | EMO_False      => P_False
-      | EMO_True       => P_True
-      | EMO_WithType a => P_WithType a
-      | EMO_And es     => P_And es (e_list es)
-      | EMO_Or es      => P_Or es (e_list es)
+      | EMO_False               => P_False
+      | EMO_True                => P_True
+      | EMO_WithType a          => P_WithType a
+      | EMO_WithAttributesAll a => P_WithAttributesAll a
+      | EMO_WithAttributesAny a => P_WithAttributesAny a
+      | EMO_And es              => P_And es (e_list es)
+      | EMO_Or es               => P_Or es (e_list es)
       end.
 
 End ExprMatchObject_ind.
+
+Definition mapsB
+  (m : AttributeNameMaps.t attributeValue)
+  (k : attributeName)
+  (v : attributeValue)
+: bool :=
+  match AttributeNameMaps.find k m with
+  | Some w => attributeValueBool v w
+  | None   => false
+  end.
+
+Lemma mapsB_MapsToL : forall m k v,
+  mapsB m k v = true -> AttributeNameMaps.MapsTo k v m.
+Proof.
+  unfold mapsB.
+  intros m k v Hf.
+  destruct (AttributeNameMaps.find k m) eqn:Hfind. {
+    rewrite <- attributeValueBoolDecT in Hf.
+    subst v.
+    apply (AttributeNameMaps.find_2 Hfind).
+  } {
+    contradict Hf.
+    discriminate.
+  }
+Qed.
+
+Lemma mapsB_MapsToR : forall m k v,
+  AttributeNameMaps.MapsTo k v m -> mapsB m k v = true.
+Proof.
+  intros m k v Hmaps.
+  unfold mapsB.
+  destruct (AttributeNameMaps.find k m) eqn:Hfind. {
+    rewrite <- attributeValueBoolDecT.
+    rewrite <- AttributeNameMapsFacts.find_mapsto_iff in Hfind.
+    apply (AttributeNameMapsFacts.MapsTo_fun Hmaps Hfind).
+  } {
+    rewrite AttributeNameMapsFacts.find_mapsto_iff in Hmaps.
+    rewrite Hmaps in Hfind.
+    contradict Hfind.
+    discriminate.
+  }
+Qed.
+
+Lemma mapsB_MapsTo_iff : forall m k v,
+  AttributeNameMaps.MapsTo k v m <-> mapsB m k v = true.
+Proof.
+  split.
+  apply mapsB_MapsToR.
+  apply mapsB_MapsToL.
+Qed.
 
 (** An evaluation function for object match expressions. *)
 Fixpoint exprMatchObjectEvalF
@@ -932,11 +990,22 @@ Fixpoint exprMatchObjectEvalF
   (e : exprMatchObject)
 : bool :=
   match e with
-  | EMO_False      => false
-  | EMO_True       => true
-  | EMO_WithType n => eqb (ivName (oType o)) (ivName n)
-  | EMO_And xs     => forallb (exprMatchObjectEvalF o) xs
-  | EMO_Or xs      => existsb (exprMatchObjectEvalF o) xs
+  | EMO_False => false
+  | EMO_True => true
+  | EMO_WithType n =>
+    eqb (ivName (oType o)) (ivName n)
+  | EMO_WithAttributesAll attributesRequired =>
+    let attributesHeld := oAttributes o in
+      forallb (fun p => mapsB attributesHeld (fst p) (snd p))
+        (AttributeNameMaps.elements attributesRequired)
+  | EMO_WithAttributesAny attributesRequired =>
+    let attributesHeld := oAttributes o in
+      existsb (fun p => mapsB attributesHeld (fst p) (snd p))
+        (AttributeNameMaps.elements attributesRequired)
+  | EMO_And xs =>
+    forallb (exprMatchObjectEvalF o) xs
+  | EMO_Or xs =>
+    existsb (exprMatchObjectEvalF o) xs
   end.
 
 (** The evaluation function for object match expressions as a relation. *)
@@ -946,6 +1015,17 @@ Inductive exprMatchObjectEvalR (o : object) : exprMatchObject -> Prop :=
     forall (t : typeName),
       ivName (oType o) = ivName t ->
         exprMatchObjectEvalR o (EMO_WithType t)
+  | EMOR_WithAttributesAll :
+    forall (required : AttributeNameMaps.t attributeValue),
+      (forall (k : attributeName) (v : attributeValue),
+        AttributeNameMaps.MapsTo k v required -> AttributeNameMaps.MapsTo k v (oAttributes o)) ->
+          exprMatchObjectEvalR o (EMO_WithAttributesAll required)
+  | EMOR_WithAttributesAny :
+    forall (required : AttributeNameMaps.t attributeValue),
+      (exists k : attributeName,
+        (exists v : attributeValue,
+          AttributeNameMaps.MapsTo k v required /\ AttributeNameMaps.MapsTo k v (oAttributes o))) ->
+            exprMatchObjectEvalR o (EMO_WithAttributesAny required)
   | EMOR_And :
     forall (es : list exprMatchObject),
       Forall (exprMatchObjectEvalR o) es ->
@@ -956,6 +1036,95 @@ Inductive exprMatchObjectEvalR (o : object) : exprMatchObject -> Prop :=
         exprMatchObjectEvalR o (EMO_Or es)
   .
 
+Lemma exprMatchObjectEvalEquivalent_FR_T_EMO_False : forall s,
+  true = exprMatchObjectEvalF s EMO_False -> exprMatchObjectEvalR s EMO_False.
+Proof.
+  intros s Ht.
+  inversion Ht.
+Qed.
+
+Lemma exprMatchObjectEvalEquivalent_FR_T_EMO_True : forall s,
+  true = exprMatchObjectEvalF s EMO_True -> exprMatchObjectEvalR s EMO_True.
+Proof.
+  intros s Ht.
+  constructor.
+Qed.
+
+Lemma exprMatchObjectEvalEquivalent_FR_T_EMO_WithType : forall s n,
+  true = exprMatchObjectEvalF s (EMO_WithType n) ->
+    exprMatchObjectEvalR s (EMO_WithType n).
+Proof.
+  intros s n Ht.
+  unfold exprMatchObjectEvalF in Ht.
+  symmetry in Ht.
+  rewrite eqb_eq in Ht.
+  pose proof (ivIrrelevantEqual _ _ Ht) as H.
+  subst n.
+  constructor.
+  reflexivity.
+Qed.
+
+Lemma exprMatchObjectEvalEquivalent_FR_T_EMO_WithAttributesAll : forall s required,
+  true = exprMatchObjectEvalF s (EMO_WithAttributesAll required) ->
+    exprMatchObjectEvalR s (EMO_WithAttributesAll required).
+Proof.
+  intros s required Ht.
+  constructor.
+
+  simpl in Ht.
+  symmetry in Ht.
+  rewrite forallb_forall in Ht.
+
+  intros k v Hmaps.
+  pose proof (Ht (k, v)) as Hp0.
+  clear Ht.
+  simpl in Hp0.
+  rewrite <- mapsB_MapsTo_iff in Hp0.
+  apply Hp0.
+  clear Hp0.
+  rewrite AttributeNameMapsFacts.elements_mapsto_iff in Hmaps.
+  induction Hmaps as [x xs [H01 H02]|y ys H1]. {
+    simpl.
+    left.
+    destruct x as [fx sx].
+    assert (fx = k) as Hp0. { simpl in H01. symmetry. exact H01. }
+    assert (sx = v) as Hp1. { simpl in H02. symmetry. exact H02. }
+    subst fx.
+    subst sx.
+    reflexivity.
+  } {
+    simpl.
+    right; auto.
+  }
+Qed.
+
+Lemma exprMatchObjectEvalEquivalent_FR_T_EMO_WithAttributesAny : forall s required,
+  true = exprMatchObjectEvalF s (EMO_WithAttributesAny required) ->
+    exprMatchObjectEvalR s (EMO_WithAttributesAny required).
+Proof.
+  intros s required Ht.
+  constructor.
+
+  simpl in Ht.
+  symmetry in Ht.
+  rewrite existsb_exists in Ht.
+  destruct Ht as [[k0 v0] [Ht0 Ht1]].
+
+  exists k0.
+  exists v0.
+  rewrite <- mapsB_MapsTo_iff in Ht1.
+  simpl in Ht1.
+  intros.
+  split. {
+    rewrite AttributeNameMapsFacts.elements_mapsto_iff.
+    apply In_InA.
+    exact AttributeNameMapsEqEquiv.
+    exact Ht0.
+  } {
+    exact Ht1.
+  }
+Qed.
+
 Lemma exprMatchObjectEvalEquivalent_FR_T : forall s e,
   true = exprMatchObjectEvalF s e -> exprMatchObjectEvalR s e.
 Proof.
@@ -963,26 +1132,20 @@ Proof.
   induction e as [
     |
     |
+    |required
+    |required
     |es Hes
     |es Hes
   ] using exprMatchObject_extendedInd. {
-    (* EMO_False *)
-    intros Ht.
-    inversion Ht.
+    apply exprMatchObjectEvalEquivalent_FR_T_EMO_False.
   } {
-    (* EMO_True *)
-    intros Ht.
-    constructor.
+    apply exprMatchObjectEvalEquivalent_FR_T_EMO_True.
   } {
-    (* EMO_WithType *)
-    intros Ht.
-    unfold exprMatchObjectEvalF in Ht.
-    symmetry in Ht.
-    rewrite eqb_eq in Ht.
-    pose proof (ivIrrelevantEqual _ _ Ht) as H.
-    subst n.
-    constructor.
-    reflexivity.
+    apply exprMatchObjectEvalEquivalent_FR_T_EMO_WithType.
+  } {
+    apply exprMatchObjectEvalEquivalent_FR_T_EMO_WithAttributesAll.
+  } {
+    apply exprMatchObjectEvalEquivalent_FR_T_EMO_WithAttributesAny.
   } {
     (* EMO_And *)
     destruct es as [|y ys]. {
@@ -1072,6 +1235,95 @@ Proof.
   }
 Qed.
 
+Lemma exprMatchObjectEvalEquivalent_RF_T_False : forall s,
+  exprMatchObjectEvalR s EMO_False -> true = exprMatchObjectEvalF s EMO_False.
+Proof.
+  intros s Ht.
+  inversion Ht.
+Qed.
+
+Lemma exprMatchObjectEvalEquivalent_RF_T_True : forall s,
+  exprMatchObjectEvalR s EMO_True -> true = exprMatchObjectEvalF s EMO_True.
+Proof.
+  intros s Ht.
+  reflexivity.
+Qed.
+
+Lemma exprMatchObjectEvalEquivalent_RF_T_WithType : forall s n,
+  exprMatchObjectEvalR s (EMO_WithType n) ->
+    true = exprMatchObjectEvalF s (EMO_WithType n).
+Proof.
+  intros s n Ht.
+  simpl.
+  inversion Ht as [ |y Hyz| | | |].
+  subst y.
+  pose proof (ivIrrelevantEqual _ _ Hyz) as H0.
+  rewrite H0.
+  symmetry.
+  apply eqb_refl.
+Qed.
+
+Lemma exprMatchObjectEvalEquivalent_RF_T_WithAttributesAll : forall s n,
+  exprMatchObjectEvalR s (EMO_WithAttributesAll n) ->
+    true = exprMatchObjectEvalF s (EMO_WithAttributesAll n).
+Proof.
+  intros s n Hem.
+  inversion Hem as [ | |required H0 H1| | |].
+  subst n.
+  simpl.
+  symmetry.
+  rewrite forallb_forall.
+  intros [k v] Hin.
+  simpl.
+  rewrite <- mapsB_MapsTo_iff.
+  apply H0.
+  rewrite AttributeNameMapsFacts.elements_mapsto_iff.
+  apply In_InA.
+  unfold AttributeNameMaps.eq_key_elt.
+  constructor. {
+    constructor; reflexivity.
+  } {
+    constructor.
+    intuition.
+    symmetry.
+    intuition.
+  } {
+    intros x y z [Heq0 Heq1] [Heq2 Heq3].
+    rewrite Heq1.
+    rewrite Heq3.
+    rewrite <- Heq2.
+    rewrite Heq0.
+    constructor; reflexivity.
+  }
+  trivial.
+Qed.
+
+Lemma exprMatchObjectEvalEquivalent_RF_T_WithAttributesAny : forall s n,
+  exprMatchObjectEvalR s (EMO_WithAttributesAny n) ->
+    true = exprMatchObjectEvalF s (EMO_WithAttributesAny n).
+Proof.
+  intros s n Hem.
+  inversion Hem as [ | | |required H0 H1| |].
+  subst n.
+  destruct H0 as [k [v [Hpm0 Hpm1]]].
+  simpl.
+  symmetry.
+  rewrite existsb_exists.
+  exists (k, v).
+  rewrite <- mapsB_MapsTo_iff.
+  simpl.
+  split. {
+    rewrite AttributeNameMapsFacts.elements_mapsto_iff in Hpm0.
+    rewrite InA_alt in Hpm0.
+    destruct Hpm0 as [y [Hy0 Hy1]].
+    rewrite AttributeNameMapsEqLeibniz in Hy0.
+    subst y.
+    exact Hy1.
+  } {
+    exact Hpm1.
+  }
+Qed.
+
 Lemma exprMatchObjectEvalEquivalent_RF_T : forall s e,
   exprMatchObjectEvalR s e -> true = exprMatchObjectEvalF s e.
 Proof.
@@ -1079,30 +1331,24 @@ Proof.
   induction e as [
     |
     |
+    |
+    |
     |es Hes
     |es Hes
   ] using exprMatchObject_extendedInd. {
-    (* EMO_False *)
-    intros Ht.
-    inversion Ht.
+    apply exprMatchObjectEvalEquivalent_RF_T_False.
   } {
-    (* EMO_True *)
-    intros Ht.
-    reflexivity.
+    apply exprMatchObjectEvalEquivalent_RF_T_True.
   } {
-    (* EMO_WithType *)
-    intros Ht.
-    simpl.
-    inversion Ht as [ |y Hyz| | ].
-    subst y.
-    pose proof (ivIrrelevantEqual _ _ Hyz) as H0.
-    rewrite H0.
-    symmetry.
-    apply eqb_refl.
+    apply exprMatchObjectEvalEquivalent_RF_T_WithType.
+  } {
+    apply exprMatchObjectEvalEquivalent_RF_T_WithAttributesAll.
+  } {
+    apply exprMatchObjectEvalEquivalent_RF_T_WithAttributesAny.
   } {
     (* EMO_And *)
     intros Ht.
-    inversion Ht as [ | |es0 Hfa Heq|].
+    inversion Ht as [ | | | |es0 Hfa Heq|].
     subst es0.
     simpl.
     symmetry.
@@ -1119,7 +1365,7 @@ Proof.
     simpl.
     rewrite existsb_exists.
 
-    inversion Ht as [ | | |es0 Hex Heq].
+    inversion Ht as [ | | | | |es0 Hex Heq].
     subst es.
     destruct Hex as [k ks Hk|k ks Hk]. {
       exists k.
@@ -1155,6 +1401,8 @@ Proof.
   induction e as [
     |
     |
+    |
+    |
     |es Hes
     |es Hes
   ] using exprMatchObject_extendedInd. {
@@ -1169,6 +1417,18 @@ Proof.
     discriminate.
   } {
     (* EMO_WithType *)
+    intros Ht.
+    intros Hcontra.
+    rewrite <- (exprMatchObjectEvalEquivalent_RF_T _ _ Hcontra) in Ht.
+    contradict Ht; discriminate.
+  } {
+    (* EMO_WithAttributesAll *)
+    intros Ht.
+    intros Hcontra.
+    rewrite <- (exprMatchObjectEvalEquivalent_RF_T _ _ Hcontra) in Ht.
+    contradict Ht; discriminate.
+  } {
+    (* EMO_WithAttributesAny *)
     intros Ht.
     intros Hcontra.
     rewrite <- (exprMatchObjectEvalEquivalent_RF_T _ _ Hcontra) in Ht.
@@ -1195,6 +1455,8 @@ Proof.
   induction e as [
     |
     |
+    |
+    |
     |es Hes
     |es Hes
   ] using exprMatchObject_extendedInd. {
@@ -1210,6 +1472,26 @@ Proof.
     (* EMS_WithType *)
     intros Ht.
     destruct (exprMatchObjectEvalF s (EMO_WithType n)) eqn:H. {
+      symmetry in H.
+      rewrite exprMatchObjectEvalEquivalentT in H.
+      contradiction.
+    } {
+      reflexivity.
+    }
+  } {
+    (* EMO_WithAttributesAll *)
+    intros Ht.
+    destruct (exprMatchObjectEvalF s (EMO_WithAttributesAll n)) eqn:H. {
+      symmetry in H.
+      rewrite exprMatchObjectEvalEquivalentT in H.
+      contradiction.
+    } {
+      reflexivity.
+    }
+  } {
+    (* EMO_WithAttributesAny *)
+    intros Ht.
+    destruct (exprMatchObjectEvalF s (EMO_WithAttributesAny n)) eqn:H. {
       symmetry in H.
       rewrite exprMatchObjectEvalEquivalentT in H.
       contradiction.
