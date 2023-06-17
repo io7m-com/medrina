@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 Mark Raynsford <code@io7m.com> https://www.io7m.com
+ * Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,18 +14,31 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.medrina.parser.api;
 
-import com.io7m.anethum.api.SerializerFactoryType;
-import com.io7m.anethum.api.Unused;
-import com.io7m.medrina.api.MPolicy;
+package com.io7m.medrina.tests;
 
-/**
- * A factory of policy serializers.
- */
+import com.io7m.medrina.api.MVersion;
+import org.junit.jupiter.api.Test;
 
-public interface MPolicySerializerFactoryType
-  extends SerializerFactoryType<Unused, MPolicy, MPolicySerializerType>
+import java.math.BigInteger;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+public final class MVersionTest
 {
+  @Test
+  public void testInvalidMajor()
+  {
+    assertThrows(IllegalArgumentException.class, () -> {
+      new MVersion(BigInteger.valueOf(-1L), BigInteger.ZERO);
+    });
+  }
 
+  @Test
+  public void testInvalidMinor()
+  {
+    assertThrows(IllegalArgumentException.class, () -> {
+      new MVersion(BigInteger.ZERO, BigInteger.valueOf(-1L));
+    });
+  }
 }

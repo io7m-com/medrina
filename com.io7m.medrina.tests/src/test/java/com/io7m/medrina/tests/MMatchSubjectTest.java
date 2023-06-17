@@ -17,10 +17,10 @@
 package com.io7m.medrina.tests;
 
 import com.io7m.medrina.api.MMatchSubjectType;
-import com.io7m.medrina.api.MMatchSubjectType.MMatchSubjectWithRolesAll;
 import com.io7m.medrina.api.MMatchSubjectType.MMatchSubjectAnd;
-import com.io7m.medrina.api.MMatchSubjectType.MMatchSubjectWithRolesAny;
 import com.io7m.medrina.api.MMatchSubjectType.MMatchSubjectOr;
+import com.io7m.medrina.api.MMatchSubjectType.MMatchSubjectWithRolesAll;
+import com.io7m.medrina.api.MMatchSubjectType.MMatchSubjectWithRolesAny;
 import com.io7m.medrina.api.MRoleName;
 import com.io7m.medrina.api.MSubject;
 import net.jqwik.api.Arbitrary;

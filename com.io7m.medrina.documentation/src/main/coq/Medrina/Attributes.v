@@ -15,6 +15,8 @@
  *)
 
 Require Import Coq.Strings.String.
+Require Import Coq.Logic.FunctionalExtensionality.
+
 Require Import Medrina.Names.
 
 (** The type of attribute names. *)
@@ -75,6 +77,50 @@ Proof.
   }
 Qed.
 
+(** Boolean equality of attribute values. *)
+Definition attributeValueBool (a b : attributeValue) : bool :=
+  match attributeValueDec a b with
+  | left _  => true
+  | right _ => false
+  end.
+
+Theorem attributeValueBoolDecT : forall (a b : attributeValue),
+  a = b <-> attributeValueBool a b = true.
+Proof.
+  intros a b.
+  split. {
+    intros Heq.
+    subst b.
+    unfold attributeValueBool.
+    destruct (attributeValueDec a a) eqn:Hdec.
+      - reflexivity.
+      - contradiction.
+  } {
+    unfold attributeValueBool.
+    destruct (attributeValueDec a b).
+      - intros. auto.
+      - intros H0. contradict H0. discriminate.
+  }
+Qed.
+
+Theorem attributeValueBoolDecF : forall (a b : attributeValue),
+  a <> b <-> attributeValueBool a b = false.
+Proof.
+  intros a b.
+  split. {
+    intros Heq.
+    unfold attributeValueBool.
+    destruct (attributeValueDec a b) eqn:Hdec.
+      - contradiction.
+      - reflexivity.
+  } {
+    unfold attributeValueBool.
+    destruct (attributeValueDec a b).
+      - intros H0. contradict H0. discriminate.
+      - intros. auto.
+  }
+Qed.
+
 Require Import Coq.FSets.FMapInterface.
 Require Import Coq.FSets.FMapWeakList.
 Require Import Coq.FSets.FMapFacts.
@@ -108,3 +154,73 @@ Module AttributeNameMaps : FMapInterface.WS
 
 Module AttributeNameMapsFacts :=
   Facts AttributeNameMaps.
+
+Lemma AttributeNameMapsEqEquiv :
+  Equivalence (AttributeNameMaps.eq_key_elt (elt:=attributeValue)).
+Proof.
+  unfold AttributeNameMaps.eq_key_elt.
+  constructor. {
+    constructor; reflexivity.
+  } {
+    intros x y [Heq0 Heq1].
+    symmetry in Heq0.
+    symmetry in Heq1.
+    intuition.
+  } {
+    intros x y z [Heq0 Heq1] [Heq2 Heq3].
+    rewrite Heq1.
+    rewrite Heq3.
+    rewrite <- Heq2.
+    rewrite Heq0.
+    constructor; reflexivity.
+  }
+Qed.
+
+Lemma AttributeNameMapsEqLeibniz : forall p0 p1,
+  AttributeNameMaps.eq_key_elt (elt:=attributeValue) p0 p1 <-> p0 = p1.
+Proof.
+  unfold AttributeNameMaps.eq_key_elt.
+  intros p0.
+  intros p1.
+  destruct p0 as [p0k p0v].
+  destruct p1 as [p1k p1v].
+  simpl.
+  unfold AttributeNameMaps.E.eq.
+  split. {
+    intros [Heq0 Heq1].
+    subst p0k.
+    subst p0v.
+    reflexivity.
+  } {
+    intros Heq0.
+    assert (p0k = p1k) by congruence.
+    assert (p0v = p1v) by congruence.
+    intuition.
+  }
+Qed.
+
+Lemma attributesEmptyElements :
+  AttributeNameMaps.elements (AttributeNameMaps.empty attributeValue) = nil.
+Proof.
+  destruct (AttributeNameMaps.elements (AttributeNameMaps.empty _)) eqn:H. {
+    reflexivity.
+  } {
+    assert (In p (AttributeNameMaps.elements (AttributeNameMaps.empty _))) as Hin. {
+      rewrite H. intuition.
+    }
+    assert (InA
+      (AttributeNameMaps.eq_key_elt (elt:=attributeValue)) 
+      p 
+      (AttributeNameMaps.elements (AttributeNameMaps.empty attributeValue))
+    ) as H0. {
+      apply In_InA.
+      exact AttributeNameMapsEqEquiv.
+      exact Hin.
+    }
+    destruct p as [k v].
+    rewrite <- AttributeNameMapsFacts.elements_mapsto_iff in H0.
+    rewrite AttributeNameMapsFacts.empty_mapsto_iff in H0.
+    contradiction.
+  }
+Qed.
+

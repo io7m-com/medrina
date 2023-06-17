@@ -3,12 +3,8 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 
 <properties>
-  <entry key="errorExpectedReceived"><![CDATA[Unparseable {0}.
-Expected:
-{1}
-Received:
-  {2}
-]]></entry>
+  <entry key="errorParse">Parse error.</entry>
+  <entry key="errorUnsupportedVersion">Unsupported version.</entry>
 
   <entry key="describeVersion">A version expression.</entry>
   <entry key="describeRule">A rule expression.</entry>
@@ -19,6 +15,7 @@ Received:
   <entry key="describeMatchSubjectE">A subject match expression.</entry>
   <entry key="describeMatchObjectE">An object match expression.</entry>
   <entry key="describeMatchActionE">An action match expression.</entry>
+  <entry key="describeAttribute">An attribute.</entry>
 
   <entry key="version"><![CDATA[  (medrina <number> <number>)]]></entry>
   <entry key="rule"><![CDATA[    (ruleConclusion matchSubject matchObject matchAction)]]></entry>
@@ -26,6 +23,8 @@ Received:
   <entry key="matchObject"><![CDATA[      "(" , "object" , matchObjectE , ")" ;]]></entry>
   <entry key="matchSubject"><![CDATA[      "(" , "subject" , matchSubjectE , ")" ;]]></entry>
   <entry key="matchAction"><![CDATA[      "(" , "action" , matchActionE , ")" ;]]></entry>
+  <entry key="attribute"><![CDATA[      "(" , "attribute" , <quoted> , <quoted> ")" ;]]></entry>
+
   <entry key="matchSubjectE"><![CDATA[    "true"
   | "false"
   | "(" , "with-all-roles" , name* , ")"
@@ -37,6 +36,8 @@ Received:
   <entry key="matchObjectE"><![CDATA[    "true"
   | "false"
   | "(" , "with-type" , name , ")"
+  | "(" , "with-any-attributes" , [ attribute ] , ")"
+  | "(" , "with-all-attributes" , [ attribute ] , ")"
   | "(" , "or" , matchObjectE , matchObjectE , ")"
   | "(" , "and" , matchObjectE , matchObjectE , ")"
   ;

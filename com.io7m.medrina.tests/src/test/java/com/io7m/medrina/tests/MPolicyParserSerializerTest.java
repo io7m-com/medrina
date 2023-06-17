@@ -16,8 +16,8 @@
 
 package com.io7m.medrina.tests;
 
-import com.io7m.anethum.common.ParseException;
-import com.io7m.anethum.common.SerializeException;
+import com.io7m.anethum.api.ParsingException;
+import com.io7m.anethum.api.SerializationException;
 import com.io7m.medrina.api.MPolicy;
 import com.io7m.medrina.vanilla.MPolicyParsers;
 import com.io7m.medrina.vanilla.MPolicySerializers;
@@ -30,11 +30,9 @@ import org.apache.commons.io.input.BrokenInputStream;
 import org.apache.commons.io.output.BrokenOutputStream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.opentest4j.AssertionFailedError;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.time.Duration;
@@ -42,6 +40,8 @@ import java.time.Duration;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeout;
 
 public final class MPolicyParserSerializerTest
 {
@@ -94,14 +94,14 @@ public final class MPolicyParserSerializerTest
       return;
     }
 
-    Assertions.assertTimeout(Duration.ofSeconds(1000L), () -> {
+    assertTimeout(Duration.ofSeconds(1000L), () -> {
       try {
-        Assertions.assertThrows(ParseException.class, () -> {
+        assertThrows(ParsingException.class, () -> {
           parsers.parse(
             URI.create("urn:create"),
             new ByteArrayInputStream(data.getBytes(UTF_8)));
         });
-      } catch (final AssertionFailedError e) {
+      } catch (final Exception e) {
         System.out.println("Input failed to fail: " + data);
       }
     });
@@ -112,7 +112,7 @@ public final class MPolicyParserSerializerTest
   {
     final var parsers = new MPolicyParsers();
 
-    Assertions.assertThrows(ParseException.class, () -> {
+    assertThrows(ParsingException.class, () -> {
       parsers.parse(
         URI.create("urn:create"),
         new BrokenInputStream()
@@ -130,7 +130,7 @@ public final class MPolicyParserSerializerTest
     final var serializers =
       new MPolicySerializers();
 
-    Assertions.assertThrows(SerializeException.class, () -> {
+    assertThrows(SerializationException.class, () -> {
       serializers.serialize(
         URI.create("urn:create"),
         new BrokenOutputStream(),
@@ -149,11 +149,25 @@ public final class MPolicyParserSerializerTest
       try {
         final var policy =
           parsers.parse(URI.create("urn:create"), stream);
-      } catch (final ParseException e) {
+      } catch (final ParsingException e) {
         e.statusValues().forEach(System.out::println);
         throw e;
       }
     }
+  }
+
+  @Test
+  public void testParseUnknownVersion0()
+    throws Exception
+  {
+    final var parsers = new MPolicyParsers();
+
+    assertThrows(ParsingException.class, () -> {
+      parsers.parse(
+        URI.create("urn:create"),
+        new ByteArrayInputStream("[medrina 9999 0]".getBytes(UTF_8))
+      );
+    });
   }
 
   private static InputStream resource(

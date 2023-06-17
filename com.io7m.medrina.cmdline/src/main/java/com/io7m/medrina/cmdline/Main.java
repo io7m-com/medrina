@@ -16,14 +16,13 @@
 
 package com.io7m.medrina.cmdline;
 
-import com.io7m.claypot.core.CLPApplicationConfiguration;
-import com.io7m.claypot.core.CLPCommandConstructorType;
-import com.io7m.claypot.core.CLPCommandType;
-import com.io7m.claypot.core.Claypot;
-import com.io7m.claypot.core.ClaypotType;
 import com.io7m.medrina.cmdline.internal.MCommandEvaluate;
 import com.io7m.medrina.cmdline.internal.MCommandParse;
-import com.io7m.medrina.cmdline.internal.MCommandVersion;
+import com.io7m.medrina.cmdline.internal.MValueConverters;
+import com.io7m.medrina.cmdline.internal.MVersion;
+import com.io7m.quarrel.core.QApplication;
+import com.io7m.quarrel.core.QApplicationMetadata;
+import com.io7m.quarrel.core.QApplicationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +30,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.SortedMap;
-import java.util.stream.Stream;
 
 /**
  * Main command line entry point.
@@ -43,32 +40,40 @@ public final class Main implements Runnable
   private static final Logger LOG =
     LoggerFactory.getLogger(Main.class);
 
-  private final String[] args;
-  private final ClaypotType claypot;
+  private final List<String> args;
+  private final QApplicationType application;
+  private int exitCode;
 
-  Main(
+  /**
+   * The main entry point.
+   *
+   * @param inArgs Command-line arguments
+   */
+
+  public Main(
     final String[] inArgs)
   {
     this.args =
-      Objects.requireNonNull(inArgs, "Command line arguments");
+      Objects.requireNonNull(List.of(inArgs), "Command line arguments");
 
-    final List<CLPCommandConstructorType> commands =
-      List.of(
-        MCommandEvaluate::new,
-        MCommandParse::new,
-        MCommandVersion::new
+    final var metadata =
+      new QApplicationMetadata(
+        "medrina",
+        "com.io7m.medrina",
+        MVersion.VERSION,
+        MVersion.BUILD,
+        "The Medrina RBAC system.",
+        Optional.of(URI.create("https://www.io7m.com/software/medrina/"))
       );
 
-    final var configuration =
-      CLPApplicationConfiguration.builder()
-        .setLogger(LOG)
-        .setProgramName("medrina")
-        .setCommands(commands)
-        .setDocumentationURI(URI.create(
-          "https://www.io7m.com/software/medrina/documentation/"))
-        .build();
+    final var builder = QApplication.builder(metadata);
+    builder.allowAtSyntax(true);
+    builder.addCommand(new MCommandEvaluate());
+    builder.addCommand(new MCommandParse());
+    builder.setValueConverters(MValueConverters.get());
 
-    this.claypot = Claypot.create(configuration);
+    this.application = builder.build();
+    this.exitCode = 0;
   }
 
   /**
@@ -77,11 +82,26 @@ public final class Main implements Runnable
    * @param args Command line arguments
    */
 
-  public static void main(final String[] args)
+  public static void main(
+    final String[] args)
+  {
+    System.exit(mainExitless(args));
+  }
+
+  /**
+   * The main (exitless) entry point.
+   *
+   * @param args Command line arguments
+   *
+   * @return The exit code
+   */
+
+  public static int mainExitless(
+    final String[] args)
   {
     final Main cm = new Main(args);
     cm.run();
-    System.exit(cm.exitCode());
+    return cm.exitCode();
   }
 
   /**
@@ -90,33 +110,13 @@ public final class Main implements Runnable
 
   public int exitCode()
   {
-    return this.claypot.exitCode();
+    return this.exitCode;
   }
 
   @Override
   public void run()
   {
-    this.claypot.execute(this.args);
-  }
-
-  /**
-   * @return The names of the available commands
-   */
-
-  public Stream<String> commandNames()
-  {
-    return this.commands()
-      .keySet()
-      .stream();
-  }
-
-  /**
-   * @return The available commands
-   */
-
-  public SortedMap<String, CLPCommandType> commands()
-  {
-    return this.claypot.commands();
+    this.exitCode = this.application.run(LOG, this.args).exitCode();
   }
 
   @Override
@@ -126,14 +126,5 @@ public final class Main implements Runnable
       "[Main 0x%s]",
       Long.toUnsignedString(System.identityHashCode(this), 16)
     );
-  }
-
-  /**
-   * @return The exception that caused the exit
-   */
-
-  public Optional<Exception> exitCause()
-  {
-    return this.claypot.exitCause();
   }
 }

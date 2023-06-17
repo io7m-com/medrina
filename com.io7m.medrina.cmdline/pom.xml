@@ -9,7 +9,7 @@
   <parent>
     <artifactId>com.io7m.medrina</artifactId>
     <groupId>com.io7m.medrina</groupId>
-    <version>0.0.3</version>
+    <version>1.0.0-beta0001</version>
   </parent>
   <artifactId>com.io7m.medrina.cmdline</artifactId>
 
@@ -36,10 +36,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.io7m.claypot</groupId>
-      <artifactId>com.io7m.claypot.core</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.io7m.jsx</groupId>
       <artifactId>com.io7m.jsx.core</artifactId>
     </dependency>
@@ -56,12 +52,12 @@
       <artifactId>com.io7m.jsx.parser.api</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.io7m.anethum</groupId>
-      <artifactId>com.io7m.anethum.common</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.io7m.jlexing</groupId>
       <artifactId>com.io7m.jlexing.core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.anethum</groupId>
+      <artifactId>com.io7m.anethum.api</artifactId>
     </dependency>
 
     <dependency>
@@ -69,8 +65,12 @@
       <artifactId>slf4j-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.beust</groupId>
-      <artifactId>jcommander</artifactId>
+      <groupId>com.io7m.quarrel</groupId>
+      <artifactId>com.io7m.quarrel.core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.quarrel</groupId>
+      <artifactId>com.io7m.quarrel.ext.logback</artifactId>
     </dependency>
 
     <dependency>

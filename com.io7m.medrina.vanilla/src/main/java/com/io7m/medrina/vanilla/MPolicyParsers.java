@@ -16,9 +16,10 @@
 
 package com.io7m.medrina.vanilla;
 
-import com.io7m.anethum.common.ParseException;
-import com.io7m.anethum.common.ParseSeverity;
-import com.io7m.anethum.common.ParseStatus;
+import com.io7m.anethum.api.ParseSeverity;
+import com.io7m.anethum.api.ParseStatus;
+import com.io7m.anethum.api.ParsingException;
+import com.io7m.anethum.api.Unused;
 import com.io7m.jeucreader.UnicodeCharacterReader;
 import com.io7m.jlexing.core.LexicalPositions;
 import com.io7m.jsx.SExpressionType;
@@ -74,7 +75,7 @@ public final class MPolicyParsers implements MPolicyParserFactoryType
 
   @Override
   public MPolicyParserType createParserWithContext(
-    final Void context,
+    final Unused context,
     final URI source,
     final InputStream stream,
     final Consumer<ParseStatus> statusConsumer)
@@ -136,7 +137,7 @@ public final class MPolicyParsers implements MPolicyParserFactoryType
 
     @Override
     public MPolicy execute()
-      throws ParseException
+      throws ParsingException
     {
       final var expressionParser =
         new MExpressionParser(
@@ -185,28 +186,24 @@ public final class MPolicyParsers implements MPolicyParserFactoryType
         return new MPolicy(List.copyOf(rules));
       }
 
-      throw new ParseException("Parse failed.", List.copyOf(this.errors));
+      throw new ParsingException("Parse failed.", List.copyOf(this.errors));
     }
 
     private static ParseStatus parserExceptionToStatus(
       final JSXParserException e)
     {
-      return ParseStatus.builder()
-        .setSeverity(ParseSeverity.PARSE_ERROR)
-        .setMessage(e.getMessage())
-        .setLexical(e.lexical())
-        .setErrorCode("malformed-s-expression")
+      return ParseStatus.builder("malformed-s-expression", e.getMessage())
+        .withSeverity(ParseSeverity.PARSE_ERROR)
+        .withLexical(e.lexical())
         .build();
     }
 
     private static ParseStatus ioExceptionToStatus(
       final IOException e)
     {
-      return ParseStatus.builder()
-        .setSeverity(ParseSeverity.PARSE_ERROR)
-        .setMessage(e.getMessage())
-        .setLexical(LexicalPositions.zero())
-        .setErrorCode("io-error")
+      return ParseStatus.builder("io-error", e.getMessage())
+        .withSeverity(ParseSeverity.PARSE_ERROR)
+        .withLexical(LexicalPositions.zero())
         .build();
     }
 

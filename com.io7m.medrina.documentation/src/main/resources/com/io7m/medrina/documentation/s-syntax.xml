@@ -99,10 +99,15 @@ matchSubject =
     </Paragraph>
     <FormalItem title="Object Match">
       <Verbatim><![CDATA[
+attribute =
+  "(" , "attribute" , name , name , ")" ;
+
 matchObjectE =
     "true"
   | "false"
   | "(" , "with-type" , name , ")"
+  | "(" , "with-all-attributes" , attribute* , ")"
+  | "(" , "with-any-attributes" , attribute* , ")"
   | "(" , "or" , matchObjectE , matchObjectE , ")"
   | "(" , "and" , matchObjectE , matchObjectE , ")"
   ;
@@ -115,6 +120,7 @@ matchObject =
       <Verbatim><![CDATA[
 (object
   [and (or [with-type a] [with-type b])
+       (with-all-attributes [attribute x z] [attribute y b])
        (or true false)])
 ]]></Verbatim>
     </FormalItem>

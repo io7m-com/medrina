@@ -21,6 +21,7 @@
   </Metadata>
 
   <xi:include href="overview.xml"/>
+  <xi:include href="usage.xml"/>
   <xi:include href="spec.xml"/>
 
 </Document>

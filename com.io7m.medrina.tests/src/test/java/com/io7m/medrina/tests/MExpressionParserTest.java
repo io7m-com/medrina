@@ -16,7 +16,7 @@
 
 package com.io7m.medrina.tests;
 
-import com.io7m.anethum.common.ParseStatus;
+import com.io7m.anethum.api.ParseStatus;
 import com.io7m.jeucreader.UnicodeCharacterReader;
 import com.io7m.jsx.SExpressionType;
 import com.io7m.jsx.api.lexer.JSXLexerComment;
@@ -85,7 +85,7 @@ public final class MExpressionParserTest
   @BeforeProperty
   public void setup()
   {
-    this.errors = new ArrayList<ParseStatus>();
+    this.errors = new ArrayList<>();
   }
 
   private SExpressionType parse(
@@ -156,6 +156,42 @@ public final class MExpressionParserTest
     assertThrows(Exception.class, () -> {
       this.createParser()
         .parseMatchSubject(this.parse("[what x y z]"));
+    });
+
+    assertEquals(1, this.errors.size());
+  }
+
+  @Test
+  public void testMatchSubjectError0()
+    throws Exception
+  {
+    assertThrows(Exception.class, () -> {
+      this.createParser()
+        .parseMatchSubject(this.parse("(subject x)"));
+    });
+
+    assertEquals(1, this.errors.size());
+  }
+
+  @Test
+  public void testMatchSubjectError1()
+    throws Exception
+  {
+    assertThrows(Exception.class, () -> {
+      this.createParser()
+        .parseMatchSubject(this.parse("(subject \"x\")"));
+    });
+
+    assertEquals(1, this.errors.size());
+  }
+
+  @Test
+  public void testMatchSubjectError2()
+    throws Exception
+  {
+    assertThrows(Exception.class, () -> {
+      this.createParser()
+        .parseMatchSubject(this.parse("(subject [x])"));
     });
 
     assertEquals(1, this.errors.size());
@@ -408,6 +444,42 @@ public final class MExpressionParserTest
   }
 
   @Test
+  public void testMatchObjectError4()
+    throws Exception
+  {
+    assertThrows(Exception.class, () -> {
+      this.createParser()
+        .parseMatchObject(this.parse("(object (with-q X))"));
+    });
+
+    assertEquals(1, this.errors.size());
+  }
+
+  @Test
+  public void testMatchObjectError5()
+    throws Exception
+  {
+    assertThrows(Exception.class, () -> {
+      this.createParser()
+        .parseMatchObject(this.parse("(object \"q\")"));
+    });
+
+    assertEquals(1, this.errors.size());
+  }
+
+  @Test
+  public void testMatchObjectError6()
+    throws Exception
+  {
+    assertThrows(Exception.class, () -> {
+      this.createParser()
+        .parseMatchObject(this.parse("(object q)"));
+    });
+
+    assertEquals(1, this.errors.size());
+  }
+
+  @Test
   public void testObjectWithTypeError0()
     throws Exception
   {
@@ -443,6 +515,108 @@ public final class MExpressionParserTest
       new MTypeName("x"),
       r.type()
     );
+  }
+
+  @Test
+  public void testObjectWithAllAttributesError0()
+    throws Exception
+  {
+    assertThrows(Exception.class, () -> {
+      this.createParser()
+        .parseMatchObject(this.parse("(object (with-all-attributes X))"));
+    });
+
+    assertEquals(3, this.errors.size());
+  }
+
+  @Test
+  public void testObjectWithAllAttributesError1()
+    throws Exception
+  {
+    assertThrows(Exception.class, () -> {
+      this.createParser()
+        .parseMatchObject(this.parse(
+          "(object (with-all-attributes [attribute x]))"));
+    });
+
+    assertEquals(3, this.errors.size());
+  }
+
+  @Test
+  public void testObjectWithAllAttributesError2()
+    throws Exception
+  {
+    assertThrows(Exception.class, () -> {
+      this.createParser()
+        .parseMatchObject(this.parse(
+          "(object (with-all-attributes [attribute X Y]))"));
+    });
+
+    assertEquals(3, this.errors.size());
+  }
+
+  @Test
+  public void testObjectWithAllAttributesError3()
+    throws Exception
+  {
+    assertThrows(Exception.class, () -> {
+      this.createParser()
+        .parseMatchObject(this.parse(
+          "(object (with-all-attributes [attribute \"A\" \"B\"]))"));
+    });
+
+    assertEquals(3, this.errors.size());
+  }
+
+  @Test
+  public void testObjectWithAnyAttributesError0()
+    throws Exception
+  {
+    assertThrows(Exception.class, () -> {
+      this.createParser()
+        .parseMatchObject(this.parse("(object (with-any-attributes X))"));
+    });
+
+    assertEquals(3, this.errors.size());
+  }
+
+  @Test
+  public void testObjectWithAnyAttributesError1()
+    throws Exception
+  {
+    assertThrows(Exception.class, () -> {
+      this.createParser()
+        .parseMatchObject(this.parse(
+          "(object (with-any-attributes [attribute x]))"));
+    });
+
+    assertEquals(3, this.errors.size());
+  }
+
+  @Test
+  public void testObjectWithAnyAttributesError2()
+    throws Exception
+  {
+    assertThrows(Exception.class, () -> {
+      this.createParser()
+        .parseMatchObject(this.parse(
+          "(object (with-any-attributes [attribute A B]))"));
+    });
+
+    assertEquals(3, this.errors.size());
+  }
+
+  @Test
+  public void testObjectWithAnyAttributesError3()
+    throws Exception
+  {
+    assertThrows(Exception.class, () -> {
+      this.createParser()
+        .parseMatchObject(this.parse(
+          "(object (with-any-attributes [attribute \"A\" \"B\"]))"));
+    });
+
+    assertEquals(3, this.errors.size());
   }
 
   @Test
@@ -564,6 +738,42 @@ public final class MExpressionParserTest
     assertThrows(Exception.class, () -> {
       this.createParser()
         .parseMatchAction(this.parse("[what x y z]"));
+    });
+
+    assertEquals(1, this.errors.size());
+  }
+
+  @Test
+  public void testMatchActionError4()
+    throws Exception
+  {
+    assertThrows(Exception.class, () -> {
+      this.createParser()
+        .parseMatchAction(this.parse("(action x)"));
+    });
+
+    assertEquals(1, this.errors.size());
+  }
+
+  @Test
+  public void testMatchActionError5()
+    throws Exception
+  {
+    assertThrows(Exception.class, () -> {
+      this.createParser()
+        .parseMatchAction(this.parse("(action \"x\")"));
+    });
+
+    assertEquals(1, this.errors.size());
+  }
+
+  @Test
+  public void testMatchActionError6()
+    throws Exception
+  {
+    assertThrows(Exception.class, () -> {
+      this.createParser()
+        .parseMatchAction(this.parse("(action [x])"));
     });
 
     assertEquals(1, this.errors.size());
@@ -855,6 +1065,15 @@ public final class MExpressionParserTest
     final var outPolicy =
       this.createParser()
         .parsePolicy(xParser.parseExpressions());
+
+    for (var index = 0; index < policy.rules().size(); ++index) {
+      final var rule =
+        policy.rules().get(index);
+      final var outRule =
+        outPolicy.rules().get(index);
+
+      assertEquals(rule, outRule);
+    }
 
     assertEquals(policy, outPolicy);
   }

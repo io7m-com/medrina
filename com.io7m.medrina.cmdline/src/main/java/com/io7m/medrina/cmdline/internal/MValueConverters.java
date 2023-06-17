@@ -14,53 +14,33 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.medrina.cmdline;
 
-import java.io.IOException;
+package com.io7m.medrina.cmdline.internal;
+
+import com.io7m.quarrel.core.QValueConverterDirectory;
+import com.io7m.quarrel.core.QValueConverterDirectoryType;
 
 /**
- * Main command line entry point that does not call {@code exit()}.
+ * The included value converters.
  */
 
-public final class MainExitless
+public final class MValueConverters
 {
-  private MainExitless()
+  private static final QValueConverterDirectoryType VALUE_CONVERTERS =
+    QValueConverterDirectory.core()
+      .with(MAttribute.class, new MAttributeConverter());
+
+  private MValueConverters()
   {
 
   }
 
   /**
-   * The main entry point.
-   *
-   * @param args Command line arguments
-   *
-   * @throws IOException On errors
+   * @return The value converter directory
    */
 
-  // CHECKSTYLE:OFF
-  public static void main(
-    final String[] args)
-    throws IOException
+  public static QValueConverterDirectoryType get()
   {
-    // CHECKSTYLE:ON
-    final Main cm = new Main(args);
-    cm.run();
-
-    final int exitCode = cm.exitCode();
-    if (exitCode != 0) {
-      throw new IOException(
-        String.format("Returned exit code %d", Integer.valueOf(exitCode)),
-        cm.exitCause().orElse(null)
-      );
-    }
-  }
-
-  @Override
-  public String toString()
-  {
-    return String.format(
-      "[MainExitless 0x%s]",
-      Long.toUnsignedString(System.identityHashCode(this), 16)
-    );
+    return VALUE_CONVERTERS;
   }
 }

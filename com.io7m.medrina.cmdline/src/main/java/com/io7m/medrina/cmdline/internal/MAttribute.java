@@ -14,48 +14,35 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
 package com.io7m.medrina.cmdline.internal;
 
-import com.beust.jcommander.Parameters;
-import com.io7m.claypot.core.CLPAbstractCommand;
-import com.io7m.claypot.core.CLPCommandContextType;
+import com.io7m.medrina.api.MAttributeName;
+import com.io7m.medrina.api.MAttributeValue;
 
-import static com.io7m.claypot.core.CLPCommandType.Status.SUCCESS;
+import java.util.Objects;
 
 /**
- * The "version" command.
+ * An attribute.
+ *
+ * @param name  The name
+ * @param value The value
  */
 
-@Parameters(commandDescription = "Show the application version.")
-public final class MCommandVersion extends CLPAbstractCommand
+public record MAttribute(
+  MAttributeName name,
+  MAttributeValue value)
 {
   /**
-   * Construct a command.
+   * An attribute.
    *
-   * @param inContext The command context
+   * @param name  The name
+   * @param value The value
    */
 
-  public MCommandVersion(
-    final CLPCommandContextType inContext)
+  public MAttribute
   {
-    super(inContext);
-  }
-
-  @Override
-  protected Status executeActual()
-    throws Exception
-  {
-    System.out.printf(
-      "com.io7m.medrina %s %s%n",
-      MVersion.VERSION,
-      MVersion.BUILD
-    );
-    return SUCCESS;
-  }
-
-  @Override
-  public String name()
-  {
-    return "version";
+    Objects.requireNonNull(name, "name");
+    Objects.requireNonNull(value, "value");
   }
 }

@@ -19,6 +19,8 @@ package com.io7m.medrina.tests;
 import com.io7m.medrina.api.MMatchObjectType;
 import com.io7m.medrina.api.MMatchObjectType.MMatchObjectAnd;
 import com.io7m.medrina.api.MMatchObjectType.MMatchObjectOr;
+import com.io7m.medrina.api.MMatchObjectType.MMatchObjectWithAttributesAll;
+import com.io7m.medrina.api.MMatchObjectType.MMatchObjectWithAttributesAny;
 import com.io7m.medrina.api.MMatchObjectType.MMatchObjectWithType;
 import com.io7m.medrina.api.MObject;
 import com.io7m.medrina.api.MTypeName;
@@ -27,13 +29,16 @@ import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
 import net.jqwik.api.Provide;
 import net.jqwik.api.constraints.NotEmpty;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 public final class MMatchObjectTest
 {
@@ -190,6 +195,75 @@ public final class MMatchObjectTest
   {
     assertTrue(
       new MMatchObjectOr(trues).matches(object)
+    );
+  }
+
+  /**
+   * An object always matches its own attributes.
+   */
+
+  @Property
+  public void testWithAllAttributes(
+    @ForAll final MObject object)
+  {
+    assertTrue(
+      new MMatchObjectWithAttributesAll(object.attributes()).matches(object)
+    );
+  }
+
+  /**
+   * An object always matches its own attributes.
+   */
+
+  @Property
+  public void testWithAnyAttributes(
+    @ForAll final MObject object)
+  {
+    assumeFalse(object.attributes().isEmpty());
+
+    assertTrue(
+      new MMatchObjectWithAttributesAny(object.attributes()).matches(object)
+    );
+  }
+
+  /**
+   * The 'with-any-attributes' expression does not match empty maps.
+   */
+
+  @Test
+  public void testWithAnyAttributesEmpty()
+  {
+    assertFalse(
+      new MMatchObjectWithAttributesAny(Map.of()).matches(new MObject(
+        new MTypeName("x"),
+        Map.of()
+      ))
+    );
+  }
+
+  /**
+   * An empty set of attributes matches any object using WithAttributesAll.
+   */
+
+  @Property
+  public void testWithAllAttributesEmpty(
+    @ForAll final MObject object)
+  {
+    assertTrue(
+      new MMatchObjectWithAttributesAll(Map.of()).matches(object)
+    );
+  }
+
+  /**
+   * An empty set of attributes matches any object using WithAttributesAny.
+   */
+
+  @Property
+  public void testWithAnyAttributesEmpty(
+    @ForAll final MObject object)
+  {
+    assertFalse(
+      new MMatchObjectWithAttributesAny(Map.of()).matches(object)
     );
   }
 }
