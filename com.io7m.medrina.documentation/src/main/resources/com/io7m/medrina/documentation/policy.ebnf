@@ -17,10 +17,15 @@ matchSubjectE =
 matchSubject =
   "(" , "subject" , matchSubjectE , ")" ;
 
+attribute =
+  "(" , "attribute" , name , name , ")" ;
+
 matchObjectE =
     "true"
   | "false"
   | "(" , "with-type" , name , ")"
+  | "(" , "with-any-attributes" , attribute* , ")"
+  | "(" , "with-all-attributes" , attribute* , ")"
   | "(" , "or" , matchObjectE , matchObjectE , ")"
   | "(" , "and" , matchObjectE , matchObjectE , ")"
   ;

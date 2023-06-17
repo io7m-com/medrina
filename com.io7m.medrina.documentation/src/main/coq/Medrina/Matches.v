@@ -520,6 +520,35 @@ Proof.
   }
 Qed.
 
+Theorem exprMatchSubjectEvalRolesAllEmpty : forall s,
+  true = exprMatchSubjectEvalF s (EMS_WithRolesAll RoleSets.empty).
+Proof.
+  intros s.
+  simpl.
+  symmetry.
+  rewrite <- RoleSetsFacts.subset_iff.
+  unfold RoleSets.Subset.
+  intros x Hin.
+  rewrite RoleSetsFacts.empty_iff in Hin.
+  contradiction.
+Qed.
+
+Theorem exprMatchSubjectEvalRolesAnyEmpty : forall s,
+  false = exprMatchSubjectEvalF s (EMS_WithRolesAny RoleSets.empty).
+Proof.
+  intros s.
+  simpl.
+  symmetry.
+  rewrite <- roleExistsFalse.
+  unfold RoleSets.Exists.
+  unfold not.
+  intros [x [Hcontra0 Hcontra1]].
+  rewrite RoleSetsFacts.empty_iff in Hcontra0.
+  exact Hcontra0.
+  unfold compat_bool.
+  intuition.
+Qed.
+
 (** An expression that matches an action. *)
 Inductive exprMatchAction : Type :=
   | EMA_False    : exprMatchAction
@@ -1544,4 +1573,31 @@ Proof.
     rewrite exprMatchObjectEvalEquivalentF in Hev.
     right; intuition.
   }
+Qed.
+
+(** Any object trivially matches a _WithAttributesAll_ expression that
+    specifies an empty set of attributes. *)
+Theorem exprMatchObjectWithAllEmpty : forall o,
+  exprMatchObjectEvalF o (EMO_WithAttributesAll (AttributeNameMaps.empty attributeValue)) = true.
+Proof.
+  intros o.
+  simpl.
+  rewrite forallb_forall.
+  intros x Hcontra.
+  destruct x as [k v].
+  pose proof (In_InA AttributeNameMapsEqEquiv Hcontra) as H0.
+  rewrite <- AttributeNameMapsFacts.elements_mapsto_iff in H0.
+  rewrite AttributeNameMapsFacts.empty_mapsto_iff in H0.
+  contradiction.
+Qed.
+
+(** No object matches a _WithAttributesAny_ expression that
+    specifies an empty set of attributes. *)
+Theorem exprMatchObjectWithAnyEmpty : forall o,
+  exprMatchObjectEvalF o (EMO_WithAttributesAny (AttributeNameMaps.empty attributeValue)) = false.
+Proof.
+  intros o.
+  simpl.
+  rewrite attributesEmptyElements.
+  reflexivity.
 Qed.

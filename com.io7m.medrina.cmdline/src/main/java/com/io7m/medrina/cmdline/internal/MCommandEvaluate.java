@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -83,6 +82,15 @@ public final class MCommandEvaluate implements QCommandType
       new QConstant("The object type."),
       Optional.empty(),
       String.class
+    );
+
+  private static final QParameterNamed0N<MAttribute> OBJECT_ATTRIBUTES =
+    new QParameterNamed0N<>(
+      "--object-attribute",
+      List.of(),
+      new QConstant("The object attribute(s)."),
+      List.of(),
+      MAttribute.class
     );
 
   private static final QParameterNamed1<String> ACTION =
@@ -145,7 +153,13 @@ public final class MCommandEvaluate implements QCommandType
   public List<QParameterNamedType<?>> onListNamedParameters()
   {
     return QLogback.plusParameters(
-      List.of(POLICY_FILE, SUBJECT_ROLES, OBJECT_TYPE, ACTION)
+      List.of(
+        POLICY_FILE,
+        SUBJECT_ROLES,
+        OBJECT_TYPE,
+        OBJECT_ATTRIBUTES,
+        ACTION
+      )
     );
   }
 
@@ -163,6 +177,8 @@ public final class MCommandEvaluate implements QCommandType
       context.parameterValues(SUBJECT_ROLES);
     final var objectTypeS =
       context.parameterValue(OBJECT_TYPE);
+    final var objectAttributes =
+      context.parameterValues(OBJECT_ATTRIBUTES);
     final var actionS =
       context.parameterValue(ACTION);
 
@@ -185,7 +201,8 @@ public final class MCommandEvaluate implements QCommandType
     final var object =
       new MObject(
         new MTypeName(objectTypeS),
-        Map.of()
+        objectAttributes.stream()
+          .collect(Collectors.toMap(MAttribute::name, MAttribute::value))
       );
 
     final var action =

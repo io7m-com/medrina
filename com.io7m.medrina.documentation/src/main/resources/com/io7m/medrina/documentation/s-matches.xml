@@ -81,6 +81,21 @@
     <FormalItem title="exprMatchSubjectEvalEquivalentF">
       <Verbatim><xi:include href="604.txt" parse="text"/></Verbatim>
     </FormalItem>
+    <Paragraph>
+      It follows that, for an expression <Term type="expression">EMS_WithRolesAll a</Term>,
+      if <Term type="expression">a</Term> is empty the expression will trivially match any
+      subject:
+    </Paragraph>
+    <FormalItem title="exprMatchSubjectEvalRolesAllEmpty">
+      <Verbatim><xi:include href="605.txt" parse="text"/></Verbatim>
+    </FormalItem>
+    <Paragraph>
+      For an expression <Term type="expression">EMS_WithRolesAny a</Term>, if
+      <Term type="expression">a</Term> is empty the expression will never match any subject:
+    </Paragraph>
+    <FormalItem title="exprMatchSubjectEvalRolesAnyEmpty">
+      <Verbatim><xi:include href="606.txt" parse="text"/></Verbatim>
+    </FormalItem>
   </Subsection>
 
   <Subsection title="Matching Actions" id="0de6c2f0-6dcd-4256-9fde-88278374da0c">
@@ -176,6 +191,19 @@
           has the type <Term type="expression">t</Term>.
         </Item>
         <Item>
+          The expression <Term type="expression">EMO_WithAttributesAll a</Term> matches
+          any object <Term type="expression">o</Term> where <Term type="expression">o</Term>
+          has (at least) all the attributes in <Term type="expression">a</Term>. More formally,
+          for each attribute <Term type="expression">k</Term> in
+          <Term type="expression">a</Term>, an attribute <Term type="expression">m</Term>
+          must be held by <Term type="expression">o</Term> where <Term type="expression">k = m</Term>.
+        </Item>
+        <Item>
+          The expression <Term type="expression">EMO_WithAttributesAny a</Term> matches
+          any object <Term type="expression">o</Term> where <Term type="expression">o</Term>
+          has at least one of the attributes in <Term type="expression">a</Term>.
+        </Item>
+        <Item>
           The expression <Term type="expression">EMO_And es</Term> matches when
           all the subexpressions in <Term type="expression">es</Term> match.
         </Item>
@@ -202,6 +230,21 @@
     </FormalItem>
     <FormalItem title="exprMatchObjectEvalEquivalentF">
       <Verbatim><xi:include href="804.txt" parse="text"/></Verbatim>
+    </FormalItem>
+    <Paragraph>
+      It follows that, for an expression <Term type="expression">EMO_WithAttributesAll a</Term>,
+      if <Term type="expression">a</Term> is empty the expression will trivially match any
+      object:
+    </Paragraph>
+    <FormalItem title="exprMatchObjectWithAllEmpty">
+      <Verbatim><xi:include href="805.txt" parse="text"/></Verbatim>
+    </FormalItem>
+    <Paragraph>
+      For an expression <Term type="expression">EMO_WithAttributesAny a</Term>, if
+      <Term type="expression">a</Term> is empty the expression will never match any object:
+    </Paragraph>
+    <FormalItem title="exprMatchObjectWithAnyEmpty">
+      <Verbatim><xi:include href="806.txt" parse="text"/></Verbatim>
     </FormalItem>
   </Subsection>
 

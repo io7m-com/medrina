@@ -25,6 +25,8 @@
 602 ! Fixpoint exprMatchSubjectEvalF
 603 ! Theorem exprMatchSubjectEvalEquivalentT :
 604 ! Theorem exprMatchSubjectEvalEquivalentF :
+605 ! Theorem exprMatchSubjectEvalRolesAllEmpty :
+606 ! Theorem exprMatchSubjectEvalRolesAnyEmpty :
 
 700 ! Inductive exprMatchAction : Type
 701 ! Inductive exprMatchActionEvalR (
@@ -37,6 +39,8 @@
 802 ! Fixpoint exprMatchObjectEvalF
 803 ! Theorem exprMatchObjectEvalEquivalentT :
 804 ! Theorem exprMatchObjectEvalEquivalentF :
+805 ! Theorem exprMatchObjectWithAllEmpty :
+806 ! Theorem exprMatchObjectWithAnyEmpty :
 
 900 ! Record rule := Rule
 901 ! Inductive ruleConclusion : Set

@@ -17,15 +17,22 @@
 package com.io7m.medrina.vanilla.internal;
 
 import com.io7m.jsx.SExpressionType;
+import com.io7m.jsx.SExpressionType.SQuotedString;
 import com.io7m.junreachable.UnreachableCodeException;
+import com.io7m.medrina.api.MAttributeName;
+import com.io7m.medrina.api.MAttributeValue;
 import com.io7m.medrina.api.MMatchActionType;
 import com.io7m.medrina.api.MMatchObjectType;
+import com.io7m.medrina.api.MMatchObjectType.MMatchObjectWithAttributesAll;
+import com.io7m.medrina.api.MMatchObjectType.MMatchObjectWithAttributesAny;
 import com.io7m.medrina.api.MMatchSubjectType;
 import com.io7m.medrina.api.MPolicy;
+import com.io7m.medrina.api.MRoleName;
 import com.io7m.medrina.api.MRule;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -203,7 +210,7 @@ public final class MExpressionSerializer
       return new SSymbol(zero(), "false");
     }
 
-    if (matchAction instanceof MMatchActionWithName name) {
+    if (matchAction instanceof final MMatchActionWithName name) {
       return new SList(
         zero(),
         true,
@@ -214,7 +221,7 @@ public final class MExpressionSerializer
       );
     }
 
-    if (matchAction instanceof MMatchActionOr or) {
+    if (matchAction instanceof final MMatchActionOr or) {
       return new SList(
         zero(),
         true,
@@ -227,7 +234,7 @@ public final class MExpressionSerializer
       );
     }
 
-    if (matchAction instanceof MMatchActionAnd and) {
+    if (matchAction instanceof final MMatchActionAnd and) {
       return new SList(
         zero(),
         true,
@@ -254,7 +261,7 @@ public final class MExpressionSerializer
       return new SSymbol(zero(), "false");
     }
 
-    if (matchObject instanceof MMatchObjectWithType type) {
+    if (matchObject instanceof final MMatchObjectWithType type) {
       return new SList(
         zero(),
         true,
@@ -265,7 +272,37 @@ public final class MExpressionSerializer
       );
     }
 
-    if (matchObject instanceof MMatchObjectOr or) {
+    if (matchObject instanceof final MMatchObjectWithAttributesAll all) {
+      return new SList(
+        zero(),
+        true,
+        Stream.concat(
+          Stream.of(new SSymbol(zero(), "with-all-attributes")),
+          all.required()
+            .entrySet()
+            .stream()
+            .sorted(Map.Entry.comparingByKey())
+            .map(MExpressionSerializer::serializeAttribute)
+        ).collect(Collectors.toList())
+      );
+    }
+
+    if (matchObject instanceof final MMatchObjectWithAttributesAny any) {
+      return new SList(
+        zero(),
+        true,
+        Stream.concat(
+          Stream.of(new SSymbol(zero(), "with-any-attributes")),
+          any.required()
+            .entrySet()
+            .stream()
+            .sorted(Map.Entry.comparingByKey())
+            .map(MExpressionSerializer::serializeAttribute)
+        ).collect(Collectors.toList())
+      );
+    }
+
+    if (matchObject instanceof final MMatchObjectOr or) {
       return new SList(
         zero(),
         true,
@@ -278,7 +315,7 @@ public final class MExpressionSerializer
       );
     }
 
-    if (matchObject instanceof MMatchObjectAnd and) {
+    if (matchObject instanceof final MMatchObjectAnd and) {
       return new SList(
         zero(),
         true,
@@ -294,6 +331,20 @@ public final class MExpressionSerializer
     throw new UnreachableCodeException();
   }
 
+  private static SList serializeAttribute(
+    final Map.Entry<MAttributeName, MAttributeValue> entry)
+  {
+    return new SList(
+      zero(),
+      true,
+      List.of(
+        new SSymbol(zero(), "attribute"),
+        new SQuotedString(zero(), entry.getKey().value()),
+        new SQuotedString(zero(), entry.getValue().value())
+      )
+    );
+  }
+
   private SExpressionType serializeSubjectMatchE(
     final MMatchSubjectType matchSubject)
   {
@@ -305,7 +356,7 @@ public final class MExpressionSerializer
       return new SSymbol(zero(), "false");
     }
 
-    if (matchSubject instanceof MMatchSubjectWithRolesAll all) {
+    if (matchSubject instanceof final MMatchSubjectWithRolesAll all) {
       return new SList(
         zero(),
         true,
@@ -313,12 +364,13 @@ public final class MExpressionSerializer
           Stream.of(new SSymbol(zero(), "with-all-roles")),
           all.requiredRoles()
             .stream()
+            .sorted(MRoleName::compareTo)
             .map(name -> new SSymbol(zero(), name.value()))
         ).collect(Collectors.toList())
       );
     }
 
-    if (matchSubject instanceof MMatchSubjectWithRolesAny any) {
+    if (matchSubject instanceof final MMatchSubjectWithRolesAny any) {
       return new SList(
         zero(),
         true,
@@ -326,12 +378,13 @@ public final class MExpressionSerializer
           Stream.of(new SSymbol(zero(), "with-any-roles")),
           any.requiredRoles()
             .stream()
+            .sorted(MRoleName::compareTo)
             .map(name -> new SSymbol(zero(), name.value()))
         ).collect(Collectors.toList())
       );
     }
 
-    if (matchSubject instanceof MMatchSubjectOr or) {
+    if (matchSubject instanceof final MMatchSubjectOr or) {
       return new SList(
         zero(),
         true,
@@ -344,7 +397,7 @@ public final class MExpressionSerializer
       );
     }
 
-    if (matchSubject instanceof MMatchSubjectAnd and) {
+    if (matchSubject instanceof final MMatchSubjectAnd and) {
       return new SList(
         zero(),
         true,

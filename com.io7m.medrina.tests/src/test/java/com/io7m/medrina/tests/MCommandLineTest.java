@@ -75,13 +75,15 @@ public final class MCommandLineTest
         "example0.mp"
       );
 
-    Main.mainExitless(
-      new String[]{
-        "parse",
-        "--file",
-        path.toAbsolutePath().toString()
-      }
-    );
+    assertEquals(
+      0,
+      Main.mainExitless(
+        new String[]{
+          "parse",
+          "--file",
+          path.toAbsolutePath().toString()
+        }
+      ));
   }
 
   @Test
@@ -133,18 +135,23 @@ public final class MCommandLineTest
         "example0.mp"
       );
 
-    Main.mainExitless(
-      new String[]{
-        "evaluate",
-        "--file",
-        path.toAbsolutePath().toString(),
-        "--object-type",
-        "t",
-        "--action",
-        "read",
-        "--subject-role",
-        "r"
-      }
+    assertEquals(
+      0,
+      Main.mainExitless(
+        new String[]{
+          "evaluate",
+          "--file",
+          path.toAbsolutePath().toString(),
+          "--object-type",
+          "t",
+          "--object-attribute",
+          "a:b",
+          "--action",
+          "read",
+          "--subject-role",
+          "r"
+        }
+      )
     );
   }
 
@@ -172,6 +179,66 @@ public final class MCommandLineTest
           "r"
         }
       ));
+  }
+
+  @Test
+  public void testEvaluateArgumentUnparseable0()
+    throws IOException
+  {
+    final var path =
+      MTestDirectories.resourceOf(
+        MCommandLineTest.class,
+        this.directory,
+        "example0.mp"
+      );
+
+    assertEquals(
+      1,
+      Main.mainExitless(
+        new String[]{
+          "evaluate",
+          "--file",
+          path.toAbsolutePath().toString(),
+          "--object-type",
+          "P",
+          "--action",
+          "read",
+          "--subject-role",
+          "r"
+        }
+      )
+    );
+  }
+
+  @Test
+  public void testEvaluateArgumentUnparseable1()
+    throws IOException
+  {
+    final var path =
+      MTestDirectories.resourceOf(
+        MCommandLineTest.class,
+        this.directory,
+        "example0.mp"
+      );
+
+    assertEquals(
+      1,
+      Main.mainExitless(
+        new String[]{
+          "evaluate",
+          "--file",
+          path.toAbsolutePath().toString(),
+          "--object-type",
+          "t",
+          "--object-attribute",
+          ":b",
+          "--action",
+          "read",
+          "--subject-role",
+          "r"
+        }
+      )
+    );
   }
 
   @Test

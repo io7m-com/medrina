@@ -17,6 +17,7 @@
 package com.io7m.medrina.api;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -128,6 +129,78 @@ public sealed interface MMatchObjectType
       final MObject object)
     {
       return Objects.equals(this.type, object.type());
+    }
+  }
+
+  /**
+   * An expression that matches if the incoming object has (at least) all
+   * the given attributes.
+   *
+   * @param required The required attributes
+   */
+
+  record MMatchObjectWithAttributesAll(
+    Map<MAttributeName, MAttributeValue> required)
+    implements MMatchObjectType
+  {
+    /**
+     * An expression that matches if the incoming object has (at least) all
+     * the given attributes.
+     */
+
+    public MMatchObjectWithAttributesAll
+    {
+      Objects.requireNonNull(required, "required");
+    }
+
+    @Override
+    public boolean matches(
+      final MObject object)
+    {
+      final var provided = object.attributes();
+      for (final var entry : this.required.entrySet()) {
+        final var existing = provided.get(entry.getKey());
+        if (!Objects.equals(existing, entry.getValue())) {
+          return false;
+        }
+      }
+      return true;
+    }
+  }
+
+  /**
+   * An expression that matches if the incoming object has any of
+   * the given attributes.
+   *
+   * @param required The required attributes
+   */
+
+  record MMatchObjectWithAttributesAny(
+    Map<MAttributeName, MAttributeValue> required)
+    implements MMatchObjectType
+  {
+    /**
+     * An expression that matches if the incoming object has any of
+     * the given attributes.
+     */
+
+    public MMatchObjectWithAttributesAny
+    {
+      Objects.requireNonNull(required, "required");
+    }
+
+    @Override
+    public boolean matches(
+      final MObject object)
+    {
+      final var provided = object.attributes();
+      for (final var entry : this.required.entrySet()) {
+        final var existing = provided.get(entry.getKey());
+        if (Objects.equals(existing, entry.getValue())) {
+          return true;
+        }
+      }
+      return false;
     }
   }
 

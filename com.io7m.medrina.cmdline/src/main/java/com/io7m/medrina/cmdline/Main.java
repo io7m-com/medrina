@@ -18,6 +18,7 @@ package com.io7m.medrina.cmdline;
 
 import com.io7m.medrina.cmdline.internal.MCommandEvaluate;
 import com.io7m.medrina.cmdline.internal.MCommandParse;
+import com.io7m.medrina.cmdline.internal.MValueConverters;
 import com.io7m.medrina.cmdline.internal.MVersion;
 import com.io7m.quarrel.core.QApplication;
 import com.io7m.quarrel.core.QApplicationMetadata;
@@ -69,6 +70,7 @@ public final class Main implements Runnable
     builder.allowAtSyntax(true);
     builder.addCommand(new MCommandEvaluate());
     builder.addCommand(new MCommandParse());
+    builder.setValueConverters(MValueConverters.get());
 
     this.application = builder.build();
     this.exitCode = 0;

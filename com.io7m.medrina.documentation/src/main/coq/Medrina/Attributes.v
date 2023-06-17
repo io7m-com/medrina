@@ -198,3 +198,29 @@ Proof.
     intuition.
   }
 Qed.
+
+Lemma attributesEmptyElements :
+  AttributeNameMaps.elements (AttributeNameMaps.empty attributeValue) = nil.
+Proof.
+  destruct (AttributeNameMaps.elements (AttributeNameMaps.empty _)) eqn:H. {
+    reflexivity.
+  } {
+    assert (In p (AttributeNameMaps.elements (AttributeNameMaps.empty _))) as Hin. {
+      rewrite H. intuition.
+    }
+    assert (InA
+      (AttributeNameMaps.eq_key_elt (elt:=attributeValue)) 
+      p 
+      (AttributeNameMaps.elements (AttributeNameMaps.empty attributeValue))
+    ) as H0. {
+      apply In_InA.
+      exact AttributeNameMapsEqEquiv.
+      exact Hin.
+    }
+    destruct p as [k v].
+    rewrite <- AttributeNameMapsFacts.elements_mapsto_iff in H0.
+    rewrite AttributeNameMapsFacts.empty_mapsto_iff in H0.
+    contradiction.
+  }
+Qed.
+

@@ -16,9 +16,9 @@
 
 package com.io7m.medrina.vanilla;
 
-import com.io7m.anethum.api.ParsingException;
 import com.io7m.anethum.api.ParseSeverity;
 import com.io7m.anethum.api.ParseStatus;
+import com.io7m.anethum.api.ParsingException;
 import com.io7m.anethum.api.Unused;
 import com.io7m.jeucreader.UnicodeCharacterReader;
 import com.io7m.jlexing.core.LexicalPositions;

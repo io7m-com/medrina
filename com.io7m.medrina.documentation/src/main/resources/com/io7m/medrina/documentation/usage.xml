@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Section title="Usage"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         id="fc6b05ef-5447-413d-ba85-0e3206c1847e"
+         xmlns="urn:com.io7m.structural:8:0">
+
+  <Subsection title="Overview">
+    <Paragraph>
+      The <Term type="package">medrina</Term> package provides a simple Java API
+      for loading and evaluating security policies. This section of the documentation
+      explains how to use the API. Security policy authors should read the
+      <Link target="d5e8f207-a4f7-483a-bf56-5b5ca93d9225">specification</Link> in
+      order to understand how to write and interpret security policies.
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="Loading">
+    <Paragraph>
+      Construct a policy parser factory and use it to parse a given policy file.
+      The parser will throw a checked exception with a list of parse errors if the
+      policy file is malformed. A provided function (in this example, the
+      <Term type="expression">logStatus</Term> function) is called once per
+      error and can be used to log errors or warnings as they occur.
+    </Paragraph>
+    <FormalItem title="Parse">
+      <Verbatim><![CDATA[
+Path file = ...;
+MPolicy policy;
+
+final MPolicyParsers parsers = new MPolicyParsers();
+try (MPolicyParserType parser = parsers.createParser(file, logStatus)) {
+  policy = parser.execute();
+}
+]]></Verbatim>
+    </FormalItem>
+    <Paragraph>
+      The provided parser factory expects policy files to conform to the
+      <Link target="4a1420c0-a918-4dca-8026-453c6aa0889a">suggested syntax</Link>
+      for policy files. Applications are free to store security policies in any
+      format they desire, and to skip this step entirely if necessary. An application
+      with a completely static policy might simply choose to declare the rules
+      directly in source code.
+    </Paragraph>
+  </Subsection>
+
+  <Subsection title="Prepare Data">
+    <Paragraph>
+      A security policy is evaluated by checking to see if a given
+      <Link target="bf1b37da-6ffd-47b8-ad79-fa6e457ecf39">subject</Link> is
+      permitted to perform a given
+      <Link target="d1002bc3-ca15-4cab-88a3-931307976a3c">action</Link> on
+      a given
+      <Link target="b39f58e4-4980-4e4e-b8fe-af3fdcaba886">object</Link>. These
+      are represented by plain Java record types, and the
+      <Term type="package">medrina</Term> package does not know or care
+      from where the application takes these objects. This example code
+      constructs the objects directly, but real applications would almost
+      certainly store the information comprising the objects in some kind of
+      database.
+    </Paragraph>
+    <FormalItem title="Prepare">
+      <Verbatim><![CDATA[
+final MSubject subject =
+  new MSubject(
+    Set.of(new MRoleName("role0"), new MRoleName("role1"))
+  );
+
+final MObject object =
+  new MObject(
+    new MTypeName("object0"),
+    Map.of()
+  );
+
+final MActionName action =
+  new MActionName("write");
+]]></Verbatim>
+    </FormalItem>
+  </Subsection>
+
+  <Subsection title="Evaluate">
+    <Paragraph>
+      Create a policy evaluator, and use it to evaluate the policy:
+    </Paragraph>
+    <FormalItem title="Evaluate">
+      <Verbatim><![CDATA[
+final MPolicyEvaluatorType evaluator =
+  MPolicyEvaluator.create();
+
+final MPolicyResult result =
+  evaluator.evaluate(policy, subject, object, action);
+]]></Verbatim>
+    </FormalItem>
+    <Paragraph>
+      The evaluator returns a value of type <Term type="type">MPolicyResult</Term>
+      containing a result such as <Term type="constant">ACCESS_DENIED</Term>, and
+      a list of the rules in the policy that were evaluated to yield that result.
+      The evaluator is entirely stateless and is safe to use from multiple threads.
+    </Paragraph>
+  </Subsection>
+
+</Section>
