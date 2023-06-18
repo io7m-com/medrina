@@ -140,7 +140,7 @@
       </ListUnordered>
     </FormalItem>
     <Paragraph>
-      Given a action <Term type="expression">a</Term> and expression
+      Given an action <Term type="expression">a</Term> and expression
       <Term type="expression">e</Term>, the following evaluation function
       returns <Term type="expression">true</Term> if <Term type="expression">e</Term>
       matches <Term type="expression">a</Term>:
