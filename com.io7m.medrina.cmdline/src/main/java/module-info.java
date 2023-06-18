@@ -25,6 +25,7 @@ open module com.io7m.medrina.cmdline
 
   requires com.io7m.medrina.vanilla;
 
+  requires com.io7m.lanark.core;
   requires com.io7m.quarrel.core;
   requires com.io7m.quarrel.ext.logback;
   requires com.io7m.anethum.api;

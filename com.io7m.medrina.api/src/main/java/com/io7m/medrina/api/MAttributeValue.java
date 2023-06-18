@@ -16,9 +16,10 @@
 
 package com.io7m.medrina.api;
 
+import com.io7m.lanark.core.RDottedName;
+
 import java.util.Comparator;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 /**
  * The value of an attribute.
@@ -26,16 +27,9 @@ import java.util.regex.Pattern;
  * @param value The value
  */
 
-public record MAttributeValue(String value)
+public record MAttributeValue(RDottedName value)
   implements Comparable<MAttributeValue>
 {
-  /**
-   * The pattern that describes a valid attribute value.
-   */
-
-  public static final Pattern VALID_PATTERN =
-    Pattern.compile("[a-z_0-9-\\.]{1,256}");
-
   /**
    * The value of an attribute.
    *
@@ -45,22 +39,13 @@ public record MAttributeValue(String value)
   public MAttributeValue
   {
     Objects.requireNonNull(value, "value");
-
-    final var matcher = VALID_PATTERN.matcher(value);
-    if (!matcher.matches()) {
-      throw new IllegalArgumentException(
-        String.format(
-          "Attribute value '%s' must match %s",
-          value,
-          VALID_PATTERN
-        ));
-    }
   }
 
   @Override
   public int compareTo(
     final MAttributeValue other)
   {
-    return Comparator.comparing(MAttributeValue::value).compare(this, other);
+    return Comparator.comparing(MAttributeValue::value)
+      .compare(this, other);
   }
 }

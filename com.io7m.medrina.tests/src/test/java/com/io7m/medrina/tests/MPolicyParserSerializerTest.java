@@ -28,7 +28,6 @@ import net.jqwik.api.Provide;
 import net.jqwik.api.constraints.Size;
 import org.apache.commons.io.input.BrokenInputStream;
 import org.apache.commons.io.output.BrokenOutputStream;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;

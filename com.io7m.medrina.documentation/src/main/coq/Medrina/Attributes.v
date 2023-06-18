@@ -17,14 +17,14 @@
 Require Import Coq.Strings.String.
 Require Import Coq.Logic.FunctionalExtensionality.
 
-Require Import Medrina.Names.
+Require Import com.io7m.lanark.core.Lanark.
 
 (** The type of attribute names. *)
 Record attributeName := ANMake {
   (** The name of the attribute. *)
-  anName  : string;
+  anName  : name;
   (** Attribute names are valid. *)
-  anValid : validName anName
+  anValid : nameValid anName
 }.
 
 Require Import Coq.Logic.ProofIrrelevance.
@@ -34,15 +34,13 @@ Theorem attributeNameDec : forall (a b : attributeName),
   {a = b}+{a <> b}.
 Proof.
   intros a b.
-  destruct a as [a0 [a1 [a2 a3]]].
-  destruct b as [b0 [b1 [b2 b3]]].
-  destruct (string_dec a0 b0) as [H0|H1]. {
+  destruct a as [a0 a1].
+  destruct b as [b0 b1].
+  destruct (nameDec a0 b0) as [H0|H1]. {
     subst b0.
     left.
     assert (a1 = b1) by apply proof_irrelevance. subst b1.
-    assert (a2 = b2) by apply proof_irrelevance. subst b2.
-    assert (a3 = b3) by apply proof_irrelevance. subst b3.
-    intuition.
+    reflexivity.
   } {
     right.
     congruence.
@@ -52,9 +50,9 @@ Qed.
 (** The type of attribute values. *)
 Record attributeValue := AVMake {
   (** The value of the attribute. *)
-  avValue : string;
+  avValue : name;
   (** Attribute values are valid. *)
-  avValid : validName avValue
+  avValid : nameValid avValue
 }.
 
 (** Equality of attribute values is decidable. *)
@@ -62,15 +60,13 @@ Theorem attributeValueDec : forall (a b : attributeValue),
   {a = b}+{a <> b}.
 Proof.
   intros a b.
-  destruct a as [a0 [a1 [a2 a3]]].
-  destruct b as [b0 [b1 [b2 b3]]].
-  destruct (string_dec a0 b0) as [H0|H1]. {
+  destruct a as [a0 a1].
+  destruct b as [b0 b1].
+  destruct (nameDec a0 b0) as [H0|H1]. {
     subst b0.
     left.
     assert (a1 = b1) by apply proof_irrelevance. subst b1.
-    assert (a2 = b2) by apply proof_irrelevance. subst b2.
-    assert (a3 = b3) by apply proof_irrelevance. subst b3.
-    intuition.
+    reflexivity.
   } {
     right.
     congruence.

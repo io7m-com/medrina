@@ -54,13 +54,7 @@ public final class MMatchActions
   public static Arbitrary<MMatchActionType> arbitrary()
   {
     final Arbitrary<MActionName> names =
-      Arbitraries.strings()
-        .withCharRange('a', 'z')
-        .withCharRange('0', '9')
-        .withChars('.', '_', '-')
-        .ofMinLength(1)
-        .ofMaxLength(256)
-        .map(MActionName::new);
+      Arbitraries.defaultFor(MActionName.class);
 
     return CASE_INTEGERS
       .map(integer -> generateAction(names, 0, integer));

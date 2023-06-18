@@ -25,6 +25,7 @@ import com.io7m.jsx.api.parser.JSXParserConfiguration;
 import com.io7m.jsx.lexer.JSXLexer;
 import com.io7m.jsx.parser.JSXParser;
 import com.io7m.jsx.prettyprint.JSXPrettyPrinterCodeStyle;
+import com.io7m.lanark.core.RDottedName;
 import com.io7m.medrina.api.MActionName;
 import com.io7m.medrina.api.MMatchActionType;
 import com.io7m.medrina.api.MMatchActionType.MMatchActionAnd;
@@ -80,6 +81,24 @@ public final class MExpressionParserTest
     LoggerFactory.getLogger(MExpressionParserTest.class);
 
   private ArrayList<ParseStatus> errors;
+
+  private static MRoleName role(
+    final String x)
+  {
+    return new MRoleName(new RDottedName(x));
+  }
+
+  private static MTypeName type(
+    final String x)
+  {
+    return new MTypeName(new RDottedName(x));
+  }
+
+  private static MActionName action(
+    final String x)
+  {
+    return new MActionName(new RDottedName(x));
+  }
 
   @BeforeEach
   @BeforeProperty
@@ -231,9 +250,9 @@ public final class MExpressionParserTest
 
     assertEquals(
       Set.of(
-        new MRoleName("x"),
-        new MRoleName("y"),
-        new MRoleName("z")),
+        role("x"),
+        role("y"),
+        role("z")),
       r.requiredRoles()
     );
   }
@@ -286,9 +305,9 @@ public final class MExpressionParserTest
 
     assertEquals(
       Set.of(
-        new MRoleName("x"),
-        new MRoleName("y"),
-        new MRoleName("z")),
+        role("x"),
+        role("y"),
+        role("z")),
       r.requiredRoles()
     );
   }
@@ -323,17 +342,17 @@ public final class MExpressionParserTest
 
     assertEquals(
       Set.of(
-        new MRoleName("x"),
-        new MRoleName("y"),
-        new MRoleName("z")),
+        role("x"),
+        role("y"),
+        role("z")),
       any.requiredRoles()
     );
 
     assertEquals(
       Set.of(
-        new MRoleName("a"),
-        new MRoleName("b"),
-        new MRoleName("c")),
+        role("a"),
+        role("b"),
+        role("c")),
       all.requiredRoles()
     );
   }
@@ -367,17 +386,17 @@ public final class MExpressionParserTest
 
     assertEquals(
       Set.of(
-        new MRoleName("x"),
-        new MRoleName("y"),
-        new MRoleName("z")),
+        role("x"),
+        role("y"),
+        role("z")),
       any.requiredRoles()
     );
 
     assertEquals(
       Set.of(
-        new MRoleName("a"),
-        new MRoleName("b"),
-        new MRoleName("c")),
+        role("a"),
+        role("b"),
+        role("c")),
       all.requiredRoles()
     );
   }
@@ -512,7 +531,7 @@ public final class MExpressionParserTest
         .parseMatchObject(this.parse("(object (with-type x))"));
 
     assertEquals(
-      new MTypeName("x"),
+      type("x"),
       r.type()
     );
   }
@@ -634,12 +653,12 @@ public final class MExpressionParserTest
       (MMatchObjectWithType) r.subExpressions().get(1);
 
     assertEquals(
-      new MTypeName("x"),
+      type("x"),
       x.type()
     );
 
     assertEquals(
-      new MTypeName("a"),
+      type("a"),
       a.type()
     );
   }
@@ -672,12 +691,12 @@ public final class MExpressionParserTest
       (MMatchObjectWithType) r.subExpressions().get(1);
 
     assertEquals(
-      new MTypeName("x"),
+      type("x"),
       x.type()
     );
 
     assertEquals(
-      new MTypeName("a"),
+      type("a"),
       a.type()
     );
   }
@@ -812,7 +831,7 @@ public final class MExpressionParserTest
         .parseMatchAction(this.parse("(action (with-name x))"));
 
     assertEquals(
-      new MActionName("x"),
+      action("x"),
       r.name()
     );
   }
@@ -832,12 +851,12 @@ public final class MExpressionParserTest
       (MMatchActionWithName) r.subExpressions().get(1);
 
     assertEquals(
-      new MActionName("x"),
+      action("x"),
       x.name()
     );
 
     assertEquals(
-      new MActionName("a"),
+      action("a"),
       a.name()
     );
   }
@@ -870,12 +889,12 @@ public final class MExpressionParserTest
       (MMatchActionWithName) r.subExpressions().get(1);
 
     assertEquals(
-      new MActionName("x"),
+      action("x"),
       x.name()
     );
 
     assertEquals(
-      new MActionName("a"),
+      action("a"),
       a.name()
     );
   }
@@ -910,15 +929,15 @@ public final class MExpressionParserTest
       r.conclusion()
     );
     assertEquals(
-      new MRoleName("x"),
+      role("x"),
       ((MMatchSubjectWithRolesAny) r.matchSubject()).requiredRoles().iterator().next()
     );
     assertEquals(
-      new MTypeName("t"),
+      type("t"),
       ((MMatchObjectWithType) r.matchObject()).type()
     );
     assertEquals(
-      new MActionName("a"),
+      action("a"),
       ((MMatchActionWithName) r.matchAction()).name()
     );
 
@@ -942,15 +961,15 @@ public final class MExpressionParserTest
       r.conclusion()
     );
     assertEquals(
-      new MRoleName("x"),
+      role("x"),
       ((MMatchSubjectWithRolesAny) r.matchSubject()).requiredRoles().iterator().next()
     );
     assertEquals(
-      new MTypeName("t"),
+      type("t"),
       ((MMatchObjectWithType) r.matchObject()).type()
     );
     assertEquals(
-      new MActionName("a"),
+      action("a"),
       ((MMatchActionWithName) r.matchAction()).name()
     );
 
@@ -974,15 +993,15 @@ public final class MExpressionParserTest
       r.conclusion()
     );
     assertEquals(
-      new MRoleName("x"),
+      role("x"),
       ((MMatchSubjectWithRolesAny) r.matchSubject()).requiredRoles().iterator().next()
     );
     assertEquals(
-      new MTypeName("t"),
+      type("t"),
       ((MMatchObjectWithType) r.matchObject()).type()
     );
     assertEquals(
-      new MActionName("a"),
+      action("a"),
       ((MMatchActionWithName) r.matchAction()).name()
     );
 
@@ -1006,15 +1025,15 @@ public final class MExpressionParserTest
       r.conclusion()
     );
     assertEquals(
-      new MRoleName("x"),
+      role("x"),
       ((MMatchSubjectWithRolesAny) r.matchSubject()).requiredRoles().iterator().next()
     );
     assertEquals(
-      new MTypeName("t"),
+      type("t"),
       ((MMatchObjectWithType) r.matchObject()).type()
     );
     assertEquals(
-      new MActionName("a"),
+      action("a"),
       ((MMatchActionWithName) r.matchAction()).name()
     );
 

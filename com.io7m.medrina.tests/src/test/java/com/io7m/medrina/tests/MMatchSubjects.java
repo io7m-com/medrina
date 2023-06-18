@@ -49,15 +49,8 @@ public final class MMatchSubjects
 
   public static Arbitrary<MMatchSubjectType> arbitrary()
   {
-    final Arbitrary<MRoleName> names =
-      Arbitraries.strings()
-        .withCharRange('a', 'z')
-        .withCharRange('0', '9')
-        .withChars('.', '_', '-')
-        .ofMinLength(1)
-        .ofMaxLength(256)
-        .map(MRoleName::new);
-
+    final var names =
+      Arbitraries.defaultFor(MRoleName.class);
     return CASE_INTEGERS
       .map(integer -> generateSubject(names, 0, integer));
   }

@@ -25,6 +25,7 @@ import com.io7m.jsx.SExpressionType.SList;
 import com.io7m.jsx.SExpressionType.SQuotedString;
 import com.io7m.jsx.SExpressionType.SSymbol;
 import com.io7m.junreachable.UnreachableCodeException;
+import com.io7m.lanark.core.RDottedName;
 import com.io7m.medrina.api.MActionName;
 import com.io7m.medrina.api.MAttributeName;
 import com.io7m.medrina.api.MAttributeValue;
@@ -328,11 +329,13 @@ public final class MExpressionParser
 
       try {
         return new MMatchActionWithName(new MActionName(
-          this.requireSymbol(
-              expression,
-              this.describeMatchActionE,
-              this.syntaxMatchActionE)
-            .text()
+          new RDottedName(
+            this.requireSymbol(
+                expression,
+                this.describeMatchActionE,
+                this.syntaxMatchActionE)
+              .text()
+          )
         ));
       } catch (final IllegalArgumentException e) {
         try {
@@ -624,8 +627,8 @@ public final class MExpressionParser
             && list.get(2) instanceof final SAtomType value) {
 
           outputs.put(
-            new MAttributeName(name.text()),
-            new MAttributeValue(value.text())
+            new MAttributeName(new RDottedName(name.text())),
+            new MAttributeValue(new RDottedName(value.text()))
           );
           return;
         }
@@ -652,11 +655,13 @@ public final class MExpressionParser
 
       try {
         return new MMatchObjectWithType(new MTypeName(
-          this.requireSymbol(
-              expression,
-              this.describeMatchObjectE,
-              this.syntaxMatchObjectE)
-            .text()
+          new RDottedName(
+            this.requireSymbol(
+                expression,
+                this.describeMatchObjectE,
+                this.syntaxMatchObjectE)
+              .text()
+          )
         ));
       } catch (final IllegalArgumentException e) {
         try {
@@ -908,11 +913,13 @@ public final class MExpressionParser
       final var expression = subExpressions.get(index);
       try {
         names.add(new MRoleName(
-          this.requireSymbol(
-              expression,
-              this.describeMatchSubjectE,
-              this.syntaxMatchSubjectE)
-            .text()
+          new RDottedName(
+            this.requireSymbol(
+                expression,
+                this.describeMatchSubjectE,
+                this.syntaxMatchSubjectE)
+              .text()
+          )
         ));
       } catch (final IllegalArgumentException e) {
         try {
@@ -947,11 +954,13 @@ public final class MExpressionParser
       final var expression = subExpressions.get(index);
       try {
         names.add(new MRoleName(
-          this.requireSymbol(
-              expression,
-              this.describeMatchSubjectE,
-              this.syntaxMatchSubjectE)
-            .text()
+          new RDottedName(
+            this.requireSymbol(
+                expression,
+                this.describeMatchSubjectE,
+                this.syntaxMatchSubjectE)
+              .text()
+          )
         ));
       } catch (final IllegalArgumentException e) {
         try {

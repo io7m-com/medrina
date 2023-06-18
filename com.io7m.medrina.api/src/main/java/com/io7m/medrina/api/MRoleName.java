@@ -16,9 +16,10 @@
 
 package com.io7m.medrina.api;
 
+import com.io7m.lanark.core.RDottedName;
+
 import java.util.Comparator;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 /**
  * The name of a role.
@@ -26,16 +27,9 @@ import java.util.regex.Pattern;
  * @param value The name
  */
 
-public record MRoleName(String value)
+public record MRoleName(RDottedName value)
   implements Comparable<MRoleName>
 {
-  /**
-   * The pattern that defines a valid role name.
-   */
-
-  public static final Pattern VALID_PATTERN =
-    Pattern.compile("[a-z_0-9-\\.]{1,256}");
-
   /**
    * The name of a role.
    *
@@ -45,22 +39,13 @@ public record MRoleName(String value)
   public MRoleName
   {
     Objects.requireNonNull(value, "value");
-
-    final var matcher = VALID_PATTERN.matcher(value);
-    if (!matcher.matches()) {
-      throw new IllegalArgumentException(
-        String.format(
-          "Role name '%s' must match %s",
-          value,
-          VALID_PATTERN
-        ));
-    }
   }
 
   @Override
   public int compareTo(
     final MRoleName other)
   {
-    return Comparator.comparing(MRoleName::value).compare(this, other);
+    return Comparator.comparing(MRoleName::value)
+      .compare(this, other);
   }
 }

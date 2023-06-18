@@ -16,6 +16,7 @@
 
 package com.io7m.medrina.tests;
 
+import com.io7m.lanark.core.RDottedName;
 import com.io7m.medrina.api.MAttributeName;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
@@ -52,11 +53,7 @@ public final class MAttributeNames implements ArbitraryProvider
     final SubtypeProvider subtypeProvider)
   {
     return Set.of(
-      Arbitraries.strings()
-        .withChars("abcdefghijklmnopqrstuvwxyz0123456789-_.")
-        .ofMinLength(1)
-        .ofMaxLength(256)
-        .map(MAttributeName::new)
+      Arbitraries.defaultFor(RDottedName.class).map(MAttributeName::new)
     );
   }
 }

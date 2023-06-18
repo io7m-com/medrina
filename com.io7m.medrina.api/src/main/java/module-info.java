@@ -24,6 +24,7 @@ module com.io7m.medrina.api
   requires static org.osgi.annotation.versioning;
 
   requires com.io7m.jcip.annotations;
+  requires com.io7m.lanark.core;
 
   exports com.io7m.medrina.api;
 }

@@ -16,6 +16,7 @@
 
 package com.io7m.medrina.tests;
 
+import com.io7m.lanark.core.RDottedName;
 import com.io7m.medrina.api.MMatchObjectType;
 import com.io7m.medrina.api.MMatchObjectType.MMatchObjectAnd;
 import com.io7m.medrina.api.MMatchObjectType.MMatchObjectOr;
@@ -235,7 +236,7 @@ public final class MMatchObjectTest
   {
     assertFalse(
       new MMatchObjectWithAttributesAny(Map.of()).matches(new MObject(
-        new MTypeName("x"),
+        new MTypeName(new RDottedName("x")),
         Map.of()
       ))
     );

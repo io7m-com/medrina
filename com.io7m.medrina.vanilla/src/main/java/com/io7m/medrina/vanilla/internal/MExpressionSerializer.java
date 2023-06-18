@@ -216,7 +216,7 @@ public final class MExpressionSerializer
         true,
         List.of(
           new SSymbol(zero(), "with-name"),
-          new SSymbol(zero(), name.name().value())
+          new SSymbol(zero(), name.name().value().value())
         )
       );
     }
@@ -267,7 +267,7 @@ public final class MExpressionSerializer
         true,
         List.of(
           new SSymbol(zero(), "with-type"),
-          new SSymbol(zero(), type.type().value())
+          new SSymbol(zero(), type.type().value().value())
         )
       );
     }
@@ -339,8 +339,8 @@ public final class MExpressionSerializer
       true,
       List.of(
         new SSymbol(zero(), "attribute"),
-        new SQuotedString(zero(), entry.getKey().value()),
-        new SQuotedString(zero(), entry.getValue().value())
+        new SQuotedString(zero(), entry.getKey().value().value()),
+        new SQuotedString(zero(), entry.getValue().value().value())
       )
     );
   }
@@ -365,7 +365,7 @@ public final class MExpressionSerializer
           all.requiredRoles()
             .stream()
             .sorted(MRoleName::compareTo)
-            .map(name -> new SSymbol(zero(), name.value()))
+            .map(name -> new SSymbol(zero(), name.value().value()))
         ).collect(Collectors.toList())
       );
     }
@@ -379,7 +379,7 @@ public final class MExpressionSerializer
           any.requiredRoles()
             .stream()
             .sorted(MRoleName::compareTo)
-            .map(name -> new SSymbol(zero(), name.value()))
+            .map(name -> new SSymbol(zero(), name.value().value()))
         ).collect(Collectors.toList())
       );
     }

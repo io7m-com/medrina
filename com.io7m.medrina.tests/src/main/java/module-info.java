@@ -33,6 +33,8 @@ open module com.io7m.medrina.tests
   requires com.io7m.jsx.prettyprint;
   requires com.io7m.junreachable.core;
   requires com.io7m.jxtrand.vanilla;
+  requires com.io7m.lanark.arbitraries;
+  requires com.io7m.lanark.core;
   requires net.jqwik.api;
   requires org.apiguardian.api;
   requires org.slf4j;
