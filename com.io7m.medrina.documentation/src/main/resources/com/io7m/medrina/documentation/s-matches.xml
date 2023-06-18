@@ -107,7 +107,7 @@
       <Verbatim><xi:include href="700.txt" parse="text"/></Verbatim>
     </FormalItem>
     <Paragraph>
-      The expression, when evaluated, matches a action when any of the following
+      The expression, when evaluated, matches an action when any of the following
       conditions hold:
     </Paragraph>
     <FormalItem title="exprMatchActionEvalR">
