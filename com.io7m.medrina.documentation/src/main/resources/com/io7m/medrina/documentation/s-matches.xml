@@ -100,7 +100,7 @@
 
   <Subsection title="Matching Actions" id="0de6c2f0-6dcd-4256-9fde-88278374da0c">
     <Paragraph>
-      The expression used to match a action is described by the following
+      The expression used to match an action is described by the following
       inductive type:
     </Paragraph>
     <FormalItem title="exprMatchAction">
