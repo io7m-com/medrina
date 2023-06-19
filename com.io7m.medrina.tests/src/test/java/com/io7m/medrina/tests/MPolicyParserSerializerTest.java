@@ -156,6 +156,19 @@ public final class MPolicyParserSerializerTest
   }
 
   @Test
+  public void testParseErrorDuplicateRuleNames()
+    throws Exception
+  {
+    final var parsers = new MPolicyParsers();
+
+    try (var stream = resource("errorDuplicateRule0.mp")) {
+      assertThrows(ParsingException.class, () -> {
+        parsers.parse(URI.create("urn:create"), stream);
+      });
+    }
+  }
+
+  @Test
   public void testParseUnknownVersion0()
     throws Exception
   {
@@ -164,7 +177,7 @@ public final class MPolicyParserSerializerTest
     assertThrows(ParsingException.class, () -> {
       parsers.parse(
         URI.create("urn:create"),
-        new ByteArrayInputStream("[medrina 9999 0]".getBytes(UTF_8))
+        new ByteArrayInputStream("[Medrina 9999 0]".getBytes(UTF_8))
       );
     });
   }

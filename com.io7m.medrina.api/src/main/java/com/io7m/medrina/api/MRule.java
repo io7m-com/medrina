@@ -21,6 +21,8 @@ import java.util.Objects;
 /**
  * A single rule in a policy.
  *
+ * @param name         The rule name
+ * @param description  The rule description
  * @param conclusion   The rule conclusion
  * @param matchAction  The expression that matches an action
  * @param matchObject  The expression that matches an object
@@ -28,6 +30,8 @@ import java.util.Objects;
  */
 
 public record MRule(
+  MRuleName name,
+  String description,
   MRuleConclusion conclusion,
   MMatchSubjectType matchSubject,
   MMatchObjectType matchObject,
@@ -36,6 +40,8 @@ public record MRule(
   /**
    * A single rule in a policy.
    *
+   * @param name         The rule name
+   * @param description  The rule description
    * @param conclusion   The rule conclusion
    * @param matchAction  The expression that matches an action
    * @param matchObject  The expression that matches an object
@@ -44,6 +50,8 @@ public record MRule(
 
   public MRule
   {
+    Objects.requireNonNull(name, "name");
+    Objects.requireNonNull(description, "description");
     Objects.requireNonNull(conclusion, "conclusion");
     Objects.requireNonNull(matchSubject, "matchSubject");
     Objects.requireNonNull(matchObject, "matchObject");

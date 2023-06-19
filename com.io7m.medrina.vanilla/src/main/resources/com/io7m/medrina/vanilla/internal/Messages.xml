@@ -5,48 +5,56 @@
 <properties>
   <entry key="errorParse">Parse error.</entry>
   <entry key="errorUnsupportedVersion">Unsupported version.</entry>
+  <entry key="errorMissingRequired">A required element was missing.</entry>
+  <entry key="errorAlreadyProvided">An element was provided more than once.</entry>
 
-  <entry key="describeVersion">A version expression.</entry>
+  <entry key="describeAttribute">An attribute.</entry>
+  <entry key="describeMatchAction">An action match expression.</entry>
+  <entry key="describeMatchActionE">An action match expression.</entry>
+  <entry key="describeMatchObject">An object match expression.</entry>
+  <entry key="describeMatchObjectE">An object match expression.</entry>
+  <entry key="describeMatchSubject">A subject match expression.</entry>
+  <entry key="describeMatchSubjectE">A subject match expression.</entry>
   <entry key="describeRule">A rule expression.</entry>
   <entry key="describeRuleConclusion">A rule conclusion.</entry>
-  <entry key="describeMatchObject">An object match expression.</entry>
-  <entry key="describeMatchSubject">A subject match expression.</entry>
-  <entry key="describeMatchAction">An action match expression.</entry>
-  <entry key="describeMatchSubjectE">A subject match expression.</entry>
-  <entry key="describeMatchObjectE">An object match expression.</entry>
-  <entry key="describeMatchActionE">An action match expression.</entry>
-  <entry key="describeAttribute">An attribute.</entry>
+  <entry key="describeRuleDescription">A rule description expression.</entry>
+  <entry key="describeRuleName">A rule name expression.</entry>
+  <entry key="describeVersion">A version expression.</entry>
 
-  <entry key="version"><![CDATA[  (medrina <number> <number>)]]></entry>
-  <entry key="rule"><![CDATA[    (ruleConclusion matchSubject matchObject matchAction)]]></entry>
-  <entry key="ruleConclusion"><![CDATA[    allow | deny | allow-immediately | deny-immediately]]></entry>
-  <entry key="matchObject"><![CDATA[      "(" , "object" , matchObjectE , ")" ;]]></entry>
-  <entry key="matchSubject"><![CDATA[      "(" , "subject" , matchSubjectE , ")" ;]]></entry>
-  <entry key="matchAction"><![CDATA[      "(" , "action" , matchActionE , ")" ;]]></entry>
-  <entry key="attribute"><![CDATA[      "(" , "attribute" , <quoted> , <quoted> ")" ;]]></entry>
+  <entry key="version"><![CDATA[  (Medrina <number> <number>)]]></entry>
+  <entry key="ruleName"><![CDATA[    "(", "Name" , name , ")"]]></entry>
+  <entry key="ruleDescription"><![CDATA[    "(", "Description" , <quoted> , ")"]]></entry>
+  <entry
+    key="rule"><![CDATA[    ("Rule" ruleName? ruleDescription? ruleConclusion matchSubject matchObject matchAction)]]></entry>
+  <entry 
+    key="ruleConclusion"><![CDATA[    "(", "Conclusion", allow | deny | allow-immediately | deny-immediately , ")" ;]]></entry>
+  <entry key="matchObject"><![CDATA[      "(" , "MatchObject" , matchObjectE , ")" ;]]></entry>
+  <entry key="matchSubject"><![CDATA[      "(" , "MatchSubject" , matchSubjectE , ")" ;]]></entry>
+  <entry key="matchAction"><![CDATA[      "(" , "MatchAction" , matchActionE , ")" ;]]></entry>
+  <entry key="attribute"><![CDATA[      "(" , "Attribute" , <quoted> , <quoted> ")" ;]]></entry>
 
-  <entry key="matchSubjectE"><![CDATA[    "true"
-  | "false"
-  | "(" , "with-all-roles" , name* , ")"
-  | "(" , "with-any-roles" , name* , ")"
-  | "(" , "or" , matchSubjectE , matchSubjectE , ")"
-  | "(" , "and" , matchSubjectE , matchSubjectE , ")"
+  <entry key="matchSubjectE"><![CDATA[    "True"
+  | "False"
+  | "(" , "WithAllRolesFrom" , name* , ")"
+  | "(" , "WithAnyRolesFrom" , name* , ")"
+  | "(" , "Or" , matchSubjectE , matchSubjectE , ")"
+  | "(" , "And" , matchSubjectE , matchSubjectE , ")"
   ;
 ]]></entry>
-  <entry key="matchObjectE"><![CDATA[    "true"
-  | "false"
-  | "(" , "with-type" , name , ")"
-  | "(" , "with-any-attributes" , [ attribute ] , ")"
-  | "(" , "with-all-attributes" , [ attribute ] , ")"
-  | "(" , "or" , matchObjectE , matchObjectE , ")"
-  | "(" , "and" , matchObjectE , matchObjectE , ")"
+  <entry key="matchObjectE"><![CDATA[    "True"
+  | "False"
+  | "(" , "WithType" , name , ")"
+  | "(" , "WithAnyAttributesFrom" , [ attribute ] , ")"
+  | "(" , "WithAllAttributesFrom" , [ attribute ] , ")"
+  | "(" , "Or" , matchObjectE , matchObjectE , ")"
+  | "(" , "And" , matchObjectE , matchObjectE , ")"
   ;
 ]]></entry>
-  <entry key="matchActionE"><![CDATA[    "true"
-  | "false"
-  | "(" , "with-name" , name , ")"
-  | "(" , "or" , matchActionE , matchActionE , ")"
-  | "(" , "and" , matchActionE , matchActionE , ")"
+  <entry key="matchActionE"><![CDATA[    "True"
+  | "False"
+  | "(" , "WithName" , name , ")"
+  | "(" , "Or" , matchActionE , matchActionE , ")"
+  | "(" , "And" , matchActionE , matchActionE , ")"
   ;
 ]]></entry>
 

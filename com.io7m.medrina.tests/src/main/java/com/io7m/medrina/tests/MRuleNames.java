@@ -16,48 +16,44 @@
 
 package com.io7m.medrina.tests;
 
-import com.io7m.medrina.api.MPolicy;
-import com.io7m.medrina.api.MRule;
+import com.io7m.lanark.core.RDottedName;
 import com.io7m.medrina.api.MRuleName;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
+import net.jqwik.api.providers.ArbitraryProvider;
+import net.jqwik.api.providers.TypeUsage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Set;
 
-public final class MPolicies
+/**
+ * Arbitrary rule names.
+ */
+
+public final class MRuleNames implements ArbitraryProvider
 {
-  private MPolicies()
+  /**
+   * Arbitrary rule names.
+   */
+
+  public MRuleNames()
   {
 
   }
 
-  public static Arbitrary<MPolicy> policies()
+  @Override
+  public boolean canProvideFor(
+    final TypeUsage targetType)
   {
-    final var rules =
-      MRules.rules();
-
-    return Arbitraries.integers()
-      .between(1, 20)
-      .map(integer -> policy(integer, rules));
+    return targetType.isOfType(MRuleName.class);
   }
 
-  private static MPolicy policy(
-    final Integer count,
-    final Arbitrary<MRule> rules)
+  @Override
+  public Set<Arbitrary<?>> provideFor(
+    final TypeUsage targetType,
+    final SubtypeProvider subtypeProvider)
   {
-    final var output =
-      new ArrayList<MRule>(count.intValue());
-    final var ruleMap =
-      new HashMap<MRuleName, MRule>();
-
-    for (int index = 0; index < count.intValue(); ++index) {
-      final var rule = rules.sample();
-      if (!ruleMap.containsKey(rule.name())) {
-        output.add(rule);
-      }
-      ruleMap.put(rule.name(), rule);
-    }
-    return new MPolicy(output);
+    return Set.of(
+      Arbitraries.defaultFor(RDottedName.class).map(MRuleName::new)
+    );
   }
 }

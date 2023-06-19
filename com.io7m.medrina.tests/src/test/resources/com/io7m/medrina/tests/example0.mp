@@ -1,20 +1,27 @@
-(medrina 1 0)
+(Medrina 1 0)
 
-(deny
-  (subject
-    [and (or [with-any-roles x y z]
-             [with-all-roles a b])
-         (or true false)])
-  (object
-    [and (or [with-type a] [with-type b])
-         (or true false)
-         (or [with-any-attributes [attribute "x" "y"] [attribute "a" "b"]]
-             [with-all-attributes [attribute "m" "n"] [attribute "o" "p"]])])
-  (action
-    [and (or [with-name a] [with-name b])
-         (or true false)]))
+(Rule
+  (Name "rule0")
+  (Description "Rule 0")
+  (Conclusion Deny)
+  (MatchSubject
+    [And (Or [WithAnyRolesFrom x y z]
+             [WithAllRolesFrom a b])
+         (Or True False)])
+  (MatchObject
+    [And (Or [WithType a] [WithType b])
+         (Or True False)
+         (Or [WithAnyAttributesFrom [Attribute "x" "y"] [Attribute "a" "b"]]
+             [WithAllAttributesFrom [Attribute "m" "n"] [Attribute "o" "p"]])])
+  (MatchAction
+    [And (Or [WithName a] [WithName b])
+         (Or True False)]))
 
-(allow
-  (subject false)
-  (object false)
-  (action false))
+
+(Rule
+  (Name "rule1")
+  (Description "Rule 1")
+  (Conclusion Allow)
+  (MatchSubject False)
+  (MatchObject False)
+  (MatchAction False))

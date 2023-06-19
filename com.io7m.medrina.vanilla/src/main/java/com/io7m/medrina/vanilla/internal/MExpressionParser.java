@@ -19,6 +19,7 @@ package com.io7m.medrina.vanilla.internal;
 import com.io7m.anethum.api.ParseStatus;
 import com.io7m.jdeferthrow.core.ExceptionTracker;
 import com.io7m.jlexing.core.LexicalPosition;
+import com.io7m.jlexing.core.LexicalType;
 import com.io7m.jsx.SExpressionType;
 import com.io7m.jsx.SExpressionType.SAtomType;
 import com.io7m.jsx.SExpressionType.SList;
@@ -48,6 +49,7 @@ import com.io7m.medrina.api.MPolicy;
 import com.io7m.medrina.api.MRoleName;
 import com.io7m.medrina.api.MRule;
 import com.io7m.medrina.api.MRuleConclusion;
+import com.io7m.medrina.api.MRuleName;
 import com.io7m.medrina.api.MTypeName;
 import com.io7m.medrina.api.MVersion;
 
@@ -59,6 +61,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Consumer;
@@ -78,8 +81,9 @@ import static com.io7m.medrina.api.MMatchSubjectType.MMatchSubjectTrue;
 
 public final class MExpressionParser
 {
-  private final MStrings strings;
+  private BigInteger ruleCount;
   private final Consumer<ParseStatus> errorConsumer;
+  private final MStrings strings;
   private final String describeAttribute;
   private final String describeMatchAction;
   private final String describeMatchActionE;
@@ -89,6 +93,8 @@ public final class MExpressionParser
   private final String describeMatchSubjectE;
   private final String describeRule;
   private final String describeRuleConclusion;
+  private final String describeRuleDescription;
+  private final String describeRuleName;
   private final String describeVersion;
   private final String syntaxAttribute;
   private final String syntaxMatchAction;
@@ -99,6 +105,8 @@ public final class MExpressionParser
   private final String syntaxMatchSubjectE;
   private final String syntaxRule;
   private final String syntaxRuleConclusion;
+  private final String syntaxRuleDescription;
+  private final String syntaxRuleName;
   private final String syntaxVersion;
 
   /**
@@ -137,6 +145,10 @@ public final class MExpressionParser
       inStrings.format("version");
     this.syntaxAttribute =
       inStrings.format("attribute");
+    this.syntaxRuleName =
+      inStrings.format("ruleName");
+    this.syntaxRuleDescription =
+      inStrings.format("ruleDescription");
 
     this.describeAttribute =
       inStrings.format("describeAttribute");
@@ -158,14 +170,21 @@ public final class MExpressionParser
       inStrings.format("describeRuleConclusion");
     this.describeVersion =
       inStrings.format("describeVersion");
+    this.describeRuleName =
+      inStrings.format("describeRuleName");
+    this.describeRuleDescription =
+      inStrings.format("describeRuleDescription");
+
+    this.ruleCount =
+      BigInteger.ZERO;
   }
 
   private MMatchActionAnd parseMatchActionAnd(
     final List<SExpressionType> subExpressions)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     final var exceptions =
-      new ExceptionTracker<ExpressionParseException>();
+      new ExceptionTracker<MExpressionParseException>();
     final var matches =
       new ArrayList<MMatchActionType>(subExpressions.size());
 
@@ -173,7 +192,7 @@ public final class MExpressionParser
       final var expression = subExpressions.get(index);
       try {
         matches.add(this.parseMatchActionE(expression));
-      } catch (final ExpressionParseException e) {
+      } catch (final MExpressionParseException e) {
         exceptions.addException(e);
       }
     }
@@ -184,10 +203,10 @@ public final class MExpressionParser
 
   private MMatchActionOr parseMatchActionOr(
     final List<SExpressionType> subExpressions)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     final var exceptions =
-      new ExceptionTracker<ExpressionParseException>();
+      new ExceptionTracker<MExpressionParseException>();
     final var matches =
       new ArrayList<MMatchActionType>(subExpressions.size());
 
@@ -195,7 +214,7 @@ public final class MExpressionParser
       final var expression = subExpressions.get(index);
       try {
         matches.add(this.parseMatchActionE(expression));
-      } catch (final ExpressionParseException e) {
+      } catch (final MExpressionParseException e) {
         exceptions.addException(e);
       }
     }
@@ -211,19 +230,19 @@ public final class MExpressionParser
    *
    * @return A parsed expression
    *
-   * @throws ExpressionParseException On errors
+   * @throws MExpressionParseException On errors
    */
 
   public MMatchActionType parseMatchAction(
     final SExpressionType expression)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     Objects.requireNonNull(expression, "expression");
 
     if (expression instanceof final SList list
         && list.size() == 2
         && list.get(0) instanceof final SSymbol symbol
-        && Objects.equals(symbol.text(), "action")) {
+        && Objects.equals(symbol.text(), "MatchAction")) {
       return this.parseMatchActionE(list.get(1));
     }
 
@@ -237,12 +256,12 @@ public final class MExpressionParser
 
   private MMatchActionType parseMatchActionE(
     final SExpressionType expression)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     if (expression instanceof final SSymbol symbol) {
       return switch (symbol.text()) {
-        case "true" -> new MMatchActionTrue();
-        case "false" -> new MMatchActionFalse();
+        case "True" -> new MMatchActionTrue();
+        case "False" -> new MMatchActionFalse();
         default -> throw this.errorExpectedReceived(
           expression.lexical(),
           this.describeMatchActionE,
@@ -263,10 +282,10 @@ public final class MExpressionParser
           );
 
         return switch (symbol.text()) {
-          case "and" -> {
+          case "And" -> {
             try {
               yield this.parseMatchActionAnd(subExpressions);
-            } catch (final ExpressionParseException e) {
+            } catch (final MExpressionParseException e) {
               throw this.errorExpectedReceived(
                 expression.lexical(),
                 this.describeMatchActionE,
@@ -275,10 +294,10 @@ public final class MExpressionParser
               );
             }
           }
-          case "or" -> {
+          case "Or" -> {
             try {
               yield this.parseMatchActionOr(subExpressions);
-            } catch (final ExpressionParseException e) {
+            } catch (final MExpressionParseException e) {
               throw this.errorExpectedReceived(
                 expression.lexical(),
                 this.describeMatchActionE,
@@ -287,10 +306,10 @@ public final class MExpressionParser
               );
             }
           }
-          case "with-name" -> {
+          case "WithName" -> {
             try {
               yield this.parseMatchActionWithName(subExpressions);
-            } catch (final ExpressionParseException e) {
+            } catch (final MExpressionParseException e) {
               throw this.errorExpectedReceived(
                 expression.lexical(),
                 this.describeMatchActionE,
@@ -319,10 +338,10 @@ public final class MExpressionParser
 
   private MMatchActionWithName parseMatchActionWithName(
     final List<SExpressionType> subExpressions)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     final var exceptions =
-      new ExceptionTracker<ExpressionParseException>();
+      new ExceptionTracker<MExpressionParseException>();
 
     if (subExpressions.size() == 2) {
       final var expression = subExpressions.get(1);
@@ -345,10 +364,10 @@ public final class MExpressionParser
             this.show(expression),
             this.syntaxMatchActionE
           );
-        } catch (final ExpressionParseException ex) {
+        } catch (final MExpressionParseException ex) {
           exceptions.addException(ex);
         }
-      } catch (final ExpressionParseException e) {
+      } catch (final MExpressionParseException e) {
         exceptions.addException(e);
       }
     }
@@ -368,19 +387,19 @@ public final class MExpressionParser
    *
    * @return A parsed expression
    *
-   * @throws ExpressionParseException On errors
+   * @throws MExpressionParseException On errors
    */
 
   public MMatchObjectType parseMatchObject(
     final SExpressionType expression)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     Objects.requireNonNull(expression, "expression");
 
     if (expression instanceof final SList list
         && list.size() == 2
         && list.get(0) instanceof final SSymbol symbol
-        && Objects.equals(symbol.text(), "object")) {
+        && Objects.equals(symbol.text(), "MatchObject")) {
       return this.parseMatchObjectE(list.get(1));
     }
 
@@ -394,7 +413,7 @@ public final class MExpressionParser
 
   private MMatchObjectType parseMatchObjectE(
     final SExpressionType expression)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     if (expression instanceof final SSymbol symbol) {
       return this.parseMatchObjectESymbol(expression, symbol);
@@ -411,10 +430,10 @@ public final class MExpressionParser
           );
 
         return switch (symbol.text()) {
-          case "and" -> {
+          case "And" -> {
             try {
               yield this.parseMatchObjectAnd(subExpressions);
-            } catch (final ExpressionParseException e) {
+            } catch (final MExpressionParseException e) {
               throw this.errorExpectedReceived(
                 expression.lexical(),
                 this.describeMatchObjectE,
@@ -424,10 +443,10 @@ public final class MExpressionParser
             }
           }
 
-          case "or" -> {
+          case "Or" -> {
             try {
               yield this.parseMatchObjectOr(subExpressions);
-            } catch (final ExpressionParseException e) {
+            } catch (final MExpressionParseException e) {
               throw this.errorExpectedReceived(
                 expression.lexical(),
                 this.describeMatchObjectE,
@@ -437,10 +456,10 @@ public final class MExpressionParser
             }
           }
 
-          case "with-any-attributes" -> {
+          case "WithAnyAttributesFrom" -> {
             try {
               yield this.parseMatchObjectWithAnyAttributes(subExpressions);
-            } catch (final ExpressionParseException e) {
+            } catch (final MExpressionParseException e) {
               throw this.errorExpectedReceived(
                 expression.lexical(),
                 this.describeMatchObjectE,
@@ -450,10 +469,10 @@ public final class MExpressionParser
             }
           }
 
-          case "with-all-attributes" -> {
+          case "WithAllAttributesFrom" -> {
             try {
               yield this.parseMatchObjectWithAllAttributes(subExpressions);
-            } catch (final ExpressionParseException e) {
+            } catch (final MExpressionParseException e) {
               throw this.errorExpectedReceived(
                 expression.lexical(),
                 this.describeMatchObjectE,
@@ -463,10 +482,10 @@ public final class MExpressionParser
             }
           }
 
-          case "with-type" -> {
+          case "WithType" -> {
             try {
               yield this.parseMatchObjectWithType(subExpressions);
-            } catch (final ExpressionParseException e) {
+            } catch (final MExpressionParseException e) {
               throw this.errorExpectedReceived(
                 expression.lexical(),
                 this.describeMatchObjectE,
@@ -497,11 +516,11 @@ public final class MExpressionParser
   private MMatchObjectType parseMatchObjectESymbol(
     final SExpressionType expression,
     final SSymbol symbol)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     return switch (symbol.text()) {
-      case "true" -> new MMatchObjectTrue();
-      case "false" -> new MMatchObjectFalse();
+      case "True" -> new MMatchObjectTrue();
+      case "False" -> new MMatchObjectFalse();
       default -> throw this.errorExpectedReceived(
         expression.lexical(),
         this.describeMatchObjectE,
@@ -513,10 +532,10 @@ public final class MExpressionParser
 
   private MMatchObjectType parseMatchObjectWithAnyAttributes(
     final List<SExpressionType> subExpressions)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     final var exceptions =
-      new ExceptionTracker<ExpressionParseException>();
+      new ExceptionTracker<MExpressionParseException>();
 
     if (subExpressions.size() >= 1) {
       final var expression =
@@ -537,10 +556,10 @@ public final class MExpressionParser
             this.show(expression),
             this.syntaxMatchObjectE
           );
-        } catch (final ExpressionParseException ex) {
+        } catch (final MExpressionParseException ex) {
           exceptions.addException(ex);
         }
-      } catch (final ExpressionParseException e) {
+      } catch (final MExpressionParseException e) {
         exceptions.addException(e);
       }
     }
@@ -555,10 +574,10 @@ public final class MExpressionParser
 
   private MMatchObjectType parseMatchObjectWithAllAttributes(
     final List<SExpressionType> subExpressions)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     final var exceptions =
-      new ExceptionTracker<ExpressionParseException>();
+      new ExceptionTracker<MExpressionParseException>();
 
     if (subExpressions.size() >= 1) {
       final var expression =
@@ -579,10 +598,10 @@ public final class MExpressionParser
             this.show(expression),
             this.syntaxMatchObjectE
           );
-        } catch (final ExpressionParseException ex) {
+        } catch (final MExpressionParseException ex) {
           exceptions.addException(ex);
         }
-      } catch (final ExpressionParseException e) {
+      } catch (final MExpressionParseException e) {
         exceptions.addException(e);
       }
     }
@@ -597,16 +616,16 @@ public final class MExpressionParser
 
   private Map<MAttributeName, MAttributeValue> parseAttributes(
     final List<SExpressionType> expressions)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     final var exceptions =
-      new ExceptionTracker<ExpressionParseException>();
+      new ExceptionTracker<MExpressionParseException>();
 
     final var outputs = new TreeMap<MAttributeName, MAttributeValue>();
     for (final var expression : expressions) {
       try {
         this.parseAttribute(expression, outputs);
-      } catch (final ExpressionParseException e) {
+      } catch (final MExpressionParseException e) {
         exceptions.addException(e);
       }
     }
@@ -618,11 +637,12 @@ public final class MExpressionParser
   private void parseAttribute(
     final SExpressionType expression,
     final Map<MAttributeName, MAttributeValue> outputs)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     if (expression instanceof final SList list) {
       if (list.size() == 3) {
         if (list.get(0) instanceof final SSymbol kw
+            && Objects.equals(kw.text(), "Attribute")
             && list.get(1) instanceof final SAtomType name
             && list.get(2) instanceof final SAtomType value) {
 
@@ -645,10 +665,10 @@ public final class MExpressionParser
 
   private MMatchObjectWithType parseMatchObjectWithType(
     final List<SExpressionType> subExpressions)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     final var exceptions =
-      new ExceptionTracker<ExpressionParseException>();
+      new ExceptionTracker<MExpressionParseException>();
 
     if (subExpressions.size() == 2) {
       final var expression = subExpressions.get(1);
@@ -671,10 +691,10 @@ public final class MExpressionParser
             this.show(expression),
             this.syntaxMatchObjectE
           );
-        } catch (final ExpressionParseException ex) {
+        } catch (final MExpressionParseException ex) {
           exceptions.addException(ex);
         }
-      } catch (final ExpressionParseException e) {
+      } catch (final MExpressionParseException e) {
         exceptions.addException(e);
       }
     }
@@ -694,19 +714,19 @@ public final class MExpressionParser
    *
    * @return A parsed expression
    *
-   * @throws ExpressionParseException On errors
+   * @throws MExpressionParseException On errors
    */
 
   public MMatchSubjectType parseMatchSubject(
     final SExpressionType expression)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     Objects.requireNonNull(expression, "expression");
 
     if (expression instanceof final SList list
         && list.size() == 2
         && list.get(0) instanceof final SSymbol symbol
-        && Objects.equals(symbol.text(), "subject")) {
+        && Objects.equals(symbol.text(), "MatchSubject")) {
       return this.parseMatchSubjectE(list.get(1));
     }
 
@@ -720,12 +740,12 @@ public final class MExpressionParser
 
   private MMatchSubjectType parseMatchSubjectE(
     final SExpressionType expression)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     if (expression instanceof final SSymbol symbol) {
       return switch (symbol.text()) {
-        case "true" -> new MMatchSubjectTrue();
-        case "false" -> new MMatchSubjectFalse();
+        case "True" -> new MMatchSubjectTrue();
+        case "False" -> new MMatchSubjectFalse();
         default -> throw this.errorExpectedReceived(
           expression.lexical(),
           this.describeMatchSubjectE,
@@ -746,10 +766,10 @@ public final class MExpressionParser
           );
 
         return switch (symbol.text()) {
-          case "and" -> {
+          case "And" -> {
             try {
               yield this.parseMatchSubjectAnd(subExpressions);
-            } catch (final ExpressionParseException e) {
+            } catch (final MExpressionParseException e) {
               throw this.errorExpectedReceived(
                 expression.lexical(),
                 this.describeMatchSubjectE,
@@ -758,10 +778,10 @@ public final class MExpressionParser
               );
             }
           }
-          case "or" -> {
+          case "Or" -> {
             try {
               yield this.parseMatchSubjectOr(subExpressions);
-            } catch (final ExpressionParseException e) {
+            } catch (final MExpressionParseException e) {
               throw this.errorExpectedReceived(
                 expression.lexical(),
                 this.describeMatchSubjectE,
@@ -770,10 +790,10 @@ public final class MExpressionParser
               );
             }
           }
-          case "with-all-roles" -> {
+          case "WithAllRolesFrom" -> {
             try {
               yield this.parseMatchSubjectRolesWithAll(subExpressions);
-            } catch (final ExpressionParseException e) {
+            } catch (final MExpressionParseException e) {
               throw this.errorExpectedReceived(
                 expression.lexical(),
                 this.describeMatchSubjectE,
@@ -782,10 +802,10 @@ public final class MExpressionParser
               );
             }
           }
-          case "with-any-roles" -> {
+          case "WithAnyRolesFrom" -> {
             try {
               yield this.parseMatchSubjectRolesWithAny(subExpressions);
-            } catch (final ExpressionParseException e) {
+            } catch (final MExpressionParseException e) {
               throw this.errorExpectedReceived(
                 expression.lexical(),
                 this.describeMatchSubjectE,
@@ -814,10 +834,10 @@ public final class MExpressionParser
 
   private MMatchObjectAnd parseMatchObjectAnd(
     final List<SExpressionType> subExpressions)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     final var exceptions =
-      new ExceptionTracker<ExpressionParseException>();
+      new ExceptionTracker<MExpressionParseException>();
     final var matches =
       new ArrayList<MMatchObjectType>(subExpressions.size());
 
@@ -825,7 +845,7 @@ public final class MExpressionParser
       final var expression = subExpressions.get(index);
       try {
         matches.add(this.parseMatchObjectE(expression));
-      } catch (final ExpressionParseException e) {
+      } catch (final MExpressionParseException e) {
         exceptions.addException(e);
       }
     }
@@ -836,10 +856,10 @@ public final class MExpressionParser
 
   private MMatchObjectOr parseMatchObjectOr(
     final List<SExpressionType> subExpressions)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     final var exceptions =
-      new ExceptionTracker<ExpressionParseException>();
+      new ExceptionTracker<MExpressionParseException>();
     final var matches =
       new ArrayList<MMatchObjectType>(subExpressions.size());
 
@@ -847,7 +867,7 @@ public final class MExpressionParser
       final var expression = subExpressions.get(index);
       try {
         matches.add(this.parseMatchObjectE(expression));
-      } catch (final ExpressionParseException e) {
+      } catch (final MExpressionParseException e) {
         exceptions.addException(e);
       }
     }
@@ -858,10 +878,10 @@ public final class MExpressionParser
 
   private MMatchSubjectAnd parseMatchSubjectAnd(
     final List<SExpressionType> subExpressions)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     final var exceptions =
-      new ExceptionTracker<ExpressionParseException>();
+      new ExceptionTracker<MExpressionParseException>();
     final var matches =
       new ArrayList<MMatchSubjectType>(subExpressions.size());
 
@@ -869,7 +889,7 @@ public final class MExpressionParser
       final var expression = subExpressions.get(index);
       try {
         matches.add(this.parseMatchSubjectE(expression));
-      } catch (final ExpressionParseException e) {
+      } catch (final MExpressionParseException e) {
         exceptions.addException(e);
       }
     }
@@ -880,10 +900,10 @@ public final class MExpressionParser
 
   private MMatchSubjectOr parseMatchSubjectOr(
     final List<SExpressionType> subExpressions)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     final var exceptions =
-      new ExceptionTracker<ExpressionParseException>();
+      new ExceptionTracker<MExpressionParseException>();
     final var matches =
       new ArrayList<MMatchSubjectType>(subExpressions.size());
 
@@ -891,7 +911,7 @@ public final class MExpressionParser
       final var expression = subExpressions.get(index);
       try {
         matches.add(this.parseMatchSubjectE(expression));
-      } catch (final ExpressionParseException e) {
+      } catch (final MExpressionParseException e) {
         exceptions.addException(e);
       }
     }
@@ -902,10 +922,10 @@ public final class MExpressionParser
 
   private MMatchSubjectWithRolesAny parseMatchSubjectRolesWithAny(
     final List<SExpressionType> subExpressions)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     final var exceptions =
-      new ExceptionTracker<ExpressionParseException>();
+      new ExceptionTracker<MExpressionParseException>();
     final var names =
       new HashSet<MRoleName>();
 
@@ -929,10 +949,10 @@ public final class MExpressionParser
             this.show(expression),
             this.syntaxMatchSubjectE
           );
-        } catch (final ExpressionParseException ex) {
+        } catch (final MExpressionParseException ex) {
           exceptions.addException(ex);
         }
-      } catch (final ExpressionParseException e) {
+      } catch (final MExpressionParseException e) {
         exceptions.addException(e);
       }
     }
@@ -943,10 +963,10 @@ public final class MExpressionParser
 
   private MMatchSubjectWithRolesAll parseMatchSubjectRolesWithAll(
     final List<SExpressionType> subExpressions)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     final var exceptions =
-      new ExceptionTracker<ExpressionParseException>();
+      new ExceptionTracker<MExpressionParseException>();
     final var names =
       new HashSet<MRoleName>();
 
@@ -970,10 +990,10 @@ public final class MExpressionParser
             this.show(expression),
             this.syntaxMatchSubjectE
           );
-        } catch (final ExpressionParseException ex) {
+        } catch (final MExpressionParseException ex) {
           exceptions.addException(ex);
         }
-      } catch (final ExpressionParseException e) {
+      } catch (final MExpressionParseException e) {
         exceptions.addException(e);
       }
     }
@@ -986,7 +1006,7 @@ public final class MExpressionParser
     final SExpressionType expression,
     final String objectType,
     final String expected)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     if (expression instanceof final SSymbol symbol) {
       return symbol;
@@ -1004,7 +1024,7 @@ public final class MExpressionParser
     final SExpressionType expression,
     final String objectType,
     final String expected)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     if (expression instanceof final SList list) {
       return list;
@@ -1018,7 +1038,7 @@ public final class MExpressionParser
     );
   }
 
-  private ExpressionParseException errorExpectedReceived(
+  private MExpressionParseException errorExpectedReceived(
     final LexicalPosition<URI> lexical,
     final String objectType,
     final String received,
@@ -1037,7 +1057,7 @@ public final class MExpressionParser
     builder.withAttribute("Type", objectType);
 
     this.errorConsumer.accept(builder.build());
-    return new ExpressionParseException();
+    return new MExpressionParseException();
   }
 
   private String showInner(
@@ -1079,12 +1099,12 @@ public final class MExpressionParser
    *
    * @return A version
    *
-   * @throws ExpressionParseException On errors
+   * @throws MExpressionParseException On errors
    */
 
   public MVersion parseVersion(
     final SExpressionType expression)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     Objects.requireNonNull(expression, "expression");
 
@@ -1094,7 +1114,7 @@ public final class MExpressionParser
             && list.get(0) instanceof final SSymbol symbol
             && list.get(1) instanceof final SSymbol major
             && list.get(2) instanceof final SSymbol minor) {
-          if (Objects.equals(symbol.text(), "medrina")) {
+          if (Objects.equals(symbol.text(), "Medrina")) {
             return new MVersion(
               new BigInteger(major.text()),
               new BigInteger(minor.text())
@@ -1103,7 +1123,7 @@ public final class MExpressionParser
         }
       }
     } catch (final Exception e) {
-      throw new ExpressionParseException(e);
+      throw new MExpressionParseException(e);
     }
 
     throw this.errorExpectedReceived(
@@ -1114,6 +1134,54 @@ public final class MExpressionParser
     );
   }
 
+  private static boolean isListStartingWithSymbol(
+    final SExpressionType expression,
+    final String name)
+  {
+    return expression instanceof final SList ls
+           && ls.size() > 0
+           && ls.get(0) instanceof final SSymbol sym
+           && Objects.equals(sym.text(), name);
+  }
+
+  private MExpressionParseException errorAlreadySpecified(
+    final LexicalPosition<URI> lexical,
+    final String objectType,
+    final String existing)
+  {
+    final var builder =
+      ParseStatus.builder(
+        "parse-error",
+        this.strings.format("errorAlreadyProvided")
+      );
+
+    builder.withSeverity(PARSE_ERROR);
+    builder.withLexical(lexical);
+    builder.withAttribute("Existing", existing);
+    builder.withAttribute("Type", objectType);
+
+    this.errorConsumer.accept(builder.build());
+    return new MExpressionParseException();
+  }
+
+  private MExpressionParseException errorMissingRequired(
+    final LexicalPosition<URI> lexical,
+    final String objectType)
+  {
+    final var builder =
+      ParseStatus.builder(
+        "parse-error",
+        this.strings.format("errorMissingRequired")
+      );
+
+    builder.withSeverity(PARSE_ERROR);
+    builder.withLexical(lexical);
+    builder.withAttribute("Required", objectType);
+
+    this.errorConsumer.accept(builder.build());
+    return new MExpressionParseException();
+  }
+
   /**
    * Parse a rule.
    *
@@ -1121,68 +1189,191 @@ public final class MExpressionParser
    *
    * @return A rule
    *
-   * @throws ExpressionParseException On errors
+   * @throws MExpressionParseException On errors
    */
 
   public MRule parseRule(
     final SExpressionType expression)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     Objects.requireNonNull(expression, "expression");
 
-    final SList list =
-      this.requireList(
-        expression,
+    if (!isListStartingWithSymbol(expression, "Rule")) {
+      throw this.errorExpectedReceived(
+        expression.lexical(),
         this.describeRule,
-        this.syntaxRule);
-
-    final var subExpressions = list.expressions();
-    if (subExpressions.size() == 4) {
-      final var exceptions =
-        new ExceptionTracker<ExpressionParseException>();
-
-      MRuleConclusion conclusion = null;
-      try {
-        conclusion = this.parseRuleConclusion(subExpressions.get(0));
-      } catch (final ExpressionParseException e) {
-        exceptions.addException(e);
-      }
-
-      MMatchSubjectType matchSubject = null;
-      try {
-        matchSubject = this.parseMatchSubject(subExpressions.get(1));
-      } catch (final ExpressionParseException e) {
-        exceptions.addException(e);
-      }
-
-      MMatchObjectType matchObject = null;
-      try {
-        matchObject = this.parseMatchObject(subExpressions.get(2));
-      } catch (final ExpressionParseException e) {
-        exceptions.addException(e);
-      }
-
-      MMatchActionType matchAction = null;
-      try {
-        matchAction = this.parseMatchAction(subExpressions.get(3));
-      } catch (final ExpressionParseException e) {
-        exceptions.addException(e);
-      }
-
-      exceptions.throwIfNecessary();
-      return new MRule(
-        conclusion,
-        matchSubject,
-        matchObject,
-        matchAction
+        this.show(expression),
+        this.syntaxRule
       );
+    }
+
+    final SList list =
+      this.requireList(expression, this.describeRule, this.syntaxRule);
+    final var subExpressions =
+      new ArrayList<>(list.expressions());
+
+    subExpressions.remove(0);
+
+    Optional<MRuleName> name = Optional.empty();
+    Optional<String> description = Optional.empty();
+    Optional<MRuleConclusion> conclusion = Optional.empty();
+    Optional<MMatchActionType> matchAction = Optional.empty();
+    Optional<MMatchObjectType> matchObject = Optional.empty();
+    Optional<MMatchSubjectType> matchSubject = Optional.empty();
+
+    final var exceptions =
+      new ExceptionTracker<MExpressionParseException>();
+
+    for (final var subExpression : subExpressions) {
+      try {
+        if (subExpression instanceof final SList subList
+          && subList.size() >= 1
+          && subList.get(0) instanceof final SSymbol sym) {
+
+          switch (sym.text()) {
+            case "Name" -> {
+              if (name.isPresent()) {
+                throw this.errorAlreadySpecified(
+                  sym.lexical(),
+                  this.describeRuleName,
+                  name.get().value().value()
+                );
+              }
+              name = Optional.of(this.parseRuleName(subList));
+            }
+            case "Description" -> {
+              if (description.isPresent()) {
+                throw this.errorAlreadySpecified(
+                  sym.lexical(),
+                  this.describeRuleDescription,
+                  description.get()
+                );
+              }
+              description = Optional.of(this.parseRuleDescription(subList));
+            }
+            case "Conclusion" -> {
+              if (conclusion.isPresent()) {
+                throw this.errorAlreadySpecified(
+                  sym.lexical(),
+                  this.describeRuleConclusion,
+                  conclusion.toString()
+                );
+              }
+              conclusion = Optional.of(this.parseRuleConclusion(subList));
+            }
+            case "MatchAction" -> {
+              if (matchAction.isPresent()) {
+                throw this.errorAlreadySpecified(
+                  sym.lexical(),
+                  this.describeMatchAction,
+                  "[MatchAction ...]"
+                );
+              }
+              matchAction = Optional.of(this.parseMatchAction(subList));
+            }
+            case "MatchSubject" -> {
+              if (matchSubject.isPresent()) {
+                throw this.errorAlreadySpecified(
+                  sym.lexical(),
+                  this.describeMatchSubject,
+                  "[MatchSubject ...]"
+                );
+              }
+              matchSubject = Optional.of(this.parseMatchSubject(subList));
+            }
+            case "MatchObject" -> {
+              if (matchObject.isPresent()) {
+                throw this.errorAlreadySpecified(
+                  sym.lexical(),
+                  this.describeMatchObject,
+                  "[MatchObject ...]"
+                );
+              }
+              matchObject = Optional.of(this.parseMatchObject(subList));
+            }
+            default -> {
+
+            }
+          }
+        }
+      } catch (final MExpressionParseException e) {
+        exceptions.addException(e);
+      }
+    }
+
+    this.checkRequired(
+      matchSubject, exceptions, list, this.describeMatchSubject);
+    this.checkRequired(
+      matchAction, exceptions, list, this.describeMatchAction);
+    this.checkRequired(
+      matchObject, exceptions, list, this.describeMatchObject);
+    this.checkRequired(
+      conclusion, exceptions, list, this.describeRuleConclusion);
+
+    exceptions.throwIfNecessary();
+
+    return new MRule(
+      name.orElseGet(this::freshRuleName),
+      description.orElse(""),
+      conclusion.get(),
+      matchSubject.get(),
+      matchObject.get(),
+      matchAction.get()
+    );
+  }
+
+  private MRuleName freshRuleName()
+  {
+    final var name =
+      new MRuleName(new RDottedName("rule-%s".formatted(this.ruleCount)));
+    this.ruleCount = this.ruleCount.add(BigInteger.ONE);
+    return name;
+  }
+
+  private void checkRequired(
+    final Optional<?> provided,
+    final ExceptionTracker<MExpressionParseException> exceptions,
+    final LexicalType<URI> expression,
+    final String text)
+  {
+    if (provided.isEmpty()) {
+      exceptions.addException(
+        this.errorMissingRequired(expression.lexical(), text)
+      );
+    }
+  }
+
+  private String parseRuleDescription(
+    final SList expression)
+    throws MExpressionParseException
+  {
+    if (expression.size() == 2
+        && expression.get(1) instanceof final SQuotedString quoted) {
+      return quoted.text();
     }
 
     throw this.errorExpectedReceived(
       expression.lexical(),
-      this.describeRule,
+      this.describeRuleDescription,
       this.show(expression),
-      this.syntaxRule
+      this.syntaxRuleDescription
+    );
+  }
+
+  private MRuleName parseRuleName(
+    final SList expression)
+    throws MExpressionParseException
+  {
+    if (expression.size() == 2
+        && expression.get(1) instanceof final SAtomType atom) {
+      return new MRuleName(new RDottedName(atom.text()));
+    }
+
+    throw this.errorExpectedReceived(
+      expression.lexical(),
+      this.describeRuleName,
+      this.show(expression),
+      this.syntaxRuleName
     );
   }
 
@@ -1193,17 +1384,17 @@ public final class MExpressionParser
    *
    * @return A security policy
    *
-   * @throws ExpressionParseException On errors
+   * @throws MExpressionParseException On errors
    */
 
   public MPolicy parsePolicy(
     final List<SExpressionType> expressions)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     Objects.requireNonNull(expressions, "expressions");
 
     final var exceptions =
-      new ExceptionTracker<ExpressionParseException>();
+      new ExceptionTracker<MExpressionParseException>();
     final var rules =
       new ArrayList<MRule>(expressions.size());
 
@@ -1214,7 +1405,7 @@ public final class MExpressionParser
         try {
           this.checkVersion(this.parseVersion(expression));
           continue;
-        } catch (final ExpressionParseException e) {
+        } catch (final MExpressionParseException e) {
           exceptions.addException(e);
           continue;
         }
@@ -1222,7 +1413,7 @@ public final class MExpressionParser
 
       try {
         rules.add(this.parseRule(expression));
-      } catch (final ExpressionParseException e) {
+      } catch (final MExpressionParseException e) {
         exceptions.addException(e);
       }
     }
@@ -1232,27 +1423,31 @@ public final class MExpressionParser
   }
 
   private MRuleConclusion parseRuleConclusion(
-    final SExpressionType expression)
-    throws ExpressionParseException
+    final SList expression)
+    throws MExpressionParseException
   {
-    final SSymbol symbol =
-      this.requireSymbol(
-        expression,
-        this.describeRuleConclusion,
-        this.syntaxRuleConclusion);
+    if (expression.size() == 2
+        && expression.get(1) instanceof final SAtomType atom) {
+      return switch (atom.text()) {
+        case "Allow" -> MRuleConclusion.ALLOW;
+        case "Deny" -> MRuleConclusion.DENY;
+        case "AllowImmediately" -> MRuleConclusion.ALLOW_IMMEDIATELY;
+        case "DenyImmediately" -> MRuleConclusion.DENY_IMMEDIATELY;
+        default -> throw this.errorExpectedReceived(
+          expression.lexical(),
+          this.describeRuleConclusion,
+          this.show(expression),
+          this.syntaxRuleConclusion
+        );
+      };
+    }
 
-    return switch (symbol.text()) {
-      case "allow" -> MRuleConclusion.ALLOW;
-      case "deny" -> MRuleConclusion.DENY;
-      case "allow-immediately" -> MRuleConclusion.ALLOW_IMMEDIATELY;
-      case "deny-immediately" -> MRuleConclusion.DENY_IMMEDIATELY;
-      default -> throw this.errorExpectedReceived(
-        expression.lexical(),
-        this.describeRuleConclusion,
-        this.show(expression),
-        this.syntaxRuleConclusion
-      );
-    };
+    throw this.errorExpectedReceived(
+      expression.lexical(),
+      this.describeRuleConclusion,
+      this.show(expression),
+      this.syntaxRuleConclusion
+    );
   }
 
   private String show(
@@ -1266,12 +1461,12 @@ public final class MExpressionParser
    *
    * @param version The version
    *
-   * @throws ExpressionParseException On errors
+   * @throws MExpressionParseException On errors
    */
 
   public void checkVersion(
     final MVersion version)
-    throws ExpressionParseException
+    throws MExpressionParseException
   {
     if (Objects.equals(version.major(), BigInteger.ONE)
         && Objects.equals(version.minor(), BigInteger.ZERO)) {
@@ -1295,35 +1490,6 @@ public final class MExpressionParser
     builder.withSeverity(PARSE_ERROR);
 
     this.errorConsumer.accept(builder.build());
-    throw new ExpressionParseException();
-  }
-
-  /**
-   * Parsing failed.
-   */
-
-  public static final class ExpressionParseException
-    extends Exception
-  {
-    /**
-     * Parsing failed.
-     *
-     * @param cause The cause
-     */
-
-    public ExpressionParseException(
-      final Throwable cause)
-    {
-      super(cause);
-    }
-
-    /**
-     * Parsing failed.
-     */
-
-    public ExpressionParseException()
-    {
-
-    }
+    throw new MExpressionParseException();
   }
 }

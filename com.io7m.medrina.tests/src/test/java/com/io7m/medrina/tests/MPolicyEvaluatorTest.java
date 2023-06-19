@@ -23,6 +23,7 @@ import com.io7m.medrina.api.MPolicyEvaluator;
 import com.io7m.medrina.api.MPolicyEvaluatorType;
 import com.io7m.medrina.api.MRule;
 import com.io7m.medrina.api.MRuleConclusion;
+import com.io7m.medrina.api.MRuleName;
 import com.io7m.medrina.api.MSubject;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
@@ -30,6 +31,7 @@ import net.jqwik.api.lifecycle.BeforeProperty;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.io7m.medrina.api.MMatchActionType.MMatchActionFalse;
 import static com.io7m.medrina.api.MMatchActionType.MMatchActionTrue;
@@ -40,6 +42,7 @@ import static com.io7m.medrina.api.MMatchSubjectType.MMatchSubjectTrue;
 import static com.io7m.medrina.api.MPolicyAccess.ACCESS_ALLOWED;
 import static com.io7m.medrina.api.MPolicyAccess.ACCESS_DENIED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public final class MPolicyEvaluatorTest
 {
@@ -87,6 +90,8 @@ public final class MPolicyEvaluatorTest
 
   @Property
   public void testAllowAll(
+    @ForAll final MRuleName name,
+    @ForAll final String description,
     @ForAll final MObject object,
     @ForAll final MSubject subject,
     @ForAll final MActionName actionName)
@@ -96,6 +101,8 @@ public final class MPolicyEvaluatorTest
       this.evaluator.evaluate(
         new MPolicy(List.of(
           new MRule(
+            name,
+            description,
             MRuleConclusion.ALLOW,
             new MMatchSubjectTrue(),
             new MMatchObjectTrue(),
@@ -120,21 +127,30 @@ public final class MPolicyEvaluatorTest
 
   @Property
   public void testAllowImmediately(
+    @ForAll final MRuleName name0,
+    @ForAll final MRuleName name1,
+    @ForAll final String description,
     @ForAll final MObject object,
     @ForAll final MSubject subject,
     @ForAll final MActionName actionName)
   {
+    assumeTrue(!Objects.equals(name0, name1));
+
     assertEquals(
       ACCESS_ALLOWED,
       this.evaluator.evaluate(
         new MPolicy(List.of(
           new MRule(
+            name0,
+            description,
             MRuleConclusion.ALLOW_IMMEDIATELY,
             new MMatchSubjectTrue(),
             new MMatchObjectTrue(),
             new MMatchActionTrue()
           ),
           new MRule(
+            name1,
+            description,
             MRuleConclusion.DENY,
             new MMatchSubjectTrue(),
             new MMatchObjectTrue(),
@@ -159,21 +175,30 @@ public final class MPolicyEvaluatorTest
 
   @Property
   public void testDenyImmediately(
+    @ForAll final MRuleName name0,
+    @ForAll final MRuleName name1,
+    @ForAll final String description,
     @ForAll final MObject object,
     @ForAll final MSubject subject,
     @ForAll final MActionName actionName)
   {
+    assumeTrue(!Objects.equals(name0, name1));
+
     assertEquals(
       ACCESS_DENIED,
       this.evaluator.evaluate(
         new MPolicy(List.of(
           new MRule(
+            name0,
+            description,
             MRuleConclusion.DENY_IMMEDIATELY,
             new MMatchSubjectTrue(),
             new MMatchObjectTrue(),
             new MMatchActionTrue()
           ),
           new MRule(
+            name1,
+            description,
             MRuleConclusion.ALLOW,
             new MMatchSubjectTrue(),
             new MMatchObjectTrue(),
@@ -198,21 +223,30 @@ public final class MPolicyEvaluatorTest
 
   @Property
   public void testDeny(
+    @ForAll final MRuleName name0,
+    @ForAll final MRuleName name1,
+    @ForAll final String description,
     @ForAll final MObject object,
     @ForAll final MSubject subject,
     @ForAll final MActionName actionName)
   {
+    assumeTrue(!Objects.equals(name0, name1));
+
     assertEquals(
       ACCESS_DENIED,
       this.evaluator.evaluate(
         new MPolicy(List.of(
           new MRule(
+            name0,
+            description,
             MRuleConclusion.DENY,
             new MMatchSubjectTrue(),
             new MMatchObjectTrue(),
             new MMatchActionTrue()
           ),
           new MRule(
+            name1,
+            description,
             MRuleConclusion.ALLOW,
             new MMatchSubjectFalse(),
             new MMatchObjectFalse(),

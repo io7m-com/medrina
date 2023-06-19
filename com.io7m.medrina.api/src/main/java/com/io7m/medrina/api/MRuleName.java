@@ -16,36 +16,36 @@
 
 package com.io7m.medrina.api;
 
-import java.util.HashSet;
-import java.util.List;
+import com.io7m.lanark.core.RDottedName;
+
+import java.util.Comparator;
 import java.util.Objects;
 
 /**
- * A security policy.
+ * The name of a rule.
  *
- * @param rules The list of rules, in evaluation order
+ * @param value The name
  */
 
-public record MPolicy(List<MRule> rules)
+public record MRuleName(RDottedName value)
+  implements Comparable<MRuleName>
 {
   /**
-   * A security policy.
+   * The name of a rule.
    *
-   * @param rules The list of rules, in evaluation order
+   * @param value The name
    */
 
-  public MPolicy
+  public MRuleName
   {
-    Objects.requireNonNull(rules, "rules");
+    Objects.requireNonNull(value, "value");
+  }
 
-    final var names = new HashSet<MRuleName>(rules.size());
-    for (final var rule : rules) {
-      if (names.contains(rule.name())) {
-        throw new IllegalArgumentException(
-          "Duplicate rule name: %s".formatted(rule.name().value().value())
-        );
-      }
-      names.add(rule.name());
-    }
+  @Override
+  public int compareTo(
+    final MRuleName other)
+  {
+    return Comparator.comparing(MRuleName::value)
+      .compare(this, other);
   }
 }

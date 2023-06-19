@@ -19,6 +19,13 @@
     <Verbatim><xi:include href="900.txt" parse="text"/></Verbatim>
   </FormalItem>
 
+  <Paragraph>
+    A rule also has a <Link target="db2f7a0b-4896-45d1-8e30-0bc3e66fc664">name</Link> that must be unique
+    within a policy, and a <Term type="term">description</Term> providing humanly-readable documentation of
+    the rule. Neither of these elements are used anywhere else in the specification, but are included for
+    completeness.
+  </Paragraph>
+
   <Paragraph id="dd11720d-4bb0-4e88-ada8-9dc1199131aa">
     A <Term type="term">conclusion</Term> is one of the following values:
   </Paragraph>

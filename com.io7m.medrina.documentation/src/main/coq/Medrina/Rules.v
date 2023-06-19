@@ -18,6 +18,9 @@ Require Import Medrina.Objects.
 Require Import Medrina.Subjects.
 Require Import Medrina.Actions.
 Require Import Medrina.Matches.
+Require Import Medrina.Names.
+
+Require Import Coq.Strings.String.
 
 (** The conclusion for a rule, if the rule matches. *)
 Inductive ruleConclusion : Set :=
@@ -44,7 +47,12 @@ Record rule := Rule {
   (** The expression that matches an object. *)
   rMatchObject  : exprMatchObject;
   (** The expression that matches a subject. *)
-  rMatchAction  : exprMatchAction
+  rMatchAction  : exprMatchAction;
+  (** The rule name. *)
+  rName         : string;
+  rNameValid    : validName rName;
+  (** The rule description. *)
+  rDescription  : string;
 }.
 
 (** A function that determines if a rule matches. *)

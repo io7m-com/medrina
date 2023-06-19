@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 Mark Raynsford <code@io7m.com> https://www.io7m.com
+ * Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,38 +14,34 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.medrina.api;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
+package com.io7m.medrina.vanilla.internal;
 
 /**
- * A security policy.
- *
- * @param rules The list of rules, in evaluation order
+ * Parsing failed.
  */
 
-public record MPolicy(List<MRule> rules)
+public final class MExpressionParseException
+  extends Exception
 {
   /**
-   * A security policy.
+   * Parsing failed.
    *
-   * @param rules The list of rules, in evaluation order
+   * @param cause The cause
    */
 
-  public MPolicy
+  public MExpressionParseException(
+    final Throwable cause)
   {
-    Objects.requireNonNull(rules, "rules");
+    super(cause);
+  }
 
-    final var names = new HashSet<MRuleName>(rules.size());
-    for (final var rule : rules) {
-      if (names.contains(rule.name())) {
-        throw new IllegalArgumentException(
-          "Duplicate rule name: %s".formatted(rule.name().value().value())
-        );
-      }
-      names.add(rule.name());
-    }
+  /**
+   * Parsing failed.
+   */
+
+  public MExpressionParseException()
+  {
+
   }
 }

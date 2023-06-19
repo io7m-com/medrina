@@ -44,6 +44,7 @@ open module com.io7m.medrina.tests
       com.io7m.medrina.tests.MAttributeNames,
       com.io7m.medrina.tests.MAttributeValues,
       com.io7m.medrina.tests.MObjects,
+      com.io7m.medrina.tests.MRuleNames,
       com.io7m.medrina.tests.MRoleNames,
       com.io7m.medrina.tests.MTypeNames,
       com.io7m.medrina.tests.MSubjects;
