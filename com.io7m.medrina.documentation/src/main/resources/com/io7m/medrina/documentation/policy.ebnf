@@ -1,51 +1,76 @@
 ruleConclusion =
-    "allow"
-  | "allow-immediately"
-  | "deny"
-  | "deny-immediately"
+    "Allow"
+  | "AllowImmediately"
+  | "Deny"
+  | "DenyImmediately"
+  ;
+
+ruleConclusionE =
+  "(" , "Conclusion" , ruleConclusion , ")"
   ;
 
 matchSubjectE =
-    "true"
-  | "false"
-  | "(" , "with-all-roles" , name* , ")"
-  | "(" , "with-any-roles" , name* , ")"
-  | "(" , "or" , matchSubjectE , matchSubjectE , ")"
-  | "(" , "and" , matchSubjectE , matchSubjectE , ")"
+    "True"
+  | "Talse"
+  | "(" , "WithAllRolesFrom" , name* , ")"
+  | "(" , "WithAnyRolesFrom" , name* , ")"
+  | "(" , "Or" , matchSubjectE , matchSubjectE , ")"
+  | "(" , "And" , matchSubjectE , matchSubjectE , ")"
   ;
 
 matchSubject =
-  "(" , "subject" , matchSubjectE , ")" ;
+  "(" , "MatchSubject" , matchSubjectE , ")" ;
 
 attribute =
-  "(" , "attribute" , name , name , ")" ;
+  "(" , "Attribute" , name , name , ")" ;
 
 matchObjectE =
-    "true"
-  | "false"
-  | "(" , "with-type" , name , ")"
-  | "(" , "with-any-attributes" , attribute* , ")"
-  | "(" , "with-all-attributes" , attribute* , ")"
-  | "(" , "or" , matchObjectE , matchObjectE , ")"
-  | "(" , "and" , matchObjectE , matchObjectE , ")"
+    "True"
+  | "False"
+  | "(" , "WithType" , name , ")"
+  | "(" , "WithAllAttributesFrom" , attribute* , ")"
+  | "(" , "WithAnyAttributesFrom" , attribute* , ")"
+  | "(" , "Or" , matchObjectE , matchObjectE , ")"
+  | "(" , "And" , matchObjectE , matchObjectE , ")"
   ;
 
 matchObject =
-  "(" , "object" , matchObjectE , ")" ;
+  "(" , "MatchObject" , matchObjectE , ")" ;
 
 matchActionE =
-    "true"
-  | "false"
-  | "(" , "with-name" , name , ")"
-  | "(" , "or" , matchActionE , matchActionE , ")"
-  | "(" , "and" , matchActionE , matchActionE , ")"
+    "True"
+  | "False"
+  | "(" , "WithName" , name , ")"
+  | "(" , "Or" , matchActionE , matchActionE , ")"
+  | "(" , "And" , matchActionE , matchActionE , ")"
   ;
 
 matchAction =
-  "(" , "action" , matchActionE , ")" ;
+  "(" , "MatchAction" , matchActionE , ")" ;
+
+ruleName =
+  "(" , "Name" , name , ")" ;
+
+ruleDescription =
+  "(" , "Description" , quoted , ")" ;
+
+ruleElement =
+    ruleName?
+  | ruleDescription?
+  | ruleConclusionE
+  | matchSubject
+  | matchObject
+  | matchAction
+  ;
 
 rule =
-  "(" , ruleConclusion , matchSubject , matchObject , matchAction , ")" ;
+  "(" , "Rule" , ruleElement* , ")" ;
+
+quoted =
+  <Any s-expression quoted string> ;
+
+name =
+  <A valid Lanark dotted name> ;
 
 digit =
   "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
@@ -57,7 +82,7 @@ number =
   digit , digit-and-zero* ;
 
 medrina =
-  "(" , "medrina" , number , number , ")" ;
+  "(" , "Medrina" , number , number , ")" ;
 
 policy =
   medrina , rule* ;

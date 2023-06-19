@@ -32,8 +32,10 @@ import com.io7m.jsx.lexer.JSXLexer;
 import com.io7m.jsx.parser.JSXParser;
 import com.io7m.medrina.api.MPolicy;
 import com.io7m.medrina.api.MRule;
+import com.io7m.medrina.api.MRuleName;
 import com.io7m.medrina.parser.api.MPolicyParserFactoryType;
 import com.io7m.medrina.parser.api.MPolicyParserType;
+import com.io7m.medrina.vanilla.internal.MExpressionParseException;
 import com.io7m.medrina.vanilla.internal.MExpressionParser;
 import com.io7m.medrina.vanilla.internal.MStrings;
 
@@ -44,6 +46,7 @@ import java.io.UncheckedIOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -83,7 +86,7 @@ public final class MPolicyParsers implements MPolicyParserFactoryType
     final var lexerConfig =
       new JSXLexerConfiguration(
         true,
-        false,
+        true,
         Optional.of(source),
         EnumSet.of(JSXLexerComment.COMMENT_HASH),
         1
@@ -159,11 +162,15 @@ public final class MPolicyParsers implements MPolicyParserFactoryType
         this.statusLogger.accept(parserExceptionToStatus(e));
       } catch (final IOException e) {
         this.statusLogger.accept(ioExceptionToStatus(e));
-      } catch (final MExpressionParser.ExpressionParseException e) {
+      } catch (final MExpressionParseException e) {
         this.errorCount += 1;
       }
 
-      final var rules = new ArrayList<MRule>();
+      final var rules =
+        new ArrayList<MRule>();
+      final var ruleNames =
+        new HashSet<MRuleName>();
+
       while (this.errorCount < 20) {
         try {
           final Optional<SExpressionType> expressionOpt =
@@ -172,12 +179,17 @@ public final class MPolicyParsers implements MPolicyParserFactoryType
             break;
           }
 
-          rules.add(expressionParser.parseRule(expressionOpt.get()));
+          final var rule = expressionParser.parseRule(expressionOpt.get());
+          rules.add(rule);
+          if (ruleNames.contains(rule.name())) {
+            this.statusLogger.accept(duplicateRuleName(rule.name()));
+          }
+          ruleNames.add(rule.name());
         } catch (final JSXParserException e) {
           this.statusLogger.accept(parserExceptionToStatus(e));
         } catch (final IOException e) {
           this.statusLogger.accept(ioExceptionToStatus(e));
-        } catch (final MExpressionParser.ExpressionParseException e) {
+        } catch (final MExpressionParseException e) {
           this.errorCount += 1;
         }
       }
@@ -187,6 +199,15 @@ public final class MPolicyParsers implements MPolicyParserFactoryType
       }
 
       throw new ParsingException("Parse failed.", List.copyOf(this.errors));
+    }
+
+    private static ParseStatus duplicateRuleName(
+      final MRuleName name)
+    {
+      return ParseStatus.builder("duplicate-rule", "Duplicate rule name.")
+        .withSeverity(ParseSeverity.PARSE_ERROR)
+        .withAttribute("Rule", name.value().value())
+        .build();
     }
 
     private static ParseStatus parserExceptionToStatus(

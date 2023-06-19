@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 Mark Raynsford <code@io7m.com> https://www.io7m.com
+ * Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,38 +14,34 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.medrina.api;
 
-import com.io7m.lanark.core.RDottedName;
-
-import java.util.Comparator;
-import java.util.Objects;
+package com.io7m.medrina.vanilla.internal;
 
 /**
- * The name of a role.
- *
- * @param value The name
+ * Parsing failed.
  */
 
-public record MRoleName(RDottedName value)
-  implements Comparable<MRoleName>
+public final class MExpressionParseException
+  extends Exception
 {
   /**
-   * The name of a role.
+   * Parsing failed.
    *
-   * @param value The name
+   * @param cause The cause
    */
 
-  public MRoleName
+  public MExpressionParseException(
+    final Throwable cause)
   {
-    Objects.requireNonNull(value, "value");
+    super(cause);
   }
 
-  @Override
-  public int compareTo(
-    final MRoleName other)
+  /**
+   * Parsing failed.
+   */
+
+  public MExpressionParseException()
   {
-    return Comparator.comparing(MRoleName::value)
-      .compare(this, other);
+
   }
 }

@@ -18,10 +18,12 @@ package com.io7m.medrina.tests;
 
 import com.io7m.medrina.api.MPolicy;
 import com.io7m.medrina.api.MRule;
+import com.io7m.medrina.api.MRuleName;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public final class MPolicies
 {
@@ -44,9 +46,17 @@ public final class MPolicies
     final Integer count,
     final Arbitrary<MRule> rules)
   {
-    final var output = new ArrayList<MRule>(count.intValue());
+    final var output =
+      new ArrayList<MRule>(count.intValue());
+    final var ruleMap =
+      new HashMap<MRuleName, MRule>();
+
     for (int index = 0; index < count.intValue(); ++index) {
-      output.add(rules.sample());
+      final var rule = rules.sample();
+      if (!ruleMap.containsKey(rule.name())) {
+        output.add(rule);
+      }
+      ruleMap.put(rule.name(), rule);
     }
     return new MPolicy(output);
   }

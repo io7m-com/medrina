@@ -9,7 +9,7 @@
   <parent>
     <groupId>com.io7m.medrina</groupId>
     <artifactId>com.io7m.medrina</artifactId>
-    <version>1.0.0-beta0001</version>
+    <version>1.0.0-beta0002</version>
   </parent>
   <artifactId>com.io7m.medrina.documentation</artifactId>
 
@@ -24,6 +24,11 @@
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>com.io7m.lanark</groupId>
+      <artifactId>com.io7m.lanark.core</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.annotation.bundle</artifactId>
@@ -45,6 +50,26 @@
     </resources>
 
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unpack-lanark</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <configuration>
+              <includes>**/*.v</includes>
+              <includeGroupIds>com.io7m.lanark</includeGroupIds>
+              <includeArtifactIds>com.io7m.lanark.core</includeArtifactIds>
+              <outputDirectory>${project.build.directory}/Lanark</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
       <!-- Copy documentation resources into build directory -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

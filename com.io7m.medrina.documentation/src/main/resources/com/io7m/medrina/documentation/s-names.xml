@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <Section title="Names"
-         xmlns:xi="http://www.w3.org/2001/XInclude"
          id="db2f7a0b-4896-45d1-8e30-0bc3e66fc664"
          xmlns="urn:com.io7m.structural:8:0">
 
@@ -10,28 +9,17 @@
   </Paragraph>
 
   <Paragraph>
-    A <Term type="term">name</Term> is a string consisting of between <Term type="constant">1</Term>
-    and <Term type="constant">256</Term> characters from the following set:
+    A <Term type="term">name</Term> is a dotted name taken from the
+    <LinkExternal target="https://www.io7m.com/software/lanark">Lanark</LinkExternal> specification.
   </Paragraph>
-
-  <FormalItem title="Acceptable Characters">
-    <Verbatim><xi:include href="0.txt" parse="text"/></Verbatim>
-  </FormalItem>
 
   <Paragraph>
-    A <Term type="term">name</Term> is therefore valid according to the following proposition:
+    Details can be found in the specification, but informally, names adhere to the following
+    regular expression:
   </Paragraph>
 
-  <FormalItem title="Valid Names">
-    <Verbatim><xi:include href="1.txt" parse="text"/></Verbatim>
-  </FormalItem>
-
-  <Paragraph>
-    Whether or not a name is <Term type="term">name</Term> valid is decidable:
-  </Paragraph>
-
-  <FormalItem title="Valid Names (Decidable)">
-    <Verbatim><xi:include href="2.txt" parse="text"/></Verbatim>
+  <FormalItem title="Regex">
+    <Verbatim><![CDATA[([a-z][a-z0-9_-]{0,63})(\.[a-z][a-z0-9_-]{0,62}){0,15}]]></Verbatim>
   </FormalItem>
 
 </Section>

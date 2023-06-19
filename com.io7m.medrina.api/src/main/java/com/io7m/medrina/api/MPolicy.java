@@ -16,6 +16,7 @@
 
 package com.io7m.medrina.api;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,5 +37,15 @@ public record MPolicy(List<MRule> rules)
   public MPolicy
   {
     Objects.requireNonNull(rules, "rules");
+
+    final var names = new HashSet<MRuleName>(rules.size());
+    for (final var rule : rules) {
+      if (names.contains(rule.name())) {
+        throw new IllegalArgumentException(
+          "Duplicate rule name: %s".formatted(rule.name().value().value())
+        );
+      }
+      names.add(rule.name());
+    }
   }
 }

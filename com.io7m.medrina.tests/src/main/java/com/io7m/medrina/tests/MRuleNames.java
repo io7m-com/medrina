@@ -14,38 +14,46 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.medrina.api;
+package com.io7m.medrina.tests;
 
 import com.io7m.lanark.core.RDottedName;
+import com.io7m.medrina.api.MRuleName;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Arbitrary;
+import net.jqwik.api.providers.ArbitraryProvider;
+import net.jqwik.api.providers.TypeUsage;
 
-import java.util.Comparator;
-import java.util.Objects;
+import java.util.Set;
 
 /**
- * The name of a role.
- *
- * @param value The name
+ * Arbitrary rule names.
  */
 
-public record MRoleName(RDottedName value)
-  implements Comparable<MRoleName>
+public final class MRuleNames implements ArbitraryProvider
 {
   /**
-   * The name of a role.
-   *
-   * @param value The name
+   * Arbitrary rule names.
    */
 
-  public MRoleName
+  public MRuleNames()
   {
-    Objects.requireNonNull(value, "value");
+
   }
 
   @Override
-  public int compareTo(
-    final MRoleName other)
+  public boolean canProvideFor(
+    final TypeUsage targetType)
   {
-    return Comparator.comparing(MRoleName::value)
-      .compare(this, other);
+    return targetType.isOfType(MRuleName.class);
+  }
+
+  @Override
+  public Set<Arbitrary<?>> provideFor(
+    final TypeUsage targetType,
+    final SubtypeProvider subtypeProvider)
+  {
+    return Set.of(
+      Arbitraries.defaultFor(RDottedName.class).map(MRuleName::new)
+    );
   }
 }

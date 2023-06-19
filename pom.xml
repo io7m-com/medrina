@@ -9,12 +9,12 @@
   <parent>
     <groupId>com.io7m.primogenitor</groupId>
     <artifactId>com.io7m.primogenitor.full</artifactId>
-    <version>7.5.0</version>
+    <version>7.7.0</version>
   </parent>
 
   <groupId>com.io7m.medrina</groupId>
   <artifactId>com.io7m.medrina</artifactId>
-  <version>1.0.0-beta0001</version>
+  <version>1.0.0-beta0002</version>
 
   <packaging>pom</packaging>
   <name>com.io7m.medrina</name>
@@ -32,10 +32,11 @@
 
   <properties>
     <com.io7m.anethum.api.version>1.0.0</com.io7m.anethum.api.version>
-    <com.io7m.jsx.version>3.0.1</com.io7m.jsx.version>
+    <com.io7m.jsx.version>3.1.0</com.io7m.jsx.version>
     <com.io7m.jxtrand.version>1.1.0</com.io7m.jxtrand.version>
+    <com.io7m.lanark.version>1.1.0</com.io7m.lanark.version>
     <com.io7m.xstructural.version>1.8.0</com.io7m.xstructural.version>
-    <io7m.api.previousVersion>1.0.0-beta0001</io7m.api.previousVersion>
+    <io7m.api.previousVersion>1.0.0-beta0002</io7m.api.previousVersion>
     <jqwik.version>1.7.3</jqwik.version>
     <junit.version>5.9.3</junit.version>
   </properties>
@@ -177,6 +178,16 @@
         <artifactId>com.io7m.junreachable.core</artifactId>
         <version>4.0.0</version>
       </dependency>
+      <dependency>
+        <groupId>com.io7m.lanark</groupId>
+        <artifactId>com.io7m.lanark.core</artifactId>
+        <version>${com.io7m.lanark.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.lanark</groupId>
+        <artifactId>com.io7m.lanark.arbitraries</artifactId>
+        <version>${com.io7m.lanark.version}</version>
+      </dependency>
 
       <!-- Build metadata -->
       <dependency>
@@ -227,6 +238,18 @@
   </dependencyManagement>
 
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-checkstyle-plugin</artifactId>
+          <configuration>
+            <suppressionsLocation>checkstyle-filter.xml</suppressionsLocation>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
     <plugins>
       <plugin>
         <groupId>com.io7m.stmp</groupId>

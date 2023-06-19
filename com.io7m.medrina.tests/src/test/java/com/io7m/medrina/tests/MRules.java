@@ -21,6 +21,8 @@ import com.io7m.medrina.api.MMatchObjectType;
 import com.io7m.medrina.api.MMatchSubjectType;
 import com.io7m.medrina.api.MRule;
 import com.io7m.medrina.api.MRuleConclusion;
+import com.io7m.medrina.api.MRuleName;
+import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
 import net.jqwik.api.Combinators;
 
@@ -33,6 +35,10 @@ public final class MRules
 
   public static Arbitrary<MRule> rules()
   {
+    final var names =
+      Arbitraries.defaultFor(MRuleName.class);
+    final var descriptions =
+      Arbitraries.strings();
     final var actions =
       MMatchActions.arbitrary();
     final var subjects =
@@ -42,16 +48,24 @@ public final class MRules
     final var conclusions =
       MRuleConclusions.conclusions();
 
-    return Combinators.combine(conclusions, actions, subjects, objects)
+    return Combinators.combine(
+        names,
+        descriptions,
+        conclusions,
+        actions,
+        subjects,
+        objects)
       .as(MRules::make);
   }
 
   private static MRule make(
+    final MRuleName name,
+    final String description,
     final MRuleConclusion conclusion,
     final MMatchActionType action,
     final MMatchSubjectType subject,
     final MMatchObjectType object)
   {
-    return new MRule(conclusion, subject, object, action);
+    return new MRule(name, description, conclusion, subject, object, action);
   }
 }

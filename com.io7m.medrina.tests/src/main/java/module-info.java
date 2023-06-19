@@ -33,6 +33,8 @@ open module com.io7m.medrina.tests
   requires com.io7m.jsx.prettyprint;
   requires com.io7m.junreachable.core;
   requires com.io7m.jxtrand.vanilla;
+  requires com.io7m.lanark.arbitraries;
+  requires com.io7m.lanark.core;
   requires net.jqwik.api;
   requires org.apiguardian.api;
   requires org.slf4j;
@@ -42,6 +44,7 @@ open module com.io7m.medrina.tests
       com.io7m.medrina.tests.MAttributeNames,
       com.io7m.medrina.tests.MAttributeValues,
       com.io7m.medrina.tests.MObjects,
+      com.io7m.medrina.tests.MRuleNames,
       com.io7m.medrina.tests.MRoleNames,
       com.io7m.medrina.tests.MTypeNames,
       com.io7m.medrina.tests.MSubjects;

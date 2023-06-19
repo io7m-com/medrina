@@ -9,7 +9,7 @@
   <parent>
     <artifactId>com.io7m.medrina</artifactId>
     <groupId>com.io7m.medrina</groupId>
-    <version>1.0.0-beta0001</version>
+    <version>1.0.0-beta0002</version>
   </parent>
   <artifactId>com.io7m.medrina.api</artifactId>
 
@@ -22,6 +22,10 @@
     <dependency>
       <groupId>com.io7m.jcip</groupId>
       <artifactId>com.io7m.jcip.annotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.lanark</groupId>
+      <artifactId>com.io7m.lanark.core</artifactId>
     </dependency>
 
     <dependency>

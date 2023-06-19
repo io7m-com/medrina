@@ -100,14 +100,14 @@
 
   <Subsection title="Matching Actions" id="0de6c2f0-6dcd-4256-9fde-88278374da0c">
     <Paragraph>
-      The expression used to match a action is described by the following
+      The expression used to match an action is described by the following
       inductive type:
     </Paragraph>
     <FormalItem title="exprMatchAction">
       <Verbatim><xi:include href="700.txt" parse="text"/></Verbatim>
     </FormalItem>
     <Paragraph>
-      The expression, when evaluated, matches a action when any of the following
+      The expression, when evaluated, matches an action when any of the following
       conditions hold:
     </Paragraph>
     <FormalItem title="exprMatchActionEvalR">
@@ -140,7 +140,7 @@
       </ListUnordered>
     </FormalItem>
     <Paragraph>
-      Given a action <Term type="expression">a</Term> and expression
+      Given an action <Term type="expression">a</Term> and expression
       <Term type="expression">e</Term>, the following evaluation function
       returns <Term type="expression">true</Term> if <Term type="expression">e</Term>
       matches <Term type="expression">a</Term>:

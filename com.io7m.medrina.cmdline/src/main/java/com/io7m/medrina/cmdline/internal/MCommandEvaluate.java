@@ -18,6 +18,7 @@ package com.io7m.medrina.cmdline.internal;
 
 import com.io7m.anethum.api.ParseStatus;
 import com.io7m.anethum.api.ParsingException;
+import com.io7m.lanark.core.RDottedName;
 import com.io7m.medrina.api.MActionName;
 import com.io7m.medrina.api.MObject;
 import com.io7m.medrina.api.MPolicy;
@@ -194,19 +195,20 @@ public final class MCommandEvaluate implements QCommandType
     final var subject =
       new MSubject(
         rolesS.stream()
+          .map(RDottedName::new)
           .map(MRoleName::new)
           .collect(Collectors.toUnmodifiableSet())
       );
 
     final var object =
       new MObject(
-        new MTypeName(objectTypeS),
+        new MTypeName(new RDottedName(objectTypeS)),
         objectAttributes.stream()
           .collect(Collectors.toMap(MAttribute::name, MAttribute::value))
       );
 
     final var action =
-      new MActionName(actionS);
+      new MActionName(new RDottedName(actionS));
 
     final var evaluator =
       MPolicyEvaluator.create();

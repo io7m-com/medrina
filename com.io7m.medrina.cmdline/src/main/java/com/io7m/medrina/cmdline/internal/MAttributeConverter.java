@@ -17,6 +17,7 @@
 
 package com.io7m.medrina.cmdline.internal;
 
+import com.io7m.lanark.core.RDottedName;
 import com.io7m.medrina.api.MAttributeName;
 import com.io7m.medrina.api.MAttributeValue;
 import com.io7m.quarrel.core.QValueConverterType;
@@ -46,8 +47,8 @@ public final class MAttributeConverter
     final var segments = List.of(text.split(":"));
     if (segments.size() == 2) {
       return new MAttribute(
-        new MAttributeName(segments.get(0)),
-        new MAttributeValue(segments.get(1))
+        new MAttributeName(new RDottedName(segments.get(0))),
+        new MAttributeValue(new RDottedName(segments.get(1)))
       );
     }
 
@@ -68,8 +69,8 @@ public final class MAttributeConverter
   public MAttribute exampleValue()
   {
     return new MAttribute(
-      new MAttributeName("animal"),
-      new MAttributeValue("lizard")
+      new MAttributeName(new RDottedName("animal")),
+      new MAttributeValue(new RDottedName("lizard"))
     );
   }
 

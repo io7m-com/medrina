@@ -25,6 +25,7 @@ import com.io7m.jsx.api.parser.JSXParserConfiguration;
 import com.io7m.jsx.lexer.JSXLexer;
 import com.io7m.jsx.parser.JSXParser;
 import com.io7m.jsx.prettyprint.JSXPrettyPrinterCodeStyle;
+import com.io7m.lanark.core.RDottedName;
 import com.io7m.medrina.api.MActionName;
 import com.io7m.medrina.api.MMatchActionType;
 import com.io7m.medrina.api.MMatchActionType.MMatchActionAnd;
@@ -43,6 +44,7 @@ import com.io7m.medrina.api.MPolicy;
 import com.io7m.medrina.api.MRoleName;
 import com.io7m.medrina.api.MRule;
 import com.io7m.medrina.api.MRuleConclusion;
+import com.io7m.medrina.api.MRuleName;
 import com.io7m.medrina.api.MTypeName;
 import com.io7m.medrina.vanilla.internal.MExpressionParser;
 import com.io7m.medrina.vanilla.internal.MExpressionSerializer;
@@ -81,6 +83,24 @@ public final class MExpressionParserTest
 
   private ArrayList<ParseStatus> errors;
 
+  private static MRoleName role(
+    final String x)
+  {
+    return new MRoleName(new RDottedName(x));
+  }
+
+  private static MTypeName type(
+    final String x)
+  {
+    return new MTypeName(new RDottedName(x));
+  }
+
+  private static MActionName action(
+    final String x)
+  {
+    return new MActionName(new RDottedName(x));
+  }
+
   @BeforeEach
   @BeforeProperty
   public void setup()
@@ -95,7 +115,7 @@ public final class MExpressionParserTest
     final var lexerConfig =
       new JSXLexerConfiguration(
         true,
-        false,
+        true,
         Optional.empty(),
         EnumSet.of(JSXLexerComment.COMMENT_HASH),
         1
@@ -122,7 +142,7 @@ public final class MExpressionParserTest
         .parseMatchSubject(this.parse("(what x y z)"));
     });
 
-    assertEquals(1, this.errors.size());
+    this.assertErrors(1);
   }
 
   @Test
@@ -134,7 +154,7 @@ public final class MExpressionParserTest
         .parseMatchSubject(this.parse("()"));
     });
 
-    assertEquals(1, this.errors.size());
+    this.assertErrors(1);
   }
 
   @Test
@@ -146,7 +166,7 @@ public final class MExpressionParserTest
         .parseMatchSubject(this.parse("x"));
     });
 
-    assertEquals(1, this.errors.size());
+    this.assertErrors(1);
   }
 
   @Test
@@ -158,7 +178,7 @@ public final class MExpressionParserTest
         .parseMatchSubject(this.parse("[what x y z]"));
     });
 
-    assertEquals(1, this.errors.size());
+    this.assertErrors(1);
   }
 
   @Test
@@ -167,10 +187,10 @@ public final class MExpressionParserTest
   {
     assertThrows(Exception.class, () -> {
       this.createParser()
-        .parseMatchSubject(this.parse("(subject x)"));
+        .parseMatchSubject(this.parse("(MatchSubject x)"));
     });
 
-    assertEquals(1, this.errors.size());
+    this.assertErrors(1);
   }
 
   @Test
@@ -179,10 +199,10 @@ public final class MExpressionParserTest
   {
     assertThrows(Exception.class, () -> {
       this.createParser()
-        .parseMatchSubject(this.parse("(subject \"x\")"));
+        .parseMatchSubject(this.parse("(MatchSubject \"x\")"));
     });
 
-    assertEquals(1, this.errors.size());
+    this.assertErrors(1);
   }
 
   @Test
@@ -191,10 +211,10 @@ public final class MExpressionParserTest
   {
     assertThrows(Exception.class, () -> {
       this.createParser()
-        .parseMatchSubject(this.parse("(subject [x])"));
+        .parseMatchSubject(this.parse("(MatchSubject [x])"));
     });
 
-    assertEquals(1, this.errors.size());
+    this.assertErrors(1);
   }
 
   @Test
@@ -203,10 +223,10 @@ public final class MExpressionParserTest
   {
     assertThrows(Exception.class, () -> {
       this.createParser()
-        .parseMatchSubject(this.parse("(subject (with-all-roles X Y Z))"));
+        .parseMatchSubject(this.parse("(MatchSubject (WithAllRolesFrom X Y Z))"));
     });
 
-    assertEquals(4, this.errors.size());
+    this.assertErrors(4);
   }
 
   @Test
@@ -215,10 +235,10 @@ public final class MExpressionParserTest
   {
     assertThrows(Exception.class, () -> {
       this.createParser()
-        .parseMatchSubject(this.parse("(subject (with-all-roles () \"x\"))"));
+        .parseMatchSubject(this.parse("(MatchSubject (WithAllRolesFrom () \"x\"))"));
     });
 
-    assertEquals(3, this.errors.size());
+    this.assertErrors(3);
   }
 
   @Test
@@ -227,13 +247,13 @@ public final class MExpressionParserTest
   {
     final var r =
       (MMatchSubjectWithRolesAll) this.createParser()
-        .parseMatchSubject(this.parse("(subject (with-all-roles x y z))"));
+        .parseMatchSubject(this.parse("(MatchSubject (WithAllRolesFrom x y z))"));
 
     assertEquals(
       Set.of(
-        new MRoleName("x"),
-        new MRoleName("y"),
-        new MRoleName("z")),
+        role("x"),
+        role("y"),
+        role("z")),
       r.requiredRoles()
     );
   }
@@ -244,7 +264,7 @@ public final class MExpressionParserTest
   {
     final var r =
       (MMatchSubjectWithRolesAll) this.createParser()
-        .parseMatchSubject(this.parse("(subject (with-all-roles))"));
+        .parseMatchSubject(this.parse("(MatchSubject (WithAllRolesFrom))"));
 
     assertEquals(
       Set.of(),
@@ -258,10 +278,10 @@ public final class MExpressionParserTest
   {
     assertThrows(Exception.class, () -> {
       this.createParser()
-        .parseMatchSubject(this.parse("(subject (with-any-roles X Y Z))"));
+        .parseMatchSubject(this.parse("(MatchSubject (WithAnyRolesFrom X Y Z))"));
     });
 
-    assertEquals(4, this.errors.size());
+    this.assertErrors(4);
   }
 
   @Test
@@ -270,10 +290,10 @@ public final class MExpressionParserTest
   {
     assertThrows(Exception.class, () -> {
       this.createParser()
-        .parseMatchSubject(this.parse("(subject (with-any-roles () \"x\"))"));
+        .parseMatchSubject(this.parse("(MatchSubject (WithAnyRolesFrom () \"x\"))"));
     });
 
-    assertEquals(3, this.errors.size());
+    this.assertErrors(3);
   }
 
   @Test
@@ -282,13 +302,13 @@ public final class MExpressionParserTest
   {
     final var r =
       (MMatchSubjectWithRolesAny) this.createParser()
-        .parseMatchSubject(this.parse("(subject (with-any-roles x y z))"));
+        .parseMatchSubject(this.parse("(MatchSubject (WithAnyRolesFrom x y z))"));
 
     assertEquals(
       Set.of(
-        new MRoleName("x"),
-        new MRoleName("y"),
-        new MRoleName("z")),
+        role("x"),
+        role("y"),
+        role("z")),
       r.requiredRoles()
     );
   }
@@ -299,7 +319,7 @@ public final class MExpressionParserTest
   {
     final var r =
       (MMatchSubjectWithRolesAny) this.createParser()
-        .parseMatchSubject(this.parse("(subject (with-any-roles))"));
+        .parseMatchSubject(this.parse("(MatchSubject (WithAnyRolesFrom))"));
 
     assertEquals(
       Set.of(),
@@ -314,7 +334,7 @@ public final class MExpressionParserTest
     final var r =
       (MMatchSubjectAnd) this.createParser()
         .parseMatchSubject(this.parse(
-          "(subject (and (with-any-roles x y z) (with-all-roles a b c)))"));
+          "(MatchSubject (And (WithAnyRolesFrom x y z) (WithAllRolesFrom a b c)))"));
 
     final var any =
       (MMatchSubjectWithRolesAny) r.subExpressions().get(0);
@@ -323,17 +343,17 @@ public final class MExpressionParserTest
 
     assertEquals(
       Set.of(
-        new MRoleName("x"),
-        new MRoleName("y"),
-        new MRoleName("z")),
+        role("x"),
+        role("y"),
+        role("z")),
       any.requiredRoles()
     );
 
     assertEquals(
       Set.of(
-        new MRoleName("a"),
-        new MRoleName("b"),
-        new MRoleName("c")),
+        role("a"),
+        role("b"),
+        role("c")),
       all.requiredRoles()
     );
   }
@@ -345,10 +365,10 @@ public final class MExpressionParserTest
     assertThrows(Exception.class, () -> {
       this.createParser()
         .parseMatchSubject(this.parse(
-          "(subject (and (with-all-roles X) (with-any-roles Y)))"));
+          "(MatchSubject (And (WithAllRolesFrom X) (WithAnyRolesFrom Y)))"));
     });
 
-    assertEquals(5, this.errors.size());
+    this.assertErrors(5);
   }
 
   @Test
@@ -358,7 +378,7 @@ public final class MExpressionParserTest
     final var r =
       (MMatchSubjectOr) this.createParser()
         .parseMatchSubject(this.parse(
-          "(subject (or (with-any-roles x y z) (with-all-roles a b c)))"));
+          "(MatchSubject (Or (WithAnyRolesFrom x y z) (WithAllRolesFrom a b c)))"));
 
     final var any =
       (MMatchSubjectWithRolesAny) r.subExpressions().get(0);
@@ -367,17 +387,17 @@ public final class MExpressionParserTest
 
     assertEquals(
       Set.of(
-        new MRoleName("x"),
-        new MRoleName("y"),
-        new MRoleName("z")),
+        role("x"),
+        role("y"),
+        role("z")),
       any.requiredRoles()
     );
 
     assertEquals(
       Set.of(
-        new MRoleName("a"),
-        new MRoleName("b"),
-        new MRoleName("c")),
+        role("a"),
+        role("b"),
+        role("c")),
       all.requiredRoles()
     );
   }
@@ -389,10 +409,10 @@ public final class MExpressionParserTest
     assertThrows(Exception.class, () -> {
       this.createParser()
         .parseMatchSubject(this.parse(
-          "(subject (or (with-all-roles X) (with-any-roles Y)))"));
+          "(MatchSubject (Or (WithAllRolesFrom X) (WithAnyRolesFrom Y)))"));
     });
 
-    assertEquals(5, this.errors.size());
+    this.assertErrors(5);
   }
 
   @Test
@@ -404,7 +424,7 @@ public final class MExpressionParserTest
         .parseMatchObject(this.parse("(what x y z)"));
     });
 
-    assertEquals(1, this.errors.size());
+    this.assertErrors(1);
   }
 
   @Test
@@ -416,7 +436,7 @@ public final class MExpressionParserTest
         .parseMatchObject(this.parse("()"));
     });
 
-    assertEquals(1, this.errors.size());
+    this.assertErrors(1);
   }
 
   @Test
@@ -428,7 +448,7 @@ public final class MExpressionParserTest
         .parseMatchObject(this.parse("x"));
     });
 
-    assertEquals(1, this.errors.size());
+    this.assertErrors(1);
   }
 
   @Test
@@ -440,7 +460,7 @@ public final class MExpressionParserTest
         .parseMatchObject(this.parse("[what x y z]"));
     });
 
-    assertEquals(1, this.errors.size());
+    this.assertErrors(1);
   }
 
   @Test
@@ -449,10 +469,10 @@ public final class MExpressionParserTest
   {
     assertThrows(Exception.class, () -> {
       this.createParser()
-        .parseMatchObject(this.parse("(object (with-q X))"));
+        .parseMatchObject(this.parse("(MatchObject (with-q X))"));
     });
 
-    assertEquals(1, this.errors.size());
+    this.assertErrors(1);
   }
 
   @Test
@@ -461,10 +481,10 @@ public final class MExpressionParserTest
   {
     assertThrows(Exception.class, () -> {
       this.createParser()
-        .parseMatchObject(this.parse("(object \"q\")"));
+        .parseMatchObject(this.parse("(MatchObject \"q\")"));
     });
 
-    assertEquals(1, this.errors.size());
+    this.assertErrors(1);
   }
 
   @Test
@@ -473,10 +493,10 @@ public final class MExpressionParserTest
   {
     assertThrows(Exception.class, () -> {
       this.createParser()
-        .parseMatchObject(this.parse("(object q)"));
+        .parseMatchObject(this.parse("(MatchObject q)"));
     });
 
-    assertEquals(1, this.errors.size());
+    this.assertErrors(1);
   }
 
   @Test
@@ -485,10 +505,10 @@ public final class MExpressionParserTest
   {
     assertThrows(Exception.class, () -> {
       this.createParser()
-        .parseMatchObject(this.parse("(object (with-type X))"));
+        .parseMatchObject(this.parse("(MatchObject (WithType X))"));
     });
 
-    assertEquals(3, this.errors.size());
+    this.assertErrors(3);
   }
 
   @Test
@@ -497,10 +517,10 @@ public final class MExpressionParserTest
   {
     assertThrows(Exception.class, () -> {
       this.createParser()
-        .parseMatchObject(this.parse("(object (with-type ()))"));
+        .parseMatchObject(this.parse("(MatchObject (WithType ()))"));
     });
 
-    assertEquals(3, this.errors.size());
+    this.assertErrors(3);
   }
 
   @Test
@@ -509,10 +529,10 @@ public final class MExpressionParserTest
   {
     final var r =
       (MMatchObjectWithType) this.createParser()
-        .parseMatchObject(this.parse("(object (with-type x))"));
+        .parseMatchObject(this.parse("(MatchObject (WithType x))"));
 
     assertEquals(
-      new MTypeName("x"),
+      type("x"),
       r.type()
     );
   }
@@ -523,10 +543,10 @@ public final class MExpressionParserTest
   {
     assertThrows(Exception.class, () -> {
       this.createParser()
-        .parseMatchObject(this.parse("(object (with-all-attributes X))"));
+        .parseMatchObject(this.parse("(MatchObject (WithAllAttributesFrom X))"));
     });
 
-    assertEquals(3, this.errors.size());
+    this.assertErrors(3);
   }
 
   @Test
@@ -536,10 +556,10 @@ public final class MExpressionParserTest
     assertThrows(Exception.class, () -> {
       this.createParser()
         .parseMatchObject(this.parse(
-          "(object (with-all-attributes [attribute x]))"));
+          "(MatchObject (WithAllAttributesFrom [Attribute x]))"));
     });
 
-    assertEquals(3, this.errors.size());
+    this.assertErrors(3);
   }
 
   @Test
@@ -549,10 +569,10 @@ public final class MExpressionParserTest
     assertThrows(Exception.class, () -> {
       this.createParser()
         .parseMatchObject(this.parse(
-          "(object (with-all-attributes [attribute X Y]))"));
+          "(MatchObject (WithAllAttributesFrom [Attribute X Y]))"));
     });
 
-    assertEquals(3, this.errors.size());
+    this.assertErrors(3);
   }
 
   @Test
@@ -562,10 +582,10 @@ public final class MExpressionParserTest
     assertThrows(Exception.class, () -> {
       this.createParser()
         .parseMatchObject(this.parse(
-          "(object (with-all-attributes [attribute \"A\" \"B\"]))"));
+          "(MatchObject (WithAllAttributesFrom [Attribute \"A\" \"B\"]))"));
     });
 
-    assertEquals(3, this.errors.size());
+    this.assertErrors(3);
   }
 
   @Test
@@ -574,10 +594,10 @@ public final class MExpressionParserTest
   {
     assertThrows(Exception.class, () -> {
       this.createParser()
-        .parseMatchObject(this.parse("(object (with-any-attributes X))"));
+        .parseMatchObject(this.parse("(MatchObject (WithAnyAttributesFrom X))"));
     });
 
-    assertEquals(3, this.errors.size());
+    this.assertErrors(3);
   }
 
   @Test
@@ -587,10 +607,10 @@ public final class MExpressionParserTest
     assertThrows(Exception.class, () -> {
       this.createParser()
         .parseMatchObject(this.parse(
-          "(object (with-any-attributes [attribute x]))"));
+          "(MatchObject (WithAnyAttributesFrom [Attribute x]))"));
     });
 
-    assertEquals(3, this.errors.size());
+    this.assertErrors(3);
   }
 
   @Test
@@ -600,10 +620,10 @@ public final class MExpressionParserTest
     assertThrows(Exception.class, () -> {
       this.createParser()
         .parseMatchObject(this.parse(
-          "(object (with-any-attributes [attribute A B]))"));
+          "(MatchObject (WithAnyAttributesFrom [Attribute A B]))"));
     });
 
-    assertEquals(3, this.errors.size());
+    this.assertErrors(3);
   }
 
   @Test
@@ -613,10 +633,10 @@ public final class MExpressionParserTest
     assertThrows(Exception.class, () -> {
       this.createParser()
         .parseMatchObject(this.parse(
-          "(object (with-any-attributes [attribute \"A\" \"B\"]))"));
+          "(MatchObject (WithAnyAttributesFrom [Attribute \"A\" \"B\"]))"));
     });
 
-    assertEquals(3, this.errors.size());
+    this.assertErrors(3);
   }
 
   @Test
@@ -626,7 +646,7 @@ public final class MExpressionParserTest
     final var r =
       (MMatchObjectAnd) this.createParser()
         .parseMatchObject(this.parse(
-          "(object (and (with-type x) (with-type a)))"));
+          "(MatchObject (And (WithType x) (WithType a)))"));
 
     final var x =
       (MMatchObjectWithType) r.subExpressions().get(0);
@@ -634,12 +654,12 @@ public final class MExpressionParserTest
       (MMatchObjectWithType) r.subExpressions().get(1);
 
     assertEquals(
-      new MTypeName("x"),
+      type("x"),
       x.type()
     );
 
     assertEquals(
-      new MTypeName("a"),
+      type("a"),
       a.type()
     );
   }
@@ -651,10 +671,10 @@ public final class MExpressionParserTest
     assertThrows(Exception.class, () -> {
       this.createParser()
         .parseMatchObject(this.parse(
-          "(object (and (with-type X) (with-type Y)))"));
+          "(MatchObject (And (WithType X) (WithType Y)))"));
     });
 
-    assertEquals(7, this.errors.size());
+    this.assertErrors(7);
   }
 
   @Test
@@ -664,7 +684,7 @@ public final class MExpressionParserTest
     final var r =
       (MMatchObjectOr) this.createParser()
         .parseMatchObject(this.parse(
-          "(object (or (with-type x) (with-type a)))"));
+          "(MatchObject (Or (WithType x) (WithType a)))"));
 
     final var x =
       (MMatchObjectWithType) r.subExpressions().get(0);
@@ -672,12 +692,12 @@ public final class MExpressionParserTest
       (MMatchObjectWithType) r.subExpressions().get(1);
 
     assertEquals(
-      new MTypeName("x"),
+      type("x"),
       x.type()
     );
 
     assertEquals(
-      new MTypeName("a"),
+      type("a"),
       a.type()
     );
   }
@@ -689,10 +709,10 @@ public final class MExpressionParserTest
     assertThrows(Exception.class, () -> {
       this.createParser()
         .parseMatchObject(this.parse(
-          "(object (or (with-type X) (with-type Y)))"));
+          "(MatchObject (Or (WithType X) (WithType Y)))"));
     });
 
-    assertEquals(7, this.errors.size());
+    this.assertErrors(7);
   }
 
   @Test
@@ -704,7 +724,7 @@ public final class MExpressionParserTest
         .parseMatchAction(this.parse("(what x y z)"));
     });
 
-    assertEquals(1, this.errors.size());
+    this.assertErrors(1);
   }
 
   @Test
@@ -716,7 +736,7 @@ public final class MExpressionParserTest
         .parseMatchAction(this.parse("()"));
     });
 
-    assertEquals(1, this.errors.size());
+    this.assertErrors(1);
   }
 
   @Test
@@ -728,7 +748,7 @@ public final class MExpressionParserTest
         .parseMatchAction(this.parse("x"));
     });
 
-    assertEquals(1, this.errors.size());
+    this.assertErrors(1);
   }
 
   @Test
@@ -740,7 +760,7 @@ public final class MExpressionParserTest
         .parseMatchAction(this.parse("[what x y z]"));
     });
 
-    assertEquals(1, this.errors.size());
+    this.assertErrors(1);
   }
 
   @Test
@@ -749,10 +769,10 @@ public final class MExpressionParserTest
   {
     assertThrows(Exception.class, () -> {
       this.createParser()
-        .parseMatchAction(this.parse("(action x)"));
+        .parseMatchAction(this.parse("(MatchAction x)"));
     });
 
-    assertEquals(1, this.errors.size());
+    this.assertErrors(1);
   }
 
   @Test
@@ -761,10 +781,10 @@ public final class MExpressionParserTest
   {
     assertThrows(Exception.class, () -> {
       this.createParser()
-        .parseMatchAction(this.parse("(action \"x\")"));
+        .parseMatchAction(this.parse("(MatchAction \"x\")"));
     });
 
-    assertEquals(1, this.errors.size());
+    this.assertErrors(1);
   }
 
   @Test
@@ -773,10 +793,10 @@ public final class MExpressionParserTest
   {
     assertThrows(Exception.class, () -> {
       this.createParser()
-        .parseMatchAction(this.parse("(action [x])"));
+        .parseMatchAction(this.parse("(MatchAction [x])"));
     });
 
-    assertEquals(1, this.errors.size());
+    this.assertErrors(1);
   }
 
   @Test
@@ -785,10 +805,10 @@ public final class MExpressionParserTest
   {
     assertThrows(Exception.class, () -> {
       this.createParser()
-        .parseMatchAction(this.parse("(action (with-name X))"));
+        .parseMatchAction(this.parse("(MatchAction (WithName X))"));
     });
 
-    assertEquals(3, this.errors.size());
+    this.assertErrors(3);
   }
 
   @Test
@@ -797,10 +817,10 @@ public final class MExpressionParserTest
   {
     assertThrows(Exception.class, () -> {
       this.createParser()
-        .parseMatchAction(this.parse("(action (with-name ()))"));
+        .parseMatchAction(this.parse("(MatchAction (WithName ()))"));
     });
 
-    assertEquals(3, this.errors.size());
+    this.assertErrors(3);
   }
 
   @Test
@@ -809,10 +829,10 @@ public final class MExpressionParserTest
   {
     final var r =
       (MMatchActionWithName) this.createParser()
-        .parseMatchAction(this.parse("(action (with-name x))"));
+        .parseMatchAction(this.parse("(MatchAction (WithName x))"));
 
     assertEquals(
-      new MActionName("x"),
+      action("x"),
       r.name()
     );
   }
@@ -824,7 +844,7 @@ public final class MExpressionParserTest
     final var r =
       (MMatchActionAnd) this.createParser()
         .parseMatchAction(this.parse(
-          "(action (and (with-name x) (with-name a)))"));
+          "(MatchAction (And (WithName x) (WithName a)))"));
 
     final var x =
       (MMatchActionWithName) r.subExpressions().get(0);
@@ -832,12 +852,12 @@ public final class MExpressionParserTest
       (MMatchActionWithName) r.subExpressions().get(1);
 
     assertEquals(
-      new MActionName("x"),
+      action("x"),
       x.name()
     );
 
     assertEquals(
-      new MActionName("a"),
+      action("a"),
       a.name()
     );
   }
@@ -849,10 +869,10 @@ public final class MExpressionParserTest
     assertThrows(Exception.class, () -> {
       this.createParser()
         .parseMatchAction(this.parse(
-          "(action (and (with-name X) (with-name Y)))"));
+          "(MatchAction (And (WithName X) (WithName Y)))"));
     });
 
-    assertEquals(7, this.errors.size());
+    this.assertErrors(7);
   }
 
   @Test
@@ -862,7 +882,7 @@ public final class MExpressionParserTest
     final var r =
       (MMatchActionOr) this.createParser()
         .parseMatchAction(this.parse(
-          "(action (or (with-name x) (with-name a)))"));
+          "(MatchAction (Or (WithName x) (WithName a)))"));
 
     final var x =
       (MMatchActionWithName) r.subExpressions().get(0);
@@ -870,12 +890,12 @@ public final class MExpressionParserTest
       (MMatchActionWithName) r.subExpressions().get(1);
 
     assertEquals(
-      new MActionName("x"),
+      action("x"),
       x.name()
     );
 
     assertEquals(
-      new MActionName("a"),
+      action("a"),
       a.name()
     );
   }
@@ -887,10 +907,10 @@ public final class MExpressionParserTest
     assertThrows(Exception.class, () -> {
       this.createParser()
         .parseMatchAction(this.parse(
-          "(action (or (with-name X) (with-name Y)))"));
+          "(MatchAction (Or (WithName X) (WithName Y)))"));
     });
 
-    assertEquals(7, this.errors.size());
+    this.assertErrors(7);
   }
 
   @Test
@@ -900,9 +920,13 @@ public final class MExpressionParserTest
     final var r =
       this.createParser()
         .parseRule(this.parse("""
-                                (allow [subject (with-any-roles x)]
-                                       [object (with-type t)]
-                                       [action (with-name a)])
+                                (Rule
+                                  [Name "rule0"]
+                                  [Description "Rule 0"]
+                                  [Conclusion Allow]
+                                  [MatchSubject (WithAnyRolesFrom x)]
+                                  [MatchObject (WithType t)]
+                                  [MatchAction (WithName a)])
                                     """));
 
     assertEquals(
@@ -910,15 +934,15 @@ public final class MExpressionParserTest
       r.conclusion()
     );
     assertEquals(
-      new MRoleName("x"),
+      role("x"),
       ((MMatchSubjectWithRolesAny) r.matchSubject()).requiredRoles().iterator().next()
     );
     assertEquals(
-      new MTypeName("t"),
+      type("t"),
       ((MMatchObjectWithType) r.matchObject()).type()
     );
     assertEquals(
-      new MActionName("a"),
+      action("a"),
       ((MMatchActionWithName) r.matchAction()).name()
     );
 
@@ -932,9 +956,13 @@ public final class MExpressionParserTest
     final var r =
       this.createParser()
         .parseRule(this.parse("""
-                                (deny [subject (with-any-roles x)]
-                                      [object (with-type t)]
-                                      [action (with-name a)])
+                                (Rule
+                                  [Name rule1]
+                                  [Description "Rule 1"]
+                                  [Conclusion Deny]
+                                  [MatchSubject (WithAnyRolesFrom x)]
+                                  [MatchObject (WithType t)]
+                                  [MatchAction (WithName a)])
                                     """));
 
     assertEquals(
@@ -942,15 +970,15 @@ public final class MExpressionParserTest
       r.conclusion()
     );
     assertEquals(
-      new MRoleName("x"),
+      role("x"),
       ((MMatchSubjectWithRolesAny) r.matchSubject()).requiredRoles().iterator().next()
     );
     assertEquals(
-      new MTypeName("t"),
+      type("t"),
       ((MMatchObjectWithType) r.matchObject()).type()
     );
     assertEquals(
-      new MActionName("a"),
+      action("a"),
       ((MMatchActionWithName) r.matchAction()).name()
     );
 
@@ -964,9 +992,13 @@ public final class MExpressionParserTest
     final var r =
       this.createParser()
         .parseRule(this.parse("""
-                                (allow-immediately [subject (with-any-roles x)]
-                                                   [object (with-type t)]
-                                                   [action (with-name a)])
+                                (Rule
+                                  [Name rule1]
+                                  [Description "Rule 1"]
+                                  [Conclusion AllowImmediately]
+                                  [MatchSubject (WithAnyRolesFrom x)]
+                                  [MatchObject (WithType t)]
+                                  [MatchAction (WithName a)])
                                     """));
 
     assertEquals(
@@ -974,15 +1006,15 @@ public final class MExpressionParserTest
       r.conclusion()
     );
     assertEquals(
-      new MRoleName("x"),
+      role("x"),
       ((MMatchSubjectWithRolesAny) r.matchSubject()).requiredRoles().iterator().next()
     );
     assertEquals(
-      new MTypeName("t"),
+      type("t"),
       ((MMatchObjectWithType) r.matchObject()).type()
     );
     assertEquals(
-      new MActionName("a"),
+      action("a"),
       ((MMatchActionWithName) r.matchAction()).name()
     );
 
@@ -996,9 +1028,13 @@ public final class MExpressionParserTest
     final var r =
       this.createParser()
         .parseRule(this.parse("""
-                                (deny-immediately [subject (with-any-roles x)]
-                                                  [object (with-type t)]
-                                                  [action (with-name a)])
+                                (Rule
+                                  [Name rule1]
+                                  [Description "Rule 1"]
+                                  [Conclusion DenyImmediately]
+                                  [MatchSubject (WithAnyRolesFrom x)]
+                                  [MatchObject (WithType t)]
+                                  [MatchAction (WithName a)])
                                     """));
 
     assertEquals(
@@ -1006,15 +1042,15 @@ public final class MExpressionParserTest
       r.conclusion()
     );
     assertEquals(
-      new MRoleName("x"),
+      role("x"),
       ((MMatchSubjectWithRolesAny) r.matchSubject()).requiredRoles().iterator().next()
     );
     assertEquals(
-      new MTypeName("t"),
+      type("t"),
       ((MMatchObjectWithType) r.matchObject()).type()
     );
     assertEquals(
-      new MActionName("a"),
+      action("a"),
       ((MMatchActionWithName) r.matchAction()).name()
     );
 
@@ -1087,7 +1123,16 @@ public final class MExpressionParserTest
         .parseRule(this.parse("(deny)"));
     });
 
-    assertEquals(1, this.errors.size());
+    this.assertErrors(1);
+  }
+
+  private void assertErrors(
+    final int expected)
+  {
+    for (final var error : this.errors) {
+      LOG.error("{}", error);
+    }
+    assertEquals(expected, this.errors.size());
   }
 
   @Test
@@ -1099,18 +1144,84 @@ public final class MExpressionParserTest
         .parseRule(this.parse("(a x y z)"));
     });
 
-    assertEquals(4, this.errors.size());
+    this.assertErrors(1);
+  }
+
+  @Test
+  public void testRuleError2()
+    throws Exception
+  {
+    assertThrows(Exception.class, () -> {
+      this.createParser()
+        .parseRule(this.parse("""
+[Rule
+  [Name a]
+  [Name b]
+  [Description ""]
+  [Description ""]
+  [Conclusion Allow]
+  [Conclusion Allow]
+  [MatchSubject True]
+  [MatchSubject True]
+  [MatchObject  True]
+  [MatchObject  True]
+  [MatchAction  True]
+  [MatchAction  True]
+]
+                                """));
+    });
+
+    this.assertErrors(6);
+  }
+
+  @Test
+  public void testRuleError3()
+    throws Exception
+  {
+    assertThrows(Exception.class, () -> {
+      this.createParser()
+        .parseRule(this.parse("""
+[Rule
+
+]
+                                """));
+    });
+
+    this.assertErrors(4);
+  }
+
+  @Test
+  public void testRuleError4()
+    throws Exception
+  {
+    assertThrows(Exception.class, () -> {
+      this.createParser()
+        .parseRule(this.parse("""
+[Rule
+  [Name ["x"]]
+  [Description ["y"]]
+  [Conclusion ["z"]]
+  [Conclusion Malformed]
+]
+                                """));
+    });
+
+    this.assertErrors(8);
   }
 
   @Property
   public void testRoundTripArbitrary(
+    @ForAll final MRuleName name,
+    @ForAll final String description,
     @ForAll final MRuleConclusion conclusion,
     @ForAll("actionArbitrary") final MMatchActionType action,
     @ForAll("objectArbitrary") final MMatchObjectType object,
     @ForAll("subjectArbitrary") final MMatchSubjectType subject)
     throws Exception
   {
-    this.roundTrip(new MRule(conclusion, subject, object, action));
+    this.roundTrip(
+      new MRule(name, description, conclusion, subject, object, action)
+    );
   }
 
   @Provide

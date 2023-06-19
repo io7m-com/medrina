@@ -16,6 +16,7 @@
 
 package com.io7m.medrina.tests;
 
+import com.io7m.lanark.core.RDottedName;
 import com.io7m.medrina.api.MMatchSubjectType;
 import com.io7m.medrina.api.MMatchSubjectType.MMatchSubjectAnd;
 import com.io7m.medrina.api.MMatchSubjectType.MMatchSubjectOr;
@@ -40,6 +41,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public final class MMatchSubjectTest
 {
+  private static MRoleName role(
+    final String x)
+  {
+    return new MRoleName(new RDottedName(x));
+  }
+  
   @Test
   public void testAllRequiredEmptyReceivedEmpty()
   {
@@ -54,7 +61,7 @@ public final class MMatchSubjectTest
   {
     assertTrue(
       new MMatchSubjectWithRolesAll(Set.of())
-        .matches(new MSubject(Set.of(new MRoleName("x"))))
+        .matches(new MSubject(Set.of(role("x"))))
     );
   }
 
@@ -62,7 +69,7 @@ public final class MMatchSubjectTest
   public void testAllRequiredNonEmptyReceivedEmpty()
   {
     assertFalse(
-      new MMatchSubjectWithRolesAll(Set.of(new MRoleName("x")))
+      new MMatchSubjectWithRolesAll(Set.of(role("x")))
         .matches(new MSubject(Set.of()))
     );
   }
@@ -71,8 +78,8 @@ public final class MMatchSubjectTest
   public void testAllRequiredNonEmptyReceivedDifferent()
   {
     assertFalse(
-      new MMatchSubjectWithRolesAll(Set.of(new MRoleName("x")))
-        .matches(new MSubject(Set.of(new MRoleName("y"))))
+      new MMatchSubjectWithRolesAll(Set.of(role("x")))
+        .matches(new MSubject(Set.of(role("y"))))
     );
   }
 
@@ -80,8 +87,8 @@ public final class MMatchSubjectTest
   public void testAllRequiredNonEmptyReceivedSame()
   {
     assertTrue(
-      new MMatchSubjectWithRolesAll(Set.of(new MRoleName("x")))
-        .matches(new MSubject(Set.of(new MRoleName("x"))))
+      new MMatchSubjectWithRolesAll(Set.of(role("x")))
+        .matches(new MSubject(Set.of(role("x"))))
     );
   }
 
@@ -99,7 +106,7 @@ public final class MMatchSubjectTest
   {
     assertFalse(
       new MMatchSubjectWithRolesAny(Set.of())
-        .matches(new MSubject(Set.of(new MRoleName("x"))))
+        .matches(new MSubject(Set.of(role("x"))))
     );
   }
 
@@ -107,8 +114,8 @@ public final class MMatchSubjectTest
   public void testAnyRequiredNonEmptyReceivedSame()
   {
     assertTrue(
-      new MMatchSubjectWithRolesAny(Set.of(new MRoleName("x")))
-        .matches(new MSubject(Set.of(new MRoleName("x"))))
+      new MMatchSubjectWithRolesAny(Set.of(role("x")))
+        .matches(new MSubject(Set.of(role("x"))))
     );
   }
 
@@ -116,8 +123,8 @@ public final class MMatchSubjectTest
   public void testAnyRequiredNonEmptyReceivedDifferent()
   {
     assertFalse(
-      new MMatchSubjectWithRolesAny(Set.of(new MRoleName("x")))
-        .matches(new MSubject(Set.of(new MRoleName("y"))))
+      new MMatchSubjectWithRolesAny(Set.of(role("x")))
+        .matches(new MSubject(Set.of(role("y"))))
     );
   }
 
@@ -125,11 +132,11 @@ public final class MMatchSubjectTest
   public void testAnyRequiredNonEmptyReceivedSuperset()
   {
     assertTrue(
-      new MMatchSubjectWithRolesAny(Set.of(new MRoleName("x")))
+      new MMatchSubjectWithRolesAny(Set.of(role("x")))
         .matches(new MSubject(Set.of(
-          new MRoleName("a"),
-          new MRoleName("b"),
-          new MRoleName("x"))))
+          role("a"),
+          role("b"),
+          role("x"))))
     );
   }
 

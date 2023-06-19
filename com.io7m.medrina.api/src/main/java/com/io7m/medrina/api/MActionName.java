@@ -16,9 +16,10 @@
 
 package com.io7m.medrina.api;
 
+import com.io7m.lanark.core.RDottedName;
+
 import java.util.Comparator;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 /**
  * The name of an action.
@@ -26,16 +27,9 @@ import java.util.regex.Pattern;
  * @param value The name
  */
 
-public record MActionName(String value)
+public record MActionName(RDottedName value)
   implements Comparable<MActionName>
 {
-  /**
-   * The pattern that defines a valid action name.
-   */
-
-  public static final Pattern VALID_PATTERN =
-    Pattern.compile("[a-z_0-9-\\.]{1,256}");
-
   /**
    * The name of an action.
    *
@@ -45,22 +39,13 @@ public record MActionName(String value)
   public MActionName
   {
     Objects.requireNonNull(value, "value");
-
-    final var matcher = VALID_PATTERN.matcher(value);
-    if (!matcher.matches()) {
-      throw new IllegalArgumentException(
-        String.format(
-          "Action name '%s' must match %s",
-          value,
-          VALID_PATTERN
-        ));
-    }
   }
 
   @Override
   public int compareTo(
     final MActionName other)
   {
-    return Comparator.comparing(MActionName::value).compare(this, other);
+    return Comparator.comparing(MActionName::value)
+      .compare(this, other);
   }
 }

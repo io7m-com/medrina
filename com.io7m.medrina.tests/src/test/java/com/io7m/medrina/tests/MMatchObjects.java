@@ -42,33 +42,11 @@ public final class MMatchObjects
 
   }
 
-  public static Arbitrary<MAttributeValue> attributeValues()
-  {
-    return Arbitraries.strings()
-      .withCharRange('a', 'z')
-      .withCharRange('0', '9')
-      .withChars('.', '_', '-')
-      .ofMinLength(1)
-      .ofMaxLength(256)
-      .map(MAttributeValue::new);
-  }
-
-  public static Arbitrary<MAttributeName> attributeNames()
-  {
-    return Arbitraries.strings()
-      .withCharRange('a', 'z')
-      .withCharRange('0', '9')
-      .withChars('.', '_', '-')
-      .ofMinLength(1)
-      .ofMaxLength(256)
-      .map(MAttributeName::new);
-  }
-
   public static Arbitrary<Map<MAttributeName, MAttributeValue>> attributeMaps()
   {
     return Arbitraries.maps(
-      attributeNames(),
-      attributeValues()
+      Arbitraries.defaultFor(MAttributeName.class),
+      Arbitraries.defaultFor(MAttributeValue.class)
     );
   }
 
@@ -84,17 +62,10 @@ public final class MMatchObjects
 
   public static Arbitrary<MMatchObjectType> arbitrary()
   {
-    final Arbitrary<MTypeName> names =
-      Arbitraries.strings()
-        .withCharRange('a', 'z')
-        .withCharRange('0', '9')
-        .withChars('.', '_', '-')
-        .ofMinLength(1)
-        .ofMaxLength(256)
-        .map(MTypeName::new);
-
     final var maps =
       attributeMaps();
+    final var names =
+      Arbitraries.defaultFor(MTypeName.class);
 
     return CASE_INTEGERS
       .map(integer -> generateObject(names, maps, 0, integer));

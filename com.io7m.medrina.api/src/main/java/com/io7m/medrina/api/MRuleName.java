@@ -22,30 +22,30 @@ import java.util.Comparator;
 import java.util.Objects;
 
 /**
- * The name of a role.
+ * The name of a rule.
  *
  * @param value The name
  */
 
-public record MRoleName(RDottedName value)
-  implements Comparable<MRoleName>
+public record MRuleName(RDottedName value)
+  implements Comparable<MRuleName>
 {
   /**
-   * The name of a role.
+   * The name of a rule.
    *
    * @param value The name
    */
 
-  public MRoleName
+  public MRuleName
   {
     Objects.requireNonNull(value, "value");
   }
 
   @Override
   public int compareTo(
-    final MRoleName other)
+    final MRuleName other)
   {
-    return Comparator.comparing(MRoleName::value)
+    return Comparator.comparing(MRuleName::value)
       .compare(this, other);
   }
 }
