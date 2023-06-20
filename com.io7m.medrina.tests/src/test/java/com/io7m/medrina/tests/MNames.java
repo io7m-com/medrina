@@ -18,7 +18,12 @@
 package com.io7m.medrina.tests;
 
 import com.io7m.lanark.core.RDottedName;
-import com.io7m.medrina.api.*;
+import com.io7m.medrina.api.MActionName;
+import com.io7m.medrina.api.MAttributeName;
+import com.io7m.medrina.api.MAttributeValue;
+import com.io7m.medrina.api.MRoleName;
+import com.io7m.medrina.api.MRuleName;
+import com.io7m.medrina.api.MTypeName;
 import net.jqwik.api.Arbitraries;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
