@@ -41,6 +41,20 @@ public record MRoleName(RDottedName value)
     Objects.requireNonNull(value, "value");
   }
 
+  /**
+   * Construct a name.
+   *
+   * @param name The name string
+   *
+   * @return The name
+   */
+
+  public static MRoleName of(
+    final String name)
+  {
+    return new MRoleName(new RDottedName(name));
+  }
+
   @Override
   public int compareTo(
     final MRoleName other)

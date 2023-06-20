@@ -53,7 +53,9 @@ public final class MActionNames implements ArbitraryProvider
     final SubtypeProvider subtypeProvider)
   {
     return Set.of(
-      Arbitraries.defaultFor(RDottedName.class).map(MActionName::new)
+      Arbitraries.defaultFor(RDottedName.class)
+        .map(RDottedName::value)
+        .map(MActionName::of)
     );
   }
 }

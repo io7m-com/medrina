@@ -53,7 +53,9 @@ public final class MRoleNames implements ArbitraryProvider
     final SubtypeProvider subtypeProvider)
   {
     return Set.of(
-      Arbitraries.defaultFor(RDottedName.class).map(MRoleName::new)
+      Arbitraries.defaultFor(RDottedName.class)
+        .map(RDottedName::value)
+        .map(MRoleName::of)
     );
   }
 }
