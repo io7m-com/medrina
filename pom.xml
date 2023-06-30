@@ -33,7 +33,7 @@
   <properties>
     <com.io7m.anethum.api.version>1.0.0</com.io7m.anethum.api.version>
     <com.io7m.jsx.version>3.1.0</com.io7m.jsx.version>
-    <com.io7m.jxtrand.version>1.1.0</com.io7m.jxtrand.version>
+    <com.io7m.jxtrand.version>2.0.0</com.io7m.jxtrand.version>
     <com.io7m.lanark.version>1.1.0</com.io7m.lanark.version>
     <com.io7m.xstructural.version>1.8.0</com.io7m.xstructural.version>
     <io7m.api.previousVersion>1.0.0-beta0003</io7m.api.previousVersion>
@@ -101,7 +101,7 @@
       <dependency>
         <groupId>nl.jqno.equalsverifier</groupId>
         <artifactId>equalsverifier</artifactId>
-        <version>3.14.2</version>
+        <version>3.14.3</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
