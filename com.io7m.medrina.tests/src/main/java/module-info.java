@@ -36,8 +36,14 @@ open module com.io7m.medrina.tests
   requires com.io7m.lanark.arbitraries;
   requires com.io7m.lanark.core;
   requires net.jqwik.api;
+  requires org.apache.commons.io;
   requires org.apiguardian.api;
   requires org.slf4j;
+
+  requires transitive org.junit.jupiter.api;
+  requires transitive org.junit.jupiter.engine;
+  requires transitive org.junit.platform.commons;
+  requires transitive org.junit.platform.engine;
 
   provides net.jqwik.api.providers.ArbitraryProvider
     with com.io7m.medrina.tests.MActionNames,
