@@ -53,7 +53,9 @@ public final class MAttributeNames implements ArbitraryProvider
     final SubtypeProvider subtypeProvider)
   {
     return Set.of(
-      Arbitraries.defaultFor(RDottedName.class).map(MAttributeName::new)
+      Arbitraries.defaultFor(RDottedName.class)
+        .map(RDottedName::value)
+        .map(MAttributeName::of)
     );
   }
 }

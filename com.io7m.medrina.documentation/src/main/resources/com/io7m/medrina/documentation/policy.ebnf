@@ -11,7 +11,7 @@ ruleConclusionE =
 
 matchSubjectE =
     "True"
-  | "Talse"
+  | "False"
   | "(" , "WithAllRolesFrom" , name* , ")"
   | "(" , "WithAnyRolesFrom" , name* , ")"
   | "(" , "Or" , matchSubjectE , matchSubjectE , ")"

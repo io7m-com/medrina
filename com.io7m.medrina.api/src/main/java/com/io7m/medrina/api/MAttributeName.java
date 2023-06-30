@@ -41,6 +41,20 @@ public record MAttributeName(RDottedName value)
     Objects.requireNonNull(value, "value");
   }
 
+  /**
+   * Construct a name.
+   *
+   * @param name The name string
+   *
+   * @return The name
+   */
+
+  public static MAttributeName of(
+    final String name)
+  {
+    return new MAttributeName(new RDottedName(name));
+  }
+
   @Override
   public int compareTo(
     final MAttributeName other)

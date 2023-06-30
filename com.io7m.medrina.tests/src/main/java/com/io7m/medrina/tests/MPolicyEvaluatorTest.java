@@ -42,6 +42,7 @@ import static com.io7m.medrina.api.MMatchSubjectType.MMatchSubjectTrue;
 import static com.io7m.medrina.api.MPolicyAccess.ACCESS_ALLOWED;
 import static com.io7m.medrina.api.MPolicyAccess.ACCESS_DENIED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public final class MPolicyEvaluatorTest
@@ -258,5 +259,36 @@ public final class MPolicyEvaluatorTest
         actionName
       ).accessResult()
     );
+  }
+
+  /**
+   * Rules cannot have duplicate names.
+   */
+
+  @Property
+  public void testRuleDuplicateName(
+    @ForAll final MRuleName name,
+    @ForAll final String description)
+  {
+    assertThrows(IllegalArgumentException.class, () -> {
+      new MPolicy(List.of(
+        new MRule(
+          name,
+          description,
+          MRuleConclusion.DENY,
+          new MMatchSubjectTrue(),
+          new MMatchObjectTrue(),
+          new MMatchActionTrue()
+        ),
+        new MRule(
+          name,
+          description,
+          MRuleConclusion.ALLOW,
+          new MMatchSubjectFalse(),
+          new MMatchObjectFalse(),
+          new MMatchActionFalse()
+        )
+      ));
+    });
   }
 }

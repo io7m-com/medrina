@@ -156,6 +156,23 @@ public final class MPolicyParserSerializerTest
   }
 
   @Test
+  public void testParseExample1()
+    throws Exception
+  {
+    final var parsers = new MPolicyParsers();
+
+    try (var stream = resource("example1.mp")) {
+      try {
+        final var policy =
+          parsers.parse(URI.create("urn:create"), stream);
+      } catch (final ParsingException e) {
+        e.statusValues().forEach(System.out::println);
+        throw e;
+      }
+    }
+  }
+
+  @Test
   public void testParseErrorDuplicateRuleNames()
     throws Exception
   {

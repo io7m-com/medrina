@@ -41,6 +41,20 @@ public record MTypeName(RDottedName value)
     Objects.requireNonNull(value, "value");
   }
 
+  /**
+   * Construct a name.
+   *
+   * @param name The name string
+   *
+   * @return The name
+   */
+
+  public static MTypeName of(
+    final String name)
+  {
+    return new MTypeName(new RDottedName(name));
+  }
+
   @Override
   public int compareTo(
     final MTypeName other)

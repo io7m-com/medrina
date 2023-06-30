@@ -17,6 +17,8 @@
 package com.io7m.medrina.tests;
 
 import com.io7m.lanark.core.RDottedName;
+import com.io7m.medrina.api.MAttributeName;
+import com.io7m.medrina.api.MAttributeValue;
 import com.io7m.medrina.api.MMatchObjectType;
 import com.io7m.medrina.api.MMatchObjectType.MMatchObjectAnd;
 import com.io7m.medrina.api.MMatchObjectType.MMatchObjectOr;
@@ -228,7 +230,7 @@ public final class MMatchObjectTest
   }
 
   /**
-   * The 'with-any-attributes' expression does not match empty maps.
+   * The 'WithAttributesAny' expression does not match empty maps.
    */
 
   @Test
@@ -265,6 +267,50 @@ public final class MMatchObjectTest
   {
     assertFalse(
       new MMatchObjectWithAttributesAny(Map.of()).matches(object)
+    );
+  }
+
+  /**
+   * The 'WithAttributesAll' expression requires attributes to have the
+   * correct values, not just names.
+   */
+
+  @Test
+  public void testWithAllAttributesValue()
+  {
+    assertFalse(
+      new MMatchObjectWithAttributesAll(Map.of(
+        MAttributeName.of("x"),
+        MAttributeValue.of("y")
+      )).matches(new MObject(
+        new MTypeName(new RDottedName("a")),
+        Map.of(
+          MAttributeName.of("x"),
+          MAttributeValue.of("z")
+        )
+      ))
+    );
+  }
+
+  /**
+   * The 'WithAttributesAny' expression requires attributes to have the
+   * correct values, not just names.
+   */
+
+  @Test
+  public void testWithAnyAttributesValue()
+  {
+    assertFalse(
+      new MMatchObjectWithAttributesAny(Map.of(
+        MAttributeName.of("x"),
+        MAttributeValue.of("y")
+      )).matches(new MObject(
+        new MTypeName(new RDottedName("a")),
+        Map.of(
+          MAttributeName.of("x"),
+          MAttributeValue.of("z")
+        )
+      ))
     );
   }
 }
