@@ -2,6 +2,7 @@
 
 <div xmlns="http://www.w3.org/1999/xhtml">
   <ul>
+    <li>Role-based access control for security policies.</li>
     <li>Formal specification with proofs of correctness.</li>
     <li>Fully documented (Javadoc).</li>
     <li><a href="https://www.osgi.org/">OSGi</a>-ready</li>
