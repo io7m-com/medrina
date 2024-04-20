@@ -211,7 +211,7 @@
       <dependency>
         <groupId>com.io7m.quarrel</groupId>
         <artifactId>com.io7m.quarrel.ext.logback</artifactId>
-        <version>1.4.0</version>
+        <version>1.6.0</version>
       </dependency>
 
       <!-- Test suite -->
