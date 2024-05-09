@@ -51,7 +51,7 @@
         <Item>
           The expression <Term type="expression">EMS_WithRolesAny r</Term> matches
           any subject <Term type="expression">s</Term> where <Term type="expression">s</Term>
-          has at least one of the roles in <Term type="expression">s</Term>.
+          has at least one of the roles in <Term type="expression">r</Term>.
         </Item>
         <Item>
           The expression <Term type="expression">EMS_And es</Term> matches when
