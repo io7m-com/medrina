@@ -206,7 +206,7 @@
       <dependency>
         <groupId>com.io7m.quarrel</groupId>
         <artifactId>com.io7m.quarrel.core</artifactId>
-        <version>1.6.0</version>
+        <version>1.6.1</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.quarrel</groupId>
