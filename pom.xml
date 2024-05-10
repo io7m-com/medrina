@@ -31,7 +31,7 @@
   </modules>
 
   <properties>
-    <com.io7m.anethum.api.version>1.1.0</com.io7m.anethum.api.version>
+    <com.io7m.anethum.api.version>1.1.1</com.io7m.anethum.api.version>
     <com.io7m.jsx.version>3.1.1</com.io7m.jsx.version>
     <com.io7m.jxtrand.version>2.1.0</com.io7m.jxtrand.version>
     <com.io7m.lanark.version>1.2.0</com.io7m.lanark.version>
