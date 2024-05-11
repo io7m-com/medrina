@@ -24,7 +24,7 @@ mandatory access control systems.
 
 * Role-based access control for security policies.
 * Formal specification with proofs of correctness.
-* High coverage test suite (100%, minus an unreachable private constructor).
+* High coverage test suite.
 * [OSGi-ready](https://www.osgi.org/).
 * [JPMS-ready](https://en.wikipedia.org/wiki/Java_Platform_Module_System).
 * ISC license.
