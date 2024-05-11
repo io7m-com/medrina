@@ -14,3 +14,22 @@ medrina
 | OpenJDK (Temurin) LTS | Linux | [![Build (OpenJDK (Temurin) LTS, Linux)](https://img.shields.io/github/actions/workflow/status/io7m-com/medrina/main.linux.temurin.lts.yml)](https://www.github.com/io7m-com/medrina/actions?query=workflow%3Amain.linux.temurin.lts)|
 | OpenJDK (Temurin) Current | Windows | [![Build (OpenJDK (Temurin) Current, Windows)](https://img.shields.io/github/actions/workflow/status/io7m-com/medrina/main.windows.temurin.current.yml)](https://www.github.com/io7m-com/medrina/actions?query=workflow%3Amain.windows.temurin.current)|
 | OpenJDK (Temurin) LTS | Windows | [![Build (OpenJDK (Temurin) LTS, Windows)](https://img.shields.io/github/actions/workflow/status/io7m-com/medrina/main.windows.temurin.lts.yml)](https://www.github.com/io7m-com/medrina/actions?query=workflow%3Amain.windows.temurin.lts)|
+
+## medrina
+
+The `medrina` package implements a generic system for implementing role/attribute
+mandatory access control systems.
+
+## Features
+
+* Role-based access control for security policies.
+* Formal specification with proofs of correctness.
+* High coverage test suite (100%, minus an unreachable private constructor).
+* [OSGi-ready](https://www.osgi.org/).
+* [JPMS-ready](https://en.wikipedia.org/wiki/Java_Platform_Module_System).
+* ISC license.
+
+## Usage
+
+See the [documentation](https://www.io7m.com/software/medrina/).
+

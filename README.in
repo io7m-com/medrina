@@ -1,0 +1,18 @@
+
+## medrina
+
+The `medrina` package implements a generic system for implementing role/attribute
+mandatory access control systems.
+
+## Features
+
+* Role-based access control for security policies.
+* Formal specification with proofs of correctness.
+* High coverage test suite (100%, minus an unreachable private constructor).
+* [OSGi-ready](https://www.osgi.org/).
+* [JPMS-ready](https://en.wikipedia.org/wiki/Java_Platform_Module_System).
+* ISC license.
+
+## Usage
+
+See the [documentation](https://www.io7m.com/software/medrina/).
