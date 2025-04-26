@@ -48,6 +48,8 @@ public sealed interface MMatchActionType
   {
     /**
      * An expression that matches if the incoming action has the given name.
+     *
+     * @param name The action name
      */
 
     public MMatchActionWithName
@@ -74,6 +76,8 @@ public sealed interface MMatchActionType
   {
     /**
      * An expression that matches iff all the sub expressions match.
+     *
+     * @param subExpressions The subexpressions
      */
 
     public MMatchActionAnd
@@ -108,6 +112,8 @@ public sealed interface MMatchActionType
   {
     /**
      * An expression that matches iff any of the sub expressions match.
+     *
+     * @param subExpressions The subexpressions
      */
 
     public MMatchActionOr
