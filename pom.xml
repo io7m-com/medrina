@@ -21,6 +21,7 @@
 
   <modules>
     <module>com.io7m.medrina.api</module>
+    <module>com.io7m.medrina.bom</module>
     <module>com.io7m.medrina.cmdline</module>
     <module>com.io7m.medrina.documentation</module>
     <module>com.io7m.medrina.parser.api</module>

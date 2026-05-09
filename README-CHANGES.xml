@@ -6,9 +6,10 @@
         <c:change date="2024-05-11T00:00:00+00:00" summary="Initial public release."/>
       </c:changes>
     </c:release>
-    <c:release date="2026-05-09T12:58:20+00:00" is-open="true" ticket-system="com.github.io7m.medrina" version="1.1.0">
+    <c:release date="2026-05-09T13:03:24+00:00" is-open="true" ticket-system="com.github.io7m.medrina" version="1.1.0">
       <c:changes>
-        <c:change date="2026-05-09T12:58:20+00:00" summary="Upgrade junit 5.14.3 -&gt; 6.0.3."/>
+        <c:change date="2026-05-09T00:00:00+00:00" summary="Upgrade junit 5.14.3 -&gt; 6.0.3."/>
+        <c:change date="2026-05-09T13:03:24+00:00" summary="Add a BOM."/>
       </c:changes>
     </c:release>
   </c:releases>
