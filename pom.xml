@@ -12,7 +12,7 @@
 
   <groupId>com.io7m.medrina</groupId>
   <artifactId>com.io7m.medrina</artifactId>
-  <version>1.1.0</version>
+  <version>1.2.0-SNAPSHOT</version>
 
   <packaging>pom</packaging>
   <name>com.io7m.medrina</name>
@@ -33,7 +33,7 @@
     <io7m.workID>6e094f12-a1ee-371d-9e3a-96a91b742d27</io7m.workID>
 
     <!-- Configuration. -->
-    <io7m.api.previousVersion>1.0.0</io7m.api.previousVersion>
+    <io7m.api.previousVersion>1.1.0</io7m.api.previousVersion>
     <io7m.java.targetJavaVersion>21</io7m.java.targetJavaVersion>
 
     <!-- io7m dependencies. -->
