@@ -49,6 +49,8 @@ public sealed interface MMatchObjectType
   {
     /**
      * An expression that matches iff all the sub expressions match.
+     *
+     * @param subExpressions The subexpressions
      */
 
     public MMatchObjectAnd
@@ -83,6 +85,8 @@ public sealed interface MMatchObjectType
   {
     /**
      * An expression that matches iff any of the sub expressions match.
+     *
+     * @param subExpressions The subexpressions
      */
 
     public MMatchObjectOr
@@ -117,6 +121,8 @@ public sealed interface MMatchObjectType
   {
     /**
      * An expression that matches if the incoming object has the given type.
+     *
+     * @param type The object type
      */
 
     public MMatchObjectWithType
@@ -146,6 +152,8 @@ public sealed interface MMatchObjectType
     /**
      * An expression that matches if the incoming object has (at least) all
      * the given attributes.
+     *
+     * @param required The required attributes
      */
 
     public MMatchObjectWithAttributesAll
@@ -182,6 +190,8 @@ public sealed interface MMatchObjectType
     /**
      * An expression that matches if the incoming object has any of
      * the given attributes.
+     *
+     * @param required The required attributes
      */
 
     public MMatchObjectWithAttributesAny

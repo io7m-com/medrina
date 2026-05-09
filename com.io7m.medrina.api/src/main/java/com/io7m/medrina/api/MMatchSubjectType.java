@@ -49,6 +49,8 @@ public sealed interface MMatchSubjectType
   {
     /**
      * An expression that matches iff all the sub expressions match.
+     *
+     * @param subExpressions The subexpressions
      */
 
     public MMatchSubjectAnd
@@ -83,6 +85,8 @@ public sealed interface MMatchSubjectType
   {
     /**
      * An expression that matches iff any of the sub expressions match.
+     *
+     * @param subExpressions The subexpressions
      */
 
     public MMatchSubjectOr
@@ -122,6 +126,8 @@ public sealed interface MMatchSubjectType
     /**
      * An expression that matches if all the required roles are present in the
      * set of incoming roles.
+     *
+     * @param requiredRoles The required roles
      */
 
     public MMatchSubjectWithRolesAll
@@ -154,6 +160,8 @@ public sealed interface MMatchSubjectType
     /**
      * An expression that matches if at least one of the required roles are
      * present in the set of incoming roles.
+     *
+     * @param requiredRoles The required roles
      */
 
     public MMatchSubjectWithRolesAny
